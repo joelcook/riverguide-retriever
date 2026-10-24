@@ -1,0 +1,224 @@
+{
+  "model": "models/full",
+  "name": "full",
+  "hybrid_sweep_val_mrr10": {
+    "0.0": 0.7736,
+    "0.1": 0.7466,
+    "0.2": 0.7327,
+    "0.3": 0.722,
+    "0.5": 0.7011,
+    "0.7": 0.6938,
+    "1.0": 0.6868
+  },
+  "hybrid_keyword_weight": 0.0,
+  "abbreviations": {
+    "keyword": {
+      "top5": 51,
+      "n": 75,
+      "mrr10": 0.5411,
+      "misses": [
+        "ASN",
+        "AS nursing",
+        "BSN",
+        "RN to BSN",
+        "RN-BSN",
+        "PN",
+        "CNA",
+        "rad tech",
+        "pharm tech",
+        "HHA",
+        "HIM",
+        "AC repair",
+        "esthetician",
+        "EV mechanic",
+        "BRT",
+        "CSI",
+        "IT",
+        "CIT",
+        "cybersecurity",
+        "BSBA",
+        "ESOL",
+        "ECE",
+        "ESE",
+        "AAS HVAC"
+      ]
+    },
+    "dense": {
+      "top5": 73,
+      "n": 75,
+      "mrr10": 0.7678,
+      "misses": [
+        "esthetician",
+        "BRT"
+      ]
+    },
+    "hybrid": {
+      "top5": 73,
+      "n": 75,
+      "mrr10": 0.7678,
+      "misses": [
+        "esthetician",
+        "BRT"
+      ]
+    }
+  },
+  "golden": {
+    "keyword": {
+      "top5": 18,
+      "n": 21,
+      "mrr10": 0.6655,
+      "misses": [
+        "How do I get my 1098-T?",
+        "How do I make a payment on my bill?",
+        "Hello, I'm writing on behalf of my son, who is 26 years old and on the autism spectrum. He is interested in pursuing a non-degree program to become an IT Support Specialist.\n\nSchool has always been challenging for him. He learns best through hands-on, real-world applications rather than traditional classroom instruction. His goal is to gain the skills needed to secure a full-time position in the IT field in the near future.\n\nCould you please share details about the IT Support Specialist program your school offers? I'm particularly interested in:\n- Program length and structure (how classes are set up);\n- Tuition and any available financial aid or payment options; and\n- Outcomes for graduates, especially job placement rates in IT roles after completion."
+      ]
+    },
+    "dense": {
+      "top5": 19,
+      "n": 21,
+      "mrr10": 0.8651,
+      "misses": [
+        "How do I get my 1098-T?",
+        "How do I access Canvas?"
+      ]
+    },
+    "hybrid": {
+      "top5": 19,
+      "n": 21,
+      "mrr10": 0.8651,
+      "misses": [
+        "How do I get my 1098-T?",
+        "How do I access Canvas?"
+      ]
+    }
+  },
+  "val": {
+    "keyword": {
+      "top5": 631,
+      "n": 942,
+      "mrr10": 0.5598,
+      "misses": [
+        "health informatics certificate",
+        "career path ways cridits",
+        "hospitlity reqd classes",
+        "elecronic cert",
+        "bachelor comm requirement",
+        "social science gen ed classes",
+        "social and behavioral sciences majors",
+        "hospitallity elecs",
+        "irsc biology degree",
+        "turf class",
+        "psy aa careers",
+        "gen ed social science",
+        "bachelors math reqs",
+        "how do i become a political scientist",
+        "hortculiture cert",
+        "interoir design cert",
+        "What jobs can I get with a human services degree?",
+        "human services degree requirements",
+        "harassment complaint",
+        "What are the social science and US history class requirements for the hospitality AAS degree at IRSC?",
+        "special programs",
+        "turf managment",
+        "what types of degrees does IRSC offer",
+        "become a digital media artist",
+        "stg prograam",
+        "bs bussiness",
+        "special programs",
+        "irsc degree types",
+        "public servise programs",
+        "landscape horticulture certificate",
+        "What do we actually learn in the intro hospitality class?",
+        "Does IRSC offer a pre-med track that transfers to a biology degree?",
+        "poli sci degree",
+        "irsc website tracking",
+        "Can I transfer to UCF for Mechanical Engineering after finishing my AA at IRSC?",
+        "What classes do I need to take before I can sign up for the biochem 1 lab?",
+        "gen ed requirements bachelor degree",
+        "biotech ii lab pre",
+        "electronics engineering tech jobs",
+        "irsc gen ed socail"
+      ]
+    },
+    "dense": {
+      "top5": 909,
+      "n": 942,
+      "mrr10": 0.7736,
+      "misses": [
+        "interoir design cert",
+        "interir design interhip prereqs",
+        "int design certs",
+        "tech certificates",
+        "pub admin track",
+        "learn event planning",
+        "hospitalty degre",
+        "bus admin degree",
+        "60230 reqs",
+        "fp central",
+        "How do I file a discrimination complaint at IRSC?",
+        "What second-level classes are in the building construction tech program?",
+        "inclusive employment training irsc",
+        "trainng complex loc",
+        "hospitaly aas requirments",
+        "filing harasment complint",
+        "tech cert",
+        "interior design certs",
+        "fort piers central",
+        "irsc stem jobs",
+        "IRSC promise",
+        "Can I get in-state tuition at IRSC if I am a veteran living in Florida?",
+        "irsc stem carrers",
+        "What certificates can I get if I study interior design at IRSC?",
+        "irsc career pathways",
+        "eti 1000/2000",
+        "arduino bootcamp fl",
+        "sts program irsc",
+        "elec cert",
+        "does 1106 count?",
+        "fire sci cert",
+        "file discrimination complaint",
+        "hospitalty req classes"
+      ]
+    },
+    "hybrid": {
+      "top5": 909,
+      "n": 942,
+      "mrr10": 0.7736,
+      "misses": [
+        "interoir design cert",
+        "interir design interhip prereqs",
+        "int design certs",
+        "tech certificates",
+        "pub admin track",
+        "learn event planning",
+        "hospitalty degre",
+        "bus admin degree",
+        "60230 reqs",
+        "fp central",
+        "How do I file a discrimination complaint at IRSC?",
+        "What second-level classes are in the building construction tech program?",
+        "inclusive employment training irsc",
+        "trainng complex loc",
+        "hospitaly aas requirments",
+        "filing harasment complint",
+        "tech cert",
+        "interior design certs",
+        "fort piers central",
+        "irsc stem jobs",
+        "IRSC promise",
+        "Can I get in-state tuition at IRSC if I am a veteran living in Florida?",
+        "irsc stem carrers",
+        "What certificates can I get if I study interior design at IRSC?",
+        "irsc career pathways",
+        "eti 1000/2000",
+        "arduino bootcamp fl",
+        "sts program irsc",
+        "elec cert",
+        "does 1106 count?",
+        "fire sci cert",
+        "file discrimination complaint",
+        "hospitalty req classes"
+      ]
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "mode": "strict",
+  "generated": 22066,
+  "dropped_golden": 1,
+  "dropped_abbreviation": 1862,
+  "dropped_unanswered": 1014,
+  "val": 942,
+  "train": 18081,
+  "kinds": {
+    "question": 4314,
+    "search": 4231,
+    "shorthand": 3784,
+    "typo": 4054,
+    "program": 1698
+  },
+  "negatives": {
+    "0": 2545,
+    "1": 6990,
+    "2": 8546
+  }
+}

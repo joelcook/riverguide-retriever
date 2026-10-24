@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+models/
+dist/
+runs/*.npy
+data/*.npy
+data/docs.jsonl
+data/judge.jsonl
+logs/
+data/corpus-2026-10-22/

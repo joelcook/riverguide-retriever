@@ -1,0 +1,132 @@
+{
+  "model": "models/pilot",
+  "name": "pilot",
+  "hybrid_sweep_val_mrr10": {
+    "0.0": 0.9214,
+    "0.1": 0.8843,
+    "0.2": 0.8766,
+    "0.3": 0.8604,
+    "0.5": 0.867,
+    "0.7": 0.8009,
+    "1.0": 0.7947
+  },
+  "hybrid_keyword_weight": 0.0,
+  "abbreviations": {
+    "keyword": {
+      "top5": 51,
+      "n": 75,
+      "mrr10": 0.5411,
+      "misses": [
+        "ASN",
+        "AS nursing",
+        "BSN",
+        "RN to BSN",
+        "RN-BSN",
+        "PN",
+        "CNA",
+        "rad tech",
+        "pharm tech",
+        "HHA",
+        "HIM",
+        "AC repair",
+        "esthetician",
+        "EV mechanic",
+        "BRT",
+        "CSI",
+        "IT",
+        "CIT",
+        "cybersecurity",
+        "BSBA",
+        "ESOL",
+        "ECE",
+        "ESE",
+        "AAS HVAC"
+      ]
+    },
+    "dense": {
+      "top5": 67,
+      "n": 75,
+      "mrr10": 0.6459,
+      "misses": [
+        "BSN",
+        "RN-BSN",
+        "BRT",
+        "cybersecurity",
+        "ECE",
+        "ESE",
+        "AS business",
+        "AAS HVAC"
+      ]
+    },
+    "hybrid": {
+      "top5": 67,
+      "n": 75,
+      "mrr10": 0.6459,
+      "misses": [
+        "BSN",
+        "RN-BSN",
+        "BRT",
+        "cybersecurity",
+        "ECE",
+        "ESE",
+        "AS business",
+        "AAS HVAC"
+      ]
+    }
+  },
+  "golden": {
+    "keyword": {
+      "top5": 18,
+      "n": 21,
+      "mrr10": 0.6655,
+      "misses": [
+        "How do I get my 1098-T?",
+        "How do I make a payment on my bill?",
+        "Hello, I'm writing on behalf of my son, who is 26 years old and on the autism spectrum. He is interested in pursuing a non-degree program to become an IT Support Specialist.\n\nSchool has always been challenging for him. He learns best through hands-on, real-world applications rather than traditional classroom instruction. His goal is to gain the skills needed to secure a full-time position in the IT field in the near future.\n\nCould you please share details about the IT Support Specialist program your school offers? I'm particularly interested in:\n- Program length and structure (how classes are set up);\n- Tuition and any available financial aid or payment options; and\n- Outcomes for graduates, especially job placement rates in IT roles after completion."
+      ]
+    },
+    "dense": {
+      "top5": 20,
+      "n": 21,
+      "mrr10": 0.8452,
+      "misses": [
+        "How do I access Canvas?"
+      ]
+    },
+    "hybrid": {
+      "top5": 20,
+      "n": 21,
+      "mrr10": 0.8452,
+      "misses": [
+        "How do I access Canvas?"
+      ]
+    }
+  },
+  "val": {
+    "keyword": {
+      "top5": 47,
+      "n": 53,
+      "mrr10": 0.6914,
+      "misses": [
+        "wavier residency",
+        "saving seminer",
+        "how to become an engineer",
+        "fl hs wavier",
+        "fin lit worshop",
+        "aa in engineering irsc"
+      ]
+    },
+    "dense": {
+      "top5": 53,
+      "n": 53,
+      "mrr10": 0.9214,
+      "misses": []
+    },
+    "hybrid": {
+      "top5": 53,
+      "n": 53,
+      "mrr10": 0.9214,
+      "misses": []
+    }
+  }
+}
