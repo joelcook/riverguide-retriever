@@ -33,7 +33,7 @@ import yaml  # noqa: E402
 
 from evals import run  # noqa: E402
 from evals.search_ab import answer  # noqa: E402
-from trained_search import wait_for_canary  # noqa: E402
+from trained_search import MAINTENANCE, wait_for_canary  # noqa: E402
 
 CANARY = (44, 50)  # minutes past the hour
 
@@ -80,7 +80,8 @@ def level(n: int, count: int, items: list[dict], base: str, model: str) -> dict:
         for _ in range(n):
             pool.submit(student)
     wall = time.time() - start
-    busy = max(1e-9, wall - canary_overlap(start, start + wall))
+    # In a maintenance window the canary is off and wait_for_canary doesn't wait: nothing to leave out.
+    busy = max(1e-9, wall - (0.0 if MAINTENANCE.exists() else canary_overlap(start, start + wall)))
     secs = sorted(r["seconds"] for r in rows)
     return {
         "students": n, "questions": len(rows), "wall_seconds": round(wall, 1), "canary_pause_seconds": round(wall - busy, 1),
