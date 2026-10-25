@@ -35,6 +35,8 @@ done
 # shared by its -np slots, so 4 slots of 32K is -c 131072. Not --kv-unified: in one shared pool
 # every decode step scans the pool's whole used range, and MTP decoded at 36 tokens/s per
 # stream against 95 with separate slots. A smaller ubatch, -ub 256, frees the memory instead.)
+# vLLM runs text-only (--language-model-only), as RiverGuide is: the vision tower costs 0.8 GB,
+# and each drafter allocates its own 16-bit output head (2.37 GiB for Qwen's 248K vocabulary).
 engine_cmd() {
   local port=11434
   case "${1%%-*}" in
@@ -50,7 +52,7 @@ engine_cmd() {
   local llama_mtp="-ctkd q8_0 -ctvd q8_0 --spec-type draft-mtp --spec-draft-n-max 3 --spec-draft-p-min 0.75"
   local llama_dfl="-md $dfl_gguf -ngld 999 -ctkd q8_0 -ctvd q8_0 --spec-type draft-dflash --spec-draft-n-max 7"
   local vllm="$E/vllm/.venv/bin/vllm serve $CKPT --served-model-name $NAME --host 127.0.0.1 --port $port \
-    --gpu-memory-utilization 0.95 --max-model-len 32768 --enable-prefix-caching --reasoning-parser qwen3 \
+    --gpu-memory-utilization 0.95 --max-model-len 32768 --language-model-only --enable-prefix-caching --reasoning-parser qwen3 \
     --enable-auto-tool-choice --tool-call-parser qwen3_coder --override-generation-config '$SAMPLING' --kv-cache-dtype fp8"
   local vllm_mtp="--speculative-config '{\"method\": \"mtp\", \"num_speculative_tokens\": 3}'"
   local vllm_dfl="--speculative-config '{\"method\": \"dflash\", \"model\": \"$dfl_w4\", \"num_speculative_tokens\": 7}'"
@@ -72,11 +74,13 @@ engine_cmd() {
     llamacpp-dflash:4) CMD="$llama -np 2 -c 65536 -ub 256 $llama_dfl" ;;
     llamacpp-dflash:5) CMD="$llama -np 1 -c 32768 -ub 256 $llama_dfl" ;;
     vllm-dflash:1) CMD="$vllm --max-num-seqs 16 $vllm_dfl" ;;
-    vllm-dflash:2) CMD="$vllm --max-num-seqs 8 $vllm_dfl" ;;
+    vllm-dflash:2) CMD="$vllm --max-num-seqs 4 $vllm_dfl" ;;
     vllm-dflash:3) CMD="$vllm --max-num-seqs 4 --enforce-eager $vllm_dfl" ;;
+    vllm-dflash:4) CMD="$vllm --max-num-seqs 2 --enforce-eager --gpu-memory-utilization 0.97 $vllm_dfl" ;;
     vllm-mtp:1) CMD="$vllm --max-num-seqs 16 $vllm_mtp" ;;
-    vllm-mtp:2) CMD="$vllm --max-num-seqs 8 $vllm_mtp" ;;
+    vllm-mtp:2) CMD="$vllm --max-num-seqs 4 $vllm_mtp" ;;
     vllm-mtp:3) CMD="$vllm --max-num-seqs 4 --enforce-eager $vllm_mtp" ;;
+    vllm-mtp:4) CMD="$vllm --max-num-seqs 2 --enforce-eager --gpu-memory-utilization 0.97 $vllm_mtp" ;;
     sglang-dflash:1) CMD="$sglang --mem-fraction-static 0.88 --max-running-requests 16 $sglang_dfl" ;;
     sglang-dflash:2) CMD="$sglang --mem-fraction-static 0.85 --max-running-requests 8 --cuda-graph-max-bs-decode 8 $sglang_dfl" ;;
     sglang-dflash:3) CMD="$sglang --mem-fraction-static 0.82 --max-running-requests 4 --disable-decode-cuda-graph --disable-prefill-cuda-graph $sglang_dfl" ;;
