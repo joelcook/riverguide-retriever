@@ -8,6 +8,8 @@
 # removed. If a check fails, everything goes back and an ops-alert says why.
 # Ollama stays installed whatever wins: the lab tries new models in it first (model_ab.sh).
 set -uo pipefail
+# Cron has no XDG_RUNTIME_DIR, and systemctl --user needs it (deploy/omarchy/nightly.sh does the same).
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 cd "$(dirname "$0")"
 ROOT=$PWD WIN=${1:?engine} E=$HOME/engines
 GW=$HOME/.config/riverguide/model-gateway.env

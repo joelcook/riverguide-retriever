@@ -9,6 +9,8 @@
 # The lab's own Ollama calls use /api/chat, so /api/generate in Ollama's log is fundraising's.
 # lab.sh calls these around every night job, and closes a window a dead job left open.
 set -uo pipefail
+# Cron has no XDG_RUNTIME_DIR, and systemctl --user needs it (deploy/omarchy/nightly.sh does the same).
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 LAB="$(cd "$(dirname "$0")" && pwd)"
 OPS=$(command -v ops-alert || echo "$HOME/.local/bin/ops-alert")
 CANARY='deploy/omarchy/canary.py'"'"

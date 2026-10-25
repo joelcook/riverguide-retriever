@@ -11,6 +11,8 @@
 # A night job gets LAB_DEADLINE (epoch seconds) and should stop before it. Exit 75 means "not
 # ready, keep me queued"; any other failure moves the job to lab/done/ and opens an ops-alert.
 set -uo pipefail
+# Cron has no XDG_RUNTIME_DIR, and systemctl --user needs it (deploy/omarchy/nightly.sh does the same).
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 LAB="$(cd "$(dirname "$0")" && pwd)"
 LANE=${1:?lane: gpu or cpu}
 mkdir -p "$LAB/queue" "$LAB/done" "$LAB/logs"
