@@ -21,7 +21,7 @@ flock -n 9 || exit 0
 if [ "$LANE" = gpu ]; then
   # A maintenance window left open by a job that died: close it.
   [ -e "$LAB/.maintenance" ] && { say "closing a stale maintenance window"; "$LAB/maintenance.sh" end; }
-  pgrep -f "^bash ./(loop_tests|gate_retriever_first).sh$|^\S*python\S* real_questions.py --org" > /dev/null && exit 0   # hand-started experiments (anchored: a watcher whose command line merely mentions them must not count)
+  pgrep -f "^bash (\S*/)?(loop_tests|gate_retriever_first)\.sh$|^\S*python\S* real_questions.py --org" > /dev/null && exit 0   # hand-started experiments (anchored: a watcher whose command line merely mentions them must not count)
 fi
 
 # Jobs call production's engine at PROD_BASE (lab/production.env, kept by promote_engine.sh).
