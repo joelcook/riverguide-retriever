@@ -84,9 +84,10 @@ else
   curl -sf "$BASE_NEW/v1/models" > /dev/null || rollback "riverguide-engine did not come up"
 fi
 [ "$BASE_NEW" = http://127.0.0.1:11434 ] && sed -i '/^OLLAMA_URL=/d' "$GW" || setenv "$GW" OLLAMA_URL "$BASE_NEW"
-# How many questions the gateway lets through at once: what the engine answers together (Ollama and
-# llama.cpp run 4 slots; vLLM and SGLang batch up to 16, so 8 keeps each answer quick).
-case "$WIN" in vllm*|sglang*) cap=8 ;; *) cap=4 ;; esac
+# How many questions the gateway lets through at once: twice what the engine answers together
+# (Ollama and llama.cpp run 4 slots), so a short burst waits a few seconds in the engine's queue
+# instead of a student seeing "busy" (approved 2026-10-25). vLLM and SGLang batch up to 16.
+case "$WIN" in vllm*|sglang*) cap=16 ;; *) cap=8 ;; esac
 setenv "$GW" RIVERGUIDE_MODEL_MAX_IN_FLIGHT "$cap"
 setenv "$FUND/.env" LLM_API "'$API'"
 setenv "$FUND/.env" OLLAMA_URL "'$BASE_NEW'"
