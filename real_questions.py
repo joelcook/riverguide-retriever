@@ -1,6 +1,13 @@
 """Grade keyword search, the stock embedder, and the retriever on students' real first questions.
 
     .venv/bin/python real_questions.py --org https://<org>.crm.dynamics.com --bot <River Guide bot id>
+        [--systems keyword=keyword stock=Qwen/Qwen3-Embedding-0.6B full=models/full] [--deep full] [--label NAME]
+
+--systems names the three lists the judge sees (keyword=keyword is keyword search). --deep NAME sorts
+that system's misses: production's Qwen reads the top 20 pages of every system together and says
+whether any of them answers the question. If one does, search missed it; if none does, the website
+may not answer it (a list for the College's web team). Only counts, ranks, topics, and page URLs
+are kept.
 
 Questions are the first typed message of each River Guide (Copilot Studio) session in Dataverse,
 which keeps 30 days; the az login on omarchy reads them. Each system's top 5 pages on today's
@@ -43,6 +50,11 @@ OLLAMA = os.environ.get("PROD_BASE", "http://127.0.0.1:11434")  # production's e
 JUDGE = "qwen3.8:27b"
 SYSTEMS = {"keyword": None, "stock": "Qwen/Qwen3-Embedding-0.6B", "full": str(ROOT / "models" / "full")}
 TOP = 5
+DEEP = 20
+TOPICS = ["admissions and applying", "registration and classes", "financial aid and scholarships",
+          "tuition, fees, and payment", "programs and degrees", "courses and class schedules",
+          "records, transcripts, and grades", "accounts, email, and technology", "advising and support services",
+          "campus, contacts, and hours", "other"]
 EXCERPT = 500
 
 REDACT = [
@@ -97,6 +109,41 @@ def first_questions(org: str, bot: str, days: int) -> list[str]:
     return out
 
 
+DEEP_PROMPT = """You check search results for Indian River State College's student help assistant.
+A student typed this as the first message of a chat:
+
+<message>{question}</message>
+
+Below are College web pages, numbered. Which of them give the student what they need (the answer
+itself, or the official page for doing the task)? List every one that does, or none.
+
+{pages}
+
+Also name the topic of the message, one of: {topics}.
+
+Reply with JSON only: {{"answers": [3, 12], "topic": "financial aid and scholarships"}}"""
+
+
+def deep_check(question: str, pages: list[dict]) -> dict | None:
+    """Which of the pooled pages answer the question (their urls), and its topic."""
+    body = "\n".join(f"  {i}. {r['title']}" + (f" > {r['section']}" if r.get("section") else "") +
+                     f" ({r['url']})\n     {' '.join(r['excerpt'].split())[:300]}" for i, r in enumerate(pages, 1))
+    for _ in range(2):
+        while 44 <= time.localtime().tm_min < 50:
+            time.sleep(15)
+        request = {"model": JUDGE, "stream": False, "think": False, "format": "json", "options": {"temperature": 0},
+                   "messages": [{"role": "user", "content": DEEP_PROMPT.format(question=question, pages=body, topics="; ".join(TOPICS))}]}
+        try:
+            reply = json.load(urllib.request.urlopen(urllib.request.Request(
+                f"{OLLAMA}/api/chat", json.dumps(request).encode(), {"content-type": "application/json"}), timeout=300))
+            v = json.loads(reply["message"]["content"])
+            urls = [pages[n - 1]["url"] for n in v.get("answers", []) if isinstance(n, int) and 1 <= n <= len(pages)]
+            return {"urls": urls, "topic": v.get("topic") if v.get("topic") in TOPICS else "other"}
+        except (KeyError, ValueError, urllib.error.URLError):
+            continue
+    return None
+
+
 def starters() -> set[str]:
     replies = yaml.safe_load(STARTERS.read_text())["beginDialog"]["actions"][0]["activity"]["quickReplies"]
     return {key(r["text"]) for r in replies}
@@ -106,7 +153,7 @@ def key(text: str) -> str:
     return " ".join(re.findall(r"[a-z0-9<>']+", text.lower()))
 
 
-def dense_rankings(name: str, path: str, index: SearchIndex, docs: list[dict], questions: list[str]) -> list[list[int]]:
+def dense_rankings(name: str, path: str, index: SearchIndex, docs: list[dict], questions: list[str], depth: int = TOP) -> list[list[int]]:
     """Top pages as chunk ids (each page's best chunk), for each question."""
     model = load_model(path)
     cache = ROOT / "runs" / f"emb-{name}-{git_head(RIVERGUIDE)}.npy"
@@ -128,7 +175,7 @@ def dense_rankings(name: str, path: str, index: SearchIndex, docs: list[dict], q
             if doc_page[cid] not in seen:
                 seen.add(doc_page[cid])
                 picked.append(int(cid))
-                if len(picked) == TOP:
+                if len(picked) == depth:
                     break
         out.append(picked)
     return out
@@ -175,7 +222,15 @@ def main() -> int:
     parser.add_argument("--bot", required=True)
     parser.add_argument("--days", type=int, default=30)
     parser.add_argument("--min-show", type=int, default=3)
+    parser.add_argument("--systems", nargs=3, metavar="NAME=MODEL", help="the three lists to judge (MODEL keyword is keyword search)")
+    parser.add_argument("--deep", metavar="NAME", help="sort this system's misses: search missed, or no page answers")
+    parser.add_argument("--label", help="output logs/real-questions-DATE-LABEL.json")
     args = parser.parse_args()
+    global SYSTEMS
+    if args.systems:
+        SYSTEMS = {n: (None if m == "keyword" else str(ROOT / m) if (ROOT / m).exists() else m)
+                   for n, m in (x.split("=", 1) for x in args.systems)}
+    assert not args.deep or args.deep in SYSTEMS, "--deep must name one of --systems"
     assert args.min_show >= 2, "never show questions asked once"
 
     asked = first_questions(args.org, args.bot, args.days)
@@ -190,10 +245,14 @@ def main() -> int:
     index = SearchIndex(load_pages(corpus), read_checked(corpus))
     docs = build_docs(index)
     questions = [text[k] for k in unique]
-    lists = {"keyword": [index.search(q, limit=TOP) for q in questions]}
+    depth = DEEP if args.deep else TOP
+    lists, pools = {}, {}  # pools: each system's top `depth` pages, for --deep
     for name, path in SYSTEMS.items():
         if path:
-            lists[name] = [[index._result(c) for c in ranked] for ranked in dense_rankings(name, path, index, docs, questions)]
+            ranked = [[index._result(c) for c in r] for r in dense_rankings(name, path, index, docs, questions, depth)]
+        else:
+            ranked = [index.search(q, limit=depth) for q in questions]
+        lists[name], pools[name] = [r[:TOP] for r in ranked], ranked
     print("searched; judging", flush=True)
 
     verdicts = {}
@@ -213,7 +272,8 @@ def main() -> int:
             g[f"{name} answered"] = sum(verdicts[k][name] for k in members)
             g[f"{name} answered (sessions)"] = sum(counts[k] for k in members if verdicts[k][name])
         g["best"] = dict(Counter(verdicts[k]["best"] for k in members))
-        for a, b in (("full", "stock"), ("full", "keyword"), ("stock", "keyword")):
+        names = list(SYSTEMS)
+        for a, b in ((names[0], names[1]), (names[0], names[2]), (names[1], names[2])):
             only_a = sum(verdicts[k][a] and not verdicts[k][b] for k in members)
             only_b = sum(verdicts[k][b] and not verdicts[k][a] for k in members)
             g[f"{a} vs {b}"] = {f"{a} only": only_a, f"{b} only": only_b, "p": round(mcnemar(only_a, only_b), 4)}
@@ -221,11 +281,42 @@ def main() -> int:
     summary["frequent"] = [{"question": text[k], "sessions": counts[k], **{n: verdicts[k][n] for n in SYSTEMS},
                             "best": verdicts[k]["best"]}
                            for k in sorted(graded, key=counts.__getitem__, reverse=True) if counts[k] >= args.min_show]
-    out = ROOT / "logs" / f"real-questions-{dt.date.today()}.json"
+    if args.deep:
+        typed = [k for k in graded if k not in start]
+        missed = [k for k in typed if not verdicts[k][args.deep]]
+        rows = []
+        for k in missed:
+            i = unique.index(k)
+            pool, seen = [], set()
+            for rank in range(depth):  # interleave the systems' lists, so no system's pages come first
+                for name in SYSTEMS:
+                    r = pools[name][i][rank] if rank < len(pools[name][i]) else None
+                    if r and r["url"] not in seen:
+                        seen.add(r["url"])
+                        pool.append(r)
+            v = deep_check(text[k], pool)
+            if v is None:
+                continue
+            own = [r["url"] for r in pools[args.deep][i]]
+            ranks = [own.index(u) + 1 for u in v["urls"] if u in own]
+            rows.append({"answerable": bool(v["urls"]), "topic": v["topic"], "rank": min(ranks) if ranks else None,
+                         "first_url": v["urls"][0] if v["urls"] else None, "sessions": counts[k]})
+        found = [r for r in rows if r["answerable"]]
+        summary["deep"] = {
+            "system": args.deep, "missed": len(missed), "checked": len(rows),
+            "search_missed": len(found), "no_page_answers": len(rows) - len(found),
+            "search_missed_at": dict(Counter("6-10" if r["rank"] and r["rank"] <= 10 else "11-20" if r["rank"] else "not in its top 20"
+                                             for r in found)),
+            "search_missed_topics": dict(Counter(r["topic"] for r in found).most_common()),
+            "no_page_topics": dict(Counter(r["topic"] for r in rows if not r["answerable"]).most_common()),
+            "pages_it_should_have_found": dict(Counter(r["first_url"] for r in found).most_common(40)),
+        }
+        print(json.dumps(summary["deep"], indent=2), flush=True)
+    out = ROOT / "logs" / (f"real-questions-{dt.date.today()}" + (f"-{args.label}" if args.label else "") + ".json")
     out.write_text(json.dumps(summary, indent=2))
     print(json.dumps({k: v for k, v in summary.items() if k != "frequent"}, indent=2))
     for f in summary["frequent"]:
-        print(f"{f['sessions']:3d}x {'K' if f['keyword'] else '.'}{'S' if f['stock'] else '.'}{'F' if f['full'] else '.'} "
+        print(f"{f['sessions']:3d}x {''.join(n[0].upper() if f[n] else '.' for n in SYSTEMS)} "
               f"best={f['best']:7} {f['question'][:90]}")
     return 0
 

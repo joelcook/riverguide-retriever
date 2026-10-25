@@ -10,6 +10,9 @@
 #          must end by 04:10, or in a window listed in lab/offline.conf ("START END", local ISO)
 # A night job gets LAB_DEADLINE (epoch seconds) and should stop before it. Exit 75 means "not
 # ready, keep me queued"; any other failure moves the job to lab/done/ and opens an ops-alert.
+# Optional lines after the class: "# minutes: N" starts a night job only with N minutes left in its
+# window, and "# ready: COMMAND" (run from the repo) must succeed before the job starts, so a job
+# that isn't ready never takes RiverGuide offline just to say so.
 set -uo pipefail
 # Cron has no XDG_RUNTIME_DIR, and systemctl --user needs it (deploy/omarchy/nightly.sh does the same).
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
@@ -88,6 +91,10 @@ while true; do
     [ -n "${deferred[$name]:-}" ] && continue
     class=$(sed -n 's/^# class: *//p' "$job" | head -1)
     may_start "$class" || continue
+    minutes=$(sed -n 's/^# minutes: *//p' "$job" | head -1)
+    if [ "$class" = night ] && [ -n "$minutes" ] && (( $(night_deadline) - $(date +%s) < minutes * 60 )); then deferred[$name]=1; continue; fi
+    ready=$(sed -n 's/^# ready: *//p' "$job" | head -1)
+    if [ -n "$ready" ] && ! ( cd "$LAB/.." && bash -c "$ready" ) > /dev/null 2>&1; then deferred[$name]=1; continue; fi
     stamp=$(date +%F-%H%M)
     log="$LAB/done/$stamp-$name.log"
     say "start $name ($class)"

@@ -2,6 +2,8 @@
 
     .venv/bin/python build_data.py --mode strict   # the honest one: no test abbreviation in any training query
     .venv/bin/python build_data.py --mode full     # production candidate: keeps them (abbreviation score is then contaminated)
+    .venv/bin/python build_data.py --mode full --name v2-sonnet --extra data/queries.student.sonnet.jsonl
+                                                   # full plus students' kind of first message (gen_student.py)
 
 Both modes drop training queries that copy a golden question. Pages whose URL hashes to 0 mod 20
 are held out: their queries are data/val.jsonl and never trained on.
@@ -38,6 +40,7 @@ LOWER_TECH_IT = re.compile(
 )
 LOWER_AS = re.compile(r"\bas (degree|nursing|business|program|in)\b")
 FIELDS = ("question", "search", "shorthand", "typo")
+STUDENT_FIELDS = ("chat", "indirect")  # gen_student.py
 POS_MIN, VAL_POS_MIN, NEG_MAX = 0.1, 0.5, 0.2
 PROGRAM_POS_MIN = 0.02  # "how do i become a police officer" is only loosely answered by a program page's top chunk
 CANDIDATES = 8
@@ -75,8 +78,13 @@ def golden_filter():
     return leaks
 
 
-def load_rows() -> list[dict]:
+def load_rows(extra: list[str] = ()) -> list[dict]:
     rows = []
+    for path in extra:
+        for line in open(path, encoding="utf-8"):
+            r = json.loads(line)
+            if r.get("useful"):
+                rows += [{"q": r[f].strip(), "doc": r["id"], "kind": f} for f in STUDENT_FIELDS if r.get(f, "").strip()]
     for line in open(DATA / "queries.raw.jsonl", encoding="utf-8"):
         r = json.loads(line)
         if r.get("useful"):
@@ -135,14 +143,17 @@ class CachedJudge:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=("strict", "full"), required=True)
+    parser.add_argument("--name", help="output name (train.NAME.jsonl); default the mode")
+    parser.add_argument("--extra", action="append", default=[], help="more queries, as gen_student.py writes them")
     args = parser.parse_args()
+    name = args.name or args.mode
     random.seed(0)
 
     docs = load_docs()
     index = snapshot_index()
-    rows = load_rows()
+    rows = load_rows(args.extra)
     golden_leak, abbr_leak = golden_filter(), abbreviation_filter()
-    stats: dict = {"mode": args.mode, "generated": len(rows), "dropped_golden": 0, "dropped_abbreviation": 0}
+    stats: dict = {"mode": args.mode, "name": name, "extra": args.extra, "generated": len(rows), "dropped_golden": 0, "dropped_abbreviation": 0}
     kept = []
     for r in rows:
         if golden_leak(r["q"]):
@@ -160,7 +171,7 @@ def main() -> int:
 
     train = [r for r in kept if not is_val_page(docs[r["doc"]]["url"]) and answered(r)]
     stats["dropped_unanswered"] = sum(1 for r in kept if not is_val_page(docs[r["doc"]]["url"]) and not answered(r))
-    if args.mode == "strict":  # one val set, from the strict rows, shared by every model
+    if args.mode == "strict" and name == "strict":  # one val set, from the strict rows, shared by every model
         val_rows = [r for r in kept if is_val_page(docs[r["doc"]]["url"]) and r["p"] >= VAL_POS_MIN]
         random.shuffle(val_rows)
         with open(DATA / "val.jsonl", "w", encoding="utf-8") as fh:
@@ -175,7 +186,7 @@ def main() -> int:
                          convert_to_numpy=True, show_progress_bar=True).astype(np.float32)
     del stock
     torch.cuda.empty_cache()
-    np.save(DATA / f"qemb-stock-{args.mode}.npy", q_emb)
+    np.save(DATA / f"qemb-stock-{name}.npy", q_emb)
     page = np.array([d["page"] for d in docs])
     text_key = [hashlib.md5(d["text"].split("\n\n", 1)[-1].encode()).hexdigest() for d in docs]
 
@@ -203,16 +214,16 @@ def main() -> int:
                 if pick is not None:
                     negs[i].append(pick)
 
-    path = DATA / f"train.{args.mode}.jsonl"
+    path = DATA / f"train.{name}.jsonl"
     with open(path, "w", encoding="utf-8") as fh:
         for i, r in enumerate(train):
             fh.write(json.dumps({"q": r["q"], "doc": r["doc"], "page": int(page[r["doc"]]), "kind": r["kind"],
                                  "p": round(r["p"], 4), "negs": negs[i], "row": i}) + "\n")
     stats["train"] = len(train)
-    stats["kinds"] = {k: sum(r["kind"] == k for r in train) for k in (*FIELDS, "program")}
+    stats["kinds"] = {k: sum(r["kind"] == k for r in train) for k in (*FIELDS, "program", *STUDENT_FIELDS)}
     stats["negatives"] = {n: sum(len(x) == n for x in negs) for n in (0, 1, 2)}
     print(json.dumps(stats, indent=2))
-    (DATA / f"stats.{args.mode}.json").write_text(json.dumps(stats, indent=2))
+    (DATA / f"stats.{name}.json").write_text(json.dumps(stats, indent=2))
     return 0
 
 
