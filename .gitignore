@@ -8,3 +8,14 @@ data/docs.jsonl
 data/judge.jsonl
 logs/
 data/corpus-2026-10-22/
+index/
+index.new/
+index.old/
+lab/queue/
+lab/done/
+lab/logs/
+lab/.lock
+drift_floors.json
+lab/production.env
+lab/offline.conf
+*.lab-bak

@@ -62,6 +62,7 @@ def main() -> int:
             texts = request["input"] if isinstance(request["input"], list) else [request["input"]]
             with lock:
                 vectors = model.encode(texts, batch_size=16, normalize_embeddings=True).tolist()
+                torch.cuda.empty_cache()  # hand spare memory back: Ollama's Qwen must fit beside this
             self._send(200, json.dumps({"model": request.get("model"), "embeddings": vectors}).encode())
 
         def log_message(self, *a) -> None:

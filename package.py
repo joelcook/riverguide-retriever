@@ -16,7 +16,21 @@ from sentence_transformers import SentenceTransformer
 
 from common import QUERY_INSTRUCT, ROOT
 
-CARD = """# riverguide-retriever-{name}
+CARD = """---
+license: apache-2.0
+base_model: Qwen/Qwen3-Embedding-0.6B
+library_name: sentence-transformers
+pipeline_tag: sentence-similarity
+language:
+- en
+tags:
+- sentence-transformers
+- feature-extraction
+- retrieval
+- education
+---
+
+# riverguide-retriever-{name}
 
 Qwen3-Embedding-0.6B fine-tuned to find Indian River State College web pages for students'
 questions, abbreviations, and nicknames (RN, rad tech, BSN, plumber). One forward pass per query,
@@ -28,7 +42,7 @@ no generated tokens. Built in https://github.com/joelcook/riverguide-retriever.
 
 ```python
 from sentence_transformers import SentenceTransformer
-model = SentenceTransformer("riverguide-retriever-{name}")
+model = SentenceTransformer("joeltcook/riverguide-retriever-{name}")
 INSTRUCT = {instruct!r}
 q = model.encode(INSTRUCT + "rad tech", normalize_embeddings=True)
 d = model.encode(["<page title> > <section>\\n\\n<chunk text>"], normalize_embeddings=True)

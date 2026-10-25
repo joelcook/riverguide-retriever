@@ -24,8 +24,9 @@ sys.path.insert(0, str(RIVERGUIDE))
 import yaml  # noqa: E402
 
 from evals import run  # noqa: E402
-from evals.search_ab import EmbeddingSearch, answer, search_tool  # noqa: E402
+from evals.search_ab import answer, search_tool  # noqa: E402
 from riverguide.index import default_index  # noqa: E402
+from trained_search import TrainedSearch, canary_safe  # noqa: E402
 
 OUT = Path(__file__).resolve().parent / "runs"
 LINK = re.compile(r"\]\((https?://[^)\s]+)\)")
@@ -45,7 +46,7 @@ def main() -> int:
     system = run.v2_system()
     dispatch = system.dispatch
     if args.search == "embedding":
-        engine = EmbeddingSearch(default_index(), args.embed_model, args.ollama)
+        engine = TrainedSearch(default_index(), args.embed_model, args.ollama)
         system.dispatch = lambda n, a: search_tool(engine, **a) if n == "search" else dispatch(n, a)
     inner = system.dispatch
     trace: list[tuple[str, dict, dict]] = []
@@ -62,7 +63,7 @@ def main() -> int:
         question = f"I'm interested in {case['query']} at IRSC. What do you offer?"
         t = time.perf_counter()
         try:
-            result = answer(system, question, args.model, args.ollama, max_steps=8)
+            result = canary_safe(answer)(system, question, args.model, args.ollama, max_steps=8)
         except Exception as exc:  # noqa: BLE001
             result = {"response": "", "tool_calls": [], "error": str(exc)}
         frags = case["url_contains"]

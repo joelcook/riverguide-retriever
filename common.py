@@ -38,8 +38,8 @@ def snapshot_index() -> SearchIndex:
     return SearchIndex(load_pages(SNAPSHOT), read_checked(SNAPSHOT))
 
 
-def build_docs() -> list[dict]:
-    index = snapshot_index()
+def build_docs(index: SearchIndex | None = None) -> list[dict]:
+    index = index or snapshot_index()
     chunks = index._chunks
     repeats = Counter(hashlib.md5(c.text.encode()).hexdigest() for c in chunks)
     docs = []

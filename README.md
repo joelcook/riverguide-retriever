@@ -33,6 +33,18 @@ Right page in the top 5, page-level. MRR@10 in parentheses.
 Downloads (release `v1`): `riverguide-retriever-full.zip` and `riverguide-retriever-strict.zip`,
 949 MB each, bf16 weights plus a model card with the query prefix.
 
+### In RiverGuide (2026-10-24)
+
+- **Real students' questions:** 523 distinct first questions from the College's River Guide chat
+  (Sept–Oct 2026), the top 5 pages judged blind by Qwen3.8-27B. This model answered 88%, the stock
+  0.6B 79%, and keyword search (BM25) 59%. Head to head with keyword search, it won 160 and lost
+  11. Only aggregate counts were kept (`real_questions.py`).
+- **Production loop, golden gate** (RiverGuide's Worker run locally, 54 questions): behind the
+  search tool and run on the student's first question before the model's first step,
+  43.7 → 45.5 passed, 32% fewer tool calls (111 → 75.5), and a 26% lower median answer time. It
+  went live on 2026-10-24 (riverguide `cfea663`).
+- Published as [joeltcook/riverguide-retriever-full](https://huggingface.co/joeltcook/riverguide-retriever-full).
+
 ## How it was built
 
 Everything runs on omarchy (RTX 4090) and is pinned to RiverGuide's corpus at `5d125e7` (the
@@ -61,6 +73,37 @@ shown the way search shows it: page title, section, and the excerpt.
    `evals/abbreviations.yaml` (right page in the top 5, as `evals/search_compare.py`), the golden
    questions that name pages to cite, and `val`. Hybrid is reciprocal-rank fusion with keyword
    search, its weight picked on `val` only.
+
+## In production
+
+- `retriever_service.py`: models/full on omarchy's **CPU** (about 150 ms a query, no GPU memory),
+  serving `index/` on 127.0.0.1:8791 as the user service `riverguide-retriever`. RiverGuide's
+  Worker reaches it through the model gateway's `/v1/search` and falls back to keyword search when
+  it can't answer.
+- `refresh.py` / `refresh.sh`: after each nightly crawl, re-embed `../riverguide/corpus` into
+  `index/` (swapped in whole; the service picks it up). On Sundays, `--check` reruns the frozen tests
+  on the new crawl and opens an ops-alert below the floors the first check set (`drift_floors.json`).
+  Facts live in the pages, so a changed fee needs only the re-embed; a drop means the College's
+  vocabulary moved, and it's time to retrain.
+
+## The lab
+
+`lab/lab.sh` runs queued experiments, one at a time per lane, from cron every 10 minutes:
+`cpu` jobs (installs) any time; `share` jobs alongside production; `night` jobs inside a
+maintenance window (`lab/maintenance.sh`: the gateway off, Ollama unloaded, the canary paused,
+an ops-alert open), 00:30–04:10 or a window in `lab/offline.conf`. Exit 75 keeps a job queued.
+
+- `model_ab.sh MODEL`: RiverGuide's golden set, production's model against a challenger, two
+  rounds each. Only the best survives: a losing challenger is removed. `watch_qwen4.sh` (cron)
+  queues one the night Qwen 4 reaches Ollama (`pick_model.py` picks the biggest tag that fits).
+- `bakeoff.sh` → `bakeoff_verdict.py` → `promote_engine.sh`: Ollama (1 and 4 slots), llama.cpp,
+  vLLM, and SGLang serving the same model. Each gets the golden set twice, `load_test.py` at 1, 4,
+  8, and 16 students, and its GPU memory. A challenger must hold quality and be 15% faster at 4
+  students to win; the winner becomes production (`riverguide-engine` on :11440), and the losers
+  are uninstalled.
+- `load_test.py`, `fewer_calls.py` (search first, plus RiverGuide 1's LLM wiki on the same model),
+  `real_questions.py`, `loop_abbreviations.py`, and `golden_ab.py` are the measurements; results
+  land in `runs/`.
 
 ## Reproduce
 

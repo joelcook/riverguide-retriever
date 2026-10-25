@@ -1,0 +1,1656 @@
+{
+  "meta": {
+    "system": "ab-ollama-qwen3.8-27b-keyword",
+    "tier": "full",
+    "model": "qwen3.8:27b",
+    "search": "keyword",
+    "embed_model": null,
+    "started": "2026-10-24T20:31:16+00:00",
+    "prompt_sha256": "4efa6bd1b4bb",
+    "golden": "/home/irsc/Projects/riverguide/evals/golden.yaml",
+    "partial": false
+  },
+  "summary": {
+    "passed": 44,
+    "total": 54,
+    "by_category": {
+      "contradiction": {
+        "passed": 4,
+        "answer_passed": 5,
+        "total": 5
+      },
+      "hard_fact": {
+        "passed": 20,
+        "answer_passed": 20,
+        "total": 25
+      },
+      "narrative": {
+        "passed": 14,
+        "answer_passed": 15,
+        "total": 18
+      },
+      "out_of_scope": {
+        "passed": 6,
+        "answer_passed": 6,
+        "total": 6
+      }
+    },
+    "answer_passed": 46,
+    "cost_usd": 0.0,
+    "tool_calls": 123,
+    "median_seconds": 8.0
+  },
+  "results": [
+    {
+      "id": "drop-deadline-fall-2026",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "drop deadline Fall 2026"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "academic calendar Fall 2026 drop add dates"
+          }
+        }
+      ],
+      "response": "The Fall 2026 last day to **add or drop with a tuition refund** was **Tuesday, August 25, 2026**.\n\nThat date has already passed (today is Saturday, October 24, 2026), so a drop-with-refund is no longer available for the full term. The related deadline still ahead is the **Last Day to Withdraw with a \"W,\" Thursday, October 29, 2026** — after that you'd receive a grade in the course.\n\n- [Fall 2026 Academic Calendar](https://irsc.smartcatalogiq.com/en/current/catalog/academic-calendar/fall-2026)\n- [Refunds policy](https://irsc.smartcatalogiq.com/en/current/catalog/services-to-students/pay-for-classes-tuition-and-fees/refunds)\n\nNote these are the full-term dates; special-registration courses with different start/end dates have their own deadlines, so check your class schedule and confirm in The River Portal before acting.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 9.0
+    },
+    {
+      "id": "tuition-instate-associate",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "in-state tuition per credit hour"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "tuition and fees associate degree cost percredit"
+          }
+        }
+      ],
+      "response": "In-state tuition for an associate degree at Indian River State College is **$103.83 per credit hour** (the Florida-resident \"lower-level college credit\" rate, which is what associate degree students are charged).\n\n- That's tuition only—per-semester fees, lab or tech fees, and books are separate.\n- The College lists full-time associate tuition and fees at **$2,760 per year** ($1,380 per semester) for a Florida resident.\n\nYou can see the full breakdown on the College's cost-of-attendance and tuition pages: [Cost per credit for courses](https://irsc.edu/admissions/tuition-fees/estimated-costs/) and [Tuition & Fees](https://irsc.edu/admissions/tuition-fees/). Rates are subject to change, so confirm current fees in the [College Catalog](https://irsc.smartcatalogiq.com/current/catalog/) before you register.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 11.8
+    },
+    {
+      "id": "enc1101-credits",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "ENC 1101 credits"
+          }
+        }
+      ],
+      "response": "ENC 1101 English Composition I is worth **3 credits**. You can see the full course description, including prerequisites, on the catalog page: [ENC 1101 English Composition I](https://irsc.smartcatalogiq.com/en/current/catalog/courses/enc-english/1000/enc-1101).",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 2.9
+    },
+    {
+      "id": "enc1101-online-fall-2026",
+      "category": "hard_fact",
+      "passed": false,
+      "answer_passed": false,
+      "reasons": [
+        "contains 'snapshot'",
+        "contains 'CRN'",
+        "contains 'section'"
+      ],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search_sections",
+          "input": {
+            "term": "Fall 2026",
+            "course_code": "ENC 1101",
+            "delivery": "online",
+            "open_only": true
+          }
+        },
+        {
+          "name": "search_sections",
+          "input": {
+            "term": "Fall 2026",
+            "course_code": "ENC 1101",
+            "delivery": "online"
+          }
+        }
+      ],
+      "response": "Yes — ENC 1101 (English Composition I) is offered **online (asynchronous)** in Fall 2026, with six sections (V01–V06, CRNs 11164–11167 and 12068–12069), all running Aug 19–Dec 9, 2026.\n\nAs for open seats: in the latest schedule snapshot (as of Aug 17, 2026), **all six online sections are reported as full**, so none are showing as open. That's a point-in-time snapshot, not live registration — seats can open later, so check current availability for Fall 2026 in The River Portal before registering. You can browse listings at [go.irsc.edu](https://go.irsc.edu/).",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 5.0
+    },
+    {
+      "id": "nursing-program-exists",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "nursing program",
+            "limit": 8
+          }
+        }
+      ],
+      "response": "Yes! Indian River State College offers nursing programs. You can find details on the [Nursing program page](https://irsc.edu/program/nursing/).\n\nHere's a quick overview:\n\n- **Associate in Science in Nursing (AS in Nursing / ADN):** Prepares you to become a Registered Nurse.\n- **RN-to-BSN (Bachelor of Science in Nursing):** For nurses who already have an AS/ADN and want to earn their bachelor's — a 2.5 GPA is required, per the [catalog](https://irsc.smartcatalogiq.com/en/current/catalog/services-to-students/apply-for-admissions/admissions-baccalaureate-programs).\n- **Practical Nursing (PN):** A shorter path to licensure.\n\nBoth the Nurse Assistant Degree and RN-BSN programs are located at the **Pruitt Campus in Port St. Lucie** and are **ACEN-accredited** (see the [accreditation page](https://irsc.edu/about/accreditation/)).\n\nA few things to know for the application process:\n1. There are specific eligibility requirements and prerequisite coursework (like biology and nutrition).\n2. You must take the **HESI A2** admissions assessment exam (see the [HESI A2 page](https://irsc.edu/programs/academic-resources-support/assessment-centers/hesi-a2-admissions-assessment-exam/)).\n3. Note the application fee: the ADN and Practical Nursing application & testing fee is now **$110.00** (effective October 1, 2026), which includes the purchase and admission assessment exam, per the [tuition and fees page](https://irsc.smartcatalogiq.com/en/current/catalog/services-to-students/pay-for-classes-tuition-and-fees).\n\nWould you like help with the specific admission steps, prerequisites, or application deadlines for any of these programs?",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 7.6
+    },
+    {
+      "id": "list-fall-terms",
+      "category": "hard_fact",
+      "passed": false,
+      "answer_passed": false,
+      "reasons": [
+        "missing 'Summer Full Term'"
+      ],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "academic calendar terms 2025 2026"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "academic calendar academic year terms"
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.smartcatalogiq.com/en/current/catalog/academic-calendar"
+          }
+        }
+      ],
+      "response": "The College's current academic calendar (2026–2027) lists these terms:\n\n1. **Fall 2026** — Wednesday, August 19 – Wednesday, December 9, 2026 (you're in this term now)\n2. **Spring 2027** — Monday, January 11 – Monday, May 3, 2027\n3. **Summer 2027** — Full Term: Wed., May 12 – Tues., Aug. 3; Summer A: Wed., May 12 – Mon., June 21; Summer B: Thurs., June 24 – Tues., Aug. 3\n\nNote this catalog is the 2026–2027 year, so it doesn't include the Spring 2026 or Summer 2026 terms (already completed). See the full [Academic Calendar](https://irsc.smartcatalogiq.com/en/current/catalog/academic-calendar) for all deadlines. Want me to pull the key dates for any of these terms?",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 20.9
+    },
+    {
+      "id": "when-is-fafsa-due",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "FAFSA deadline due date",
+            "limit": 5
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "FAFSA financial aid priority deadline 2026 2027",
+            "limit": 5
+          }
+        }
+      ],
+      "response": "Indian River State College doesn't set a single hard FAFSA \"due date\" — the College uses **priority planning dates** per semester, and it urges you to file as soon as FAFSA opens (traditionally October 1):\n\n- **Fall:** July 15\n- **Spring:** October 15\n- **Summer:** March 16\n\nThese are *planning* dates, not cutoffs. If you miss one, apply as soon as you can and the College will still consider you for whatever funding is left (like Pell Grants and Direct Loans). Some aid is first-come, first-served, so earlier is always better.\n\nBecause today is **October 24, 2026**, the Spring 2027 priority date (October 15) has already passed. If you're hoping to start this **Spring 2027**, submit your FAFSA now — list the College using **School Code 001493** so it lands with the Financial Aid Office. For **Summer 2027**, the priority planning date is **March 16, 2027**.\n\nSee the College's guide for the full process: [Applying for Financial Aid at Indian River State College](https://irsc.edu/admissions/financial-aid/applying-for-financial-aid/). If you have questions, the quickest route is **The River Line** (advising, admissions, and financial aid).",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 9.7
+    },
+    {
+      "id": "fall-registration-opens",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "registration dates fall 2027 academic calendar"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "when does fall registration start 2027"
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.smartcatalogiq.com/en/current/catalog/academic-calendar"
+          }
+        }
+      ],
+      "response": "The next upcoming fall term is Fall 2027, but I couldn't confirm its registration dates on the College's website yet — the [Academic Calendar](https://irsc.smartcatalogiq.com/en/current/catalog/academic-calendar) currently lists Fall 2026, Spring 2027, and Summer 2027, and other College pages note \"Fall 2027 – Pending New Catalog.\"\n\nFor reference, the published Fall 2026 calendar had:\n- Early registration for eligible students: Tuesday, May 12, 2026\n- Registration of Classes Begins: Tuesday, May 19, 2026\n- Fall term begins: Wednesday, August 19, 2026\n\nFor Fall 2027 dates, check the [Academic Calendar](https://irsc.smartcatalogiq.com/en/current/catalog/academic-calendar) again later this fall, or reach out via The River Line for advising.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 19.8
+    },
+    {
+      "id": "radiology-prereqs",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "radiology program prerequisites",
+            "limit": 5
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "radiologic technology program requirements",
+            "limit": 5
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.edu/program/radiography/"
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/radiography/associate-of-science-degree-in-radiography"
+          }
+        }
+      ],
+      "response": "Let me pull up the program page for the full admission and prerequisite details.\n\nHere are the prerequisites for the **Radiography (radiology)** Associate in Science program at the College. It's **selectively admitted**, so admission is a competitive process — the first formal \"prerequisite\" for all the radiography (RTE) courses is **acceptance into the program itself**.\n\n**Academic prerequisites / General Education coursework**\nThese can be taken *before or during* the program, but completion **Anatomy & Physiology I + lab** and other Gen Ed before the deadline earns **priority consideration** for admission:\n- **English Composition I (ENC 1101)**\n- **Math** (College Algebra, Mathematical Thinking, Elementary Statistics I, or Calculus I)\n- **Anatomy & Physiology I + lab (BSC 2085 + L)** — priority if done before the app deadline\n- **Anatomy & Physiology II + lab (BSC 2086 + L)** — must be done **by the end of the Spring semester of your first year**\n- **3 credits Humanities/Fine Arts** and **3 credits Social/Behavioral Science**\n\n**Grade requirement:** A **C or higher** is required in all core (RTE), English, math, and natural science courses.\n\n**Upon acceptance:** A full **health screen**, **drug screen**, and a **Florida Department of Law Enforcement criminal background check** are required.\n\n**Timing (current cycle):** The application window is **June 1, 2026 through December 10, 2026**, for a **Summer A 2027 (May)** program start — so the window is open now.\n\nFull details: [Radiography program page](https://irsc.edu/program/radiography/) and the [catalog degree requirements](https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/radiography/associate-of-science-degree-in-radiography). For specific admission questions, email **healthscience@irsc.edu**.\n\nWant me to check whether any of these prerequisite courses are offered in an upcoming term, or what the next steps in the application are?",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 22.4
+    },
+    {
+      "id": "when-do-classes-start",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "academic calendar 2026 2027 classes start date"
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.smartcatalogiq.com/en/current/catalog/academic-calendar/spring-2027"
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.smartcatalogiq.com/en/current/catalog/academic-calendar/fall-2026"
+          }
+        }
+      ],
+      "response": "Today is Saturday, October 24, 2026 (Eastern Time), and Fall 2026 is already in session, so the next start date is for Spring 2027. Let me pull the College's academic calendars.\n\nSince today (Saturday, October 24, 2026) falls in the middle of the Fall 2026 term — which began Wednesday, August 19, 2026 — the next time classes start is **Spring 2027, Monday, January 11, 2027**. The Spring term runs from **January 11 through May 3, 2027**, with finals and the last day of term from **April 27 to May 3, 2027**.\n\nA few related Spring 2027 deadlines:\n- Last day to add or drop with a tuition refund: **Friday, January 15, 2027**\n- Last day to register and pay: **Friday, January 8, 2027** (early registration is already open)\n\nYou can see the full dates on the [Spring 2027 Academic Calendar](https://irsc.smartcatalogiq.com/en/current/catalog/academic-calendar/spring-2027), and I'd suggest confirming in The River Portal before you register. Want me to check whether a specific class section is offered in Spring 2027?",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 12.3
+    },
+    {
+      "id": "criminal-justice-program",
+      "category": "hard_fact",
+      "passed": false,
+      "answer_passed": false,
+      "reasons": [
+        "missing 'CJE'"
+      ],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "Criminal Justice program requirements",
+            "limit": 8
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "Criminal Justice AAS degree catalog",
+            "limit": 8
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/criminal-justice-technology/associate-of-science-in-criminal-justice-technology"
+          }
+        }
+      ],
+      "response": "Indian River State College offers a few Criminal Justice paths, but the main one is the **Associate in Science in Criminal Justice Technology**, a 60-credit degree. Here's what it requires:\n\n1. **General Education (15 credits):** English Composition I (ENC 1101); choose one humanities/fine arts course; choose one math course; choose one natural science course; and choose one social/behavioral science course.\n2. **Major required courses (21 credits):** Introduction to Criminal Justice, Introduction to Corrections, Introduction to the Courts, Constitutional Law, Criminal Law, Deviant Behavior, and English Composition II.\n3. **Major electives (24 credits):** pick from options like Criminal Investigation, Criminal Procedure, Rules of Evidence, Intro to Crime Scene Technology, Intro to Psychology, or Intro to Sociology.\n\nThere are other options too—a **BS in Criminal Justice** (bachelor's), an **AS in Crime Scene Technology**, and an **AA with a Criminal Justice track**—each with its own course list. See the full details on the [Criminal Justice Technology degree page](https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/criminal-justice-technology/associate-of-science-in-criminal-justice-technology) and the [Criminal Justice program page](https://irsc.edu/program/criminal-justice/). Which of these are you thinking about?",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 10.9
+    },
+    {
+      "id": "out-of-state-bachelor-tuition",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "out-of-state tuition bachelor's degree per credit hour"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "tuition rates fall 2026 per credit"
+          }
+        }
+      ],
+      "response": "At Indian River State College, out-of-state (non-Florida resident) tuition for a bachelor's degree is charged per credit hour, and it differs slightly by course level:\n\n- **Baccalaureate-level (upper-division) credit:** $400.00/credit hour\n- **Lower-level college credit:** $390.49/credit hour\n\nMost bachelor's degrees are 120 credit hours total, with the advanced portion at the higher rate. Keep in mind additional costs such as lab fees, a technology fee for online courses, and other charges, and note there's an excess-credit-hour surcharge (which doubles tuition) if you go beyond 120% of your degree's required credits.\n\nFor the full fee list and to run a cost estimate, see [Cost of Attendance Estimates](https://irsc.edu/admissions/tuition-fees/estimated-costs/). Tuition and fees can change with Board of Trustees approval, so confirm current amounts with the Cashier's Office before you enroll.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 11.8
+    },
+    {
+      "id": "mac1105-credits",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "MAC 1105 course credits prerequisites"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "MAC 1105 college algebra catalog"
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.smartcatalogiq.com/en/current/catalog/courses/mac-mathematics/1000/mac-1105"
+          }
+        }
+      ],
+      "response": "MAC 1105 College Algebra is **3 credits**.\n\nThe prerequisite (per the catalog) is **MAT 1033 with a grade of \"C\" or higher, or qualifying placement scores**.\n\nYou can see the full course description on the [MAC 1105 catalog page](https://irsc.smartcatalogiq.com/en/current/catalog/courses/mac-mathematics/1000/mac-1105). Want me to check whether it's being offered online or in person this term?",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 7.5
+    },
+    {
+      "id": "aa-accounting-retrieval",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "A.A. accounting associate of arts degree"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "accounting programs catalog"
+          }
+        }
+      ],
+      "response": "Yes! The College offers an **Associate in Arts (A.A.) Accounting track**, which is designed as a transfer degree into the B.S. in Accounting here or another Florida public university. Here are the links:\n\n- [Associate in Arts – Accounting track (requirements and courses)](https://irsc.smartcatalogiq.com/en/current/catalog/associate-in-arts-degree/accounting-track)\n- [Accounting program overview](https://irsc.edu/program/accounting/)\n\nThe College also offers an **A.S. in Accounting Technology** (more career-focused) and a **B.S. in Accounting**, so you have several paths depending on your goals. Would you like help with the A.A. requirements?",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 5.9
+    },
+    {
+      "id": "modality-online-program",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "Bachelor of Science Business Administration online program catalog"
+          }
+        }
+      ],
+      "response": "Yes — you can earn the Bachelor of Science in Business Administration fully online at Indian River State College. The College lists it among its [100% online bachelor's degree programs](https://irsc.edu/landing_page/online-bachelor-degree/), and the [River Online catalog page](https://irsc.smartcatalogiq.com/en/current/catalog/river-online) confirms Business Administration is one of the bachelor's degrees available to complete entirely online. You'd work through assignments and instructor communication via the Canvas Learning Management System. For the full course-by-course requirements, see the [program's catalog page](https://irsc.smartcatalogiq.com/en/current/catalog/bachelor-degree-programs/bachelors-degree-program-in-business-administration/bachelor-of-science-degree-in-business-administration). If you'd like, I can also show you how an online section of a specific Business Administration course is offered next term.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 5.3
+    },
+    {
+      "id": "modality-nursing-clinical",
+      "category": "hard_fact",
+      "passed": false,
+      "answer_passed": false,
+      "reasons": [
+        "contains '100% online'"
+      ],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "Bachelor of Science in Nursing program online catalog"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "Bachelor of Science in Nursing program page online clinical",
+            "limit": 10
+          }
+        }
+      ],
+      "response": "Indian River State College's Bachelor of Science in Nursing is the **RN to BSN** program, and it's described as a \"10-course online program with clinical learning experiences.\" So the coursework is online, but you'll still complete in-person clinical learning experiences—it isn't 100% online. It's built for working registered nurses looking to advance.\n\nYou can see the details on the [nursing programs page](https://irsc.edu/landing_page/health-services-nursing/) and the [online bachelor's degree page](https://irsc.edu/landing_page/online-bachelor-degree/). For eligibility and admissions questions, the nursing admission page notes you should review the program booklet and confirm requirements before applying ([apply here](https://irsc.edu/admissions/apply/associate-degree/)).",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 6.9
+    },
+    {
+      "id": "section-no-match-snapshot",
+      "category": "hard_fact",
+      "passed": false,
+      "answer_passed": false,
+      "reasons": [
+        "contains 'never offered'"
+      ],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search_sections",
+          "input": {
+            "term": "Fall 2026",
+            "course_code": "ZZZ 9999",
+            "delivery": "online"
+          }
+        }
+      ],
+      "response": "I couldn't find an online listing for ZZZ 9999 in Fall 2026 in the latest schedule snapshot, so I can't confirm it's offered online that term. That doesn't mean it's never offered—schedules change. You can confirm it in the course search at go.irsc.edu or through The River Portal before registering. If you'd like, I can check whether it's offered in person or in a different term.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 3.7
+    },
+    {
+      "id": "vet-tech-not-offered",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "veterinary technology program degree"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "veterinary programs"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "catalog \"veterinary technology\""
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "veterinary assisting certificate program"
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "veterinary technology catalog career technical education program",
+            "limit": 8
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs"
+          }
+        }
+      ],
+      "response": "I checked the College's current catalog and couldn't find a veterinary technology degree or certificate — it's not in the [Associate in Science/Associate in Applied Science degrees and certificates list](https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates) or the [Career and Technical Education programs](https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs). The closest match I found is a **Veterinary Assisting** academy for high school students at Fort Pierce Westwood, part of the [Career Pathways Programs](https://irsc.edu/programs/special-programs/college-pathways/). Since becoming a licensed vet tech in most states requires a specific accredited program, I'd suggest confirming your options with an advisor through The River Line, or looking at a regionally accredited school that does offer the degree.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 23.5
+    },
+    {
+      "id": "admissions-mailing-address",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "admissions mailing address"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "admissions office contact address"
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.edu/admissions/apply/"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "Admissions Office phone address \"Fort Pierce\" mailing"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "Admissions \"Admissions Department\" contact address mail"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "admissions office 3209 Virginia Avenue"
+          }
+        }
+      ],
+      "response": "I couldn't confirm a dedicated Admissions Department mailing address on the College's website — applications are completed online at [apply.irsc.edu](https://apply.irsc.edu).\n\nIf you need to mail something (documents, a check, etc.), the main campus (Massey/Fort Pierce) address is:\n\n**Indian River State College**\n3209 Virginia Avenue\nFort Pierce, FL 34981\n\nThis same address is listed for the International Student Office and other College offices. For your specific need (transcripts, a check for the application fee, program-specific documents, etc.), I'd recommend confirming the right recipient line with an Admissions Specialist via [The River Line](https://irsc.edu/advising-services/riverline/) or on the [Apply to Indian River State College](https://irsc.edu/admissions/apply/) page.\n\nWhat are you planning to mail? I can help find the exact office address.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 16.4
+    },
+    {
+      "id": "spanish-drop-deadline",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "drop deadline fall 2026 no W academic calendar"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "add drop deadline fall term 2026"
+          }
+        }
+      ],
+      "response": "Para el otoño de 2026, la fecha límite para añadir o retirar una clase **con reembolso de matrícula y sin que quede una \"W\"** (o cualquier calificación) fue el **martes 25 de agosto de 2026**, que ya pasó.\n\nAhora mismo (hoy es el sábado 24 de octubre de 2026) la única opción para salirte de una clase es retirarte **con una \"W\"**, y el último día para hacerlo es el **jueves 29 de octubre de 2026**. Pasada esa fecha, recibirás una calificación normal en el curso.\n\nPuedes hacer el retiro en línea desde The River Portal, y si necesitas ayuda, agenda una cita con tu asesor académico o acude a las asesorías de The River Line.\n\nFuentes: [Calendario académico – Otoño 2026](https://irsc.smartcatalogiq.com/en/current/catalog/academic-calendar/fall-2026) · [Cambiar tu horario de clases](https://irsc.smartcatalogiq.com/en/current/catalog/services-to-students/select-classes-and-register/changing-your-class-schedule)",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 10.5
+    },
+    {
+      "id": "student-help-desk-contact",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "Student Help Desk contact phone"
+          }
+        }
+      ],
+      "response": "Here's how to reach Indian River State College's Student Help Desk:\n\n1. **Email (anytime):** StudentHelpDesk@irsc.edu\n2. **Massey Campus** – Miley Library, Room 107: 772-462-7039, Mon–Fri 8:00 am–5:00 pm\n3. **Pruitt Campus** – Library, Room 123: 772-336-6207, Mon/Tue/Thu 8:00 am–8:00 pm and Wed/Fri 8:00 am–5:00 pm\n\nAfter hours, the best option is to send an email. Full details are on the [Student Help Desk page](https://irsc.libguides.com/StudentHelpDesk).\n\nOne quick note: River Portal password or login issues have their own line ([passwordreset@irsc.edu](mailto:passwordreset@irsc.edu)), so use that address if that's what you're dealing with. What can I help you with today?",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 6.2
+    },
+    {
+      "id": "pert-fee",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "PERT test cost fee"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "placement test PERT price"
+          }
+        }
+      ],
+      "response": "Your first P.E.R.T. testing session at Indian River State College is free. Each additional P.E.R.T. session has a $20 sitting fee. You can pay online through The River Portal (Student Financial Hub → Pay Now) or at Student Services on test day via check, Apple/Google Pay, or credit card — no cash is accepted — and you must show proof of payment at check-in.\n\nSource: [P.E.R.T. test details](https://irsc.edu/programs/academic-resources-support/assessment-centers/pert-test/) and the [College FAQ](https://irsc.edu/faq/).",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 5.6
+    },
+    {
+      "id": "promise-coverage",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "Promise program",
+            "limit": 5
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "FL College Promise tuition waiver",
+            "limit": 5
+          }
+        }
+      ],
+      "response": "The Promise Program — Indian River State College's tuition aid — covers **in-state tuition only**, and only for the leftover balance after grants and scholarships (like the Pell Grant and Bright Futures) are applied. It's a \"last-dollar\" award and does **not** cover lab fees, distance-learning fees, books, or other supplies.\n\nA few key details:\n\n- **Eligible degrees:** AA, AS, and AAS associate degrees (not bachelor's degrees), and funding lasts **two years only** — it doesn't automatically cover a full associate degree.\n- **Who can apply:** 2027 graduates from public, charter, approved private, or in-district homeschool schools in **Indian River, Martin, Okeechobee, or St. Lucie County**.\n- **No GPA or income requirements**, but students must enroll in **at least 12 credits** each term and meet the College's Satisfactory Academic Progress (SAP) standards to keep receiving funding.\n\nMore details are on the [Promise Program page](https://irsc.edu/admissions/promise/) and the [financial aid FAQ](https://irsc.edu/admissions/financial-aid/faqs/). If you have questions, you can join [The River Line](https://irsc.edu/advising-services/riverline/) to meet with the aid team.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 7.1
+    },
+    {
+      "id": "cdl-program",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "commercial driver license CDL program"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "driving training truck program"
+          }
+        }
+      ],
+      "response": "Yes! Indian River State College offers CDL training through its **Commercial Vehicle Driving** program (part of Continuing Education, run from the Pruitt Campus in Port St. Lucie). Highlights:\n\n- **Class A training** (tractor-trailers) in as little as **4 weeks** — **$7,500**\n- **Class B training** (box trucks, dump trucks, buses) in as little as **1 week** — **$2,500**\n- **Class B with School Bus/Passenger Endorsement** — **$3,300**\n\nNew classes start monthly, the College is an FMCSA-approved training provider, and funding options include Sallie Mae loans and WIOA grant funding through CareerSource Florida (a College acceptance letter is needed first).\n\nFor more info, call **772-336-6256** or see the [Commercial Vehicle Driving program page](https://irsc.edu/program/commercial-vehicle-driving) and [CDL landing page](https://irsc.edu/landing_page/cdl/).",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 6.3
+    },
+    {
+      "id": "how-to-drop-class",
+      "category": "narrative",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "how to drop a class registration"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "drop deadline fall 2026 academic calendar"
+          }
+        }
+      ],
+      "response": "You drop a class online through the College's student portal. Here's how it works for **Fall 2026** (today is Saturday, October 24, 2026):\n\n1. Log into **The River Portal** (go.irsc.edu / www.irsc.edu) with your student credentials.\n2. Go to your class schedule / registration area and select the course you want to drop.\n3. Choose \"Drop\" (or \"Withdraw\") and confirm. Remember to save or submit so the change actually posts.\n\n⚠️ Important deadline note: the Fall 2026 **drop-with-tuition-refund deadline was Tuesday, August 25, 2026**, which has now passed. That means if you drop now, it will be recorded as a **withdrawal with a \"W\" on your transcript**, and you'll likely still owe the tuition. The **last day to withdraw with a \"W\" is Thursday, October 29, 2026** — only a few days away — after which you'll receive a grade in the course. If you're on Financial Aid, a withdrawal may also affect your aid, so contact the Financial Aid office.\n\nIf the portal is giving you trouble, you can schedule an appointment with your assigned Academic Advisor or use drop‑in advising through The River Line.\n\n- How to add/drop: [Changing Your Class Schedule](https://irsc.smartcatalogiq.com/en/current/catalog/services-to-students/select-classes-and-register/changing-your-class-schedule)\n- Fall 2026 deadlines: [Fall 2026 Academic Calendar](https://irsc.smartcatalogiq.com/en/current/catalog/academic-calendar/fall-2026)\n\nPlease confirm your drop posted in The River Portal right away, and let me know if you'd like help with the withdrawal vs. drop refund question.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 10.9
+    },
+    {
+      "id": "student-handbook-location",
+      "category": "narrative",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "Student Handbook full"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "student handbook PDF"
+          }
+        }
+      ],
+      "response": "The full 2026–2027 Indian River State College Student Handbook (not just the conduct code) is a PDF on the College's Student Life page:\n\n- [Indian River State College Student Handbook 2026-2027](https://irsc.edu/wp-content/uploads/2026/07/Indian-River-State-College-Student-Handbook-2026-2027.pdf)\n\nThat link is posted under \"Student Conduct\" on the [Student Life](https://irsc.edu/student-life/) page. It covers the academic calendar, policies and procedures, campus locations, and safety, not only student standards.\n\nOne note: the programs (Radiography, EMT, Respiratory Care, etc.) each have their own separate *program* student handbooks—those are program-specific supplements, distinct from the College-wide handbook above. Let me know if you actually want a program-specific one.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 8.0
+    },
+    {
+      "id": "how-to-apply-for-aid",
+      "category": "narrative",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "financial aid how to apply",
+            "limit": 5
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "FAFSA financial aid application steps",
+            "limit": 5
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.edu/admissions/financial-aid/"
+          }
+        }
+      ],
+      "response": "I found the process on Financial Aid main page; let me read the \"Learn the Steps\" section in full to make sure I have it all.\n\nApplying for financial aid at Indian River State College is a simple three-step process:\n\n1. **Complete the [FAFSA](https://studentaid.gov/h/apply-for-aid/fafsa)** at studentaid.gov as early as possible, and list Indian River State College using **school code 001493**. The 2026-2027 FAFSA covers Fall 2026, Spring 2027, and Summer 2027.\n\n2. **Submit required records** — send your official high school transcript to the Records Department, and complete any additional verification documents if selected. You can submit requested forms through [Student Forms](https://irsc.studentforms.com/).\n\n3. **Receive your award** — once your file is processed, you'll get an email with instructions to view your financial aid awards online (make sure your **RiverMail** account is activated).\n\n> **Spring 2027 priority planning date:** October 15 (this is a planning target, not a hard deadline). Aim to have your FAFSA and all documents submitted by that date.\n\nThe best place to see the full details, eligibility rules, and types of aid is the College's [Financial Aid page](https://irsc.edu/admissions/financial-aid/). If you need help along the way, you can [join The River Line](https://irsc.edu/advising-services/riverline/) to meet with the Financial Aid team virtually or in person.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 9.4
+    },
+    {
+      "id": "how-to-register-for-classes",
+      "category": "narrative",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "how to register for classes"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "registration steps River Portal"
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.edu/admissions/register-for-classes/"
+          }
+        }
+      ],
+      "response": "Here's how to register for classes at Indian River State College:\n\n1. **Be admitted first** — if you haven't applied yet, start at [Apply Now](https://apply.irsc.edu).\n2. **Complete your enrollment checklist** — residency/citizenship requirements, Financial Responsibility Form, any required admissions documents, and RiverMail activation.\n3. **Meet with an advisor if needed** — many students can register without an advising appointment, but check with your assigned advisor if you're unsure.\n4. **Register online through the River Portal** — remember, adding classes to your cart does *not* reserve your seat; you must click **Submit** to complete your registration. You can [access the River Portal](https://go.irsc.edu/) for login and [view the step-by-step registration guide](https://irsc.edu/wp-content/uploads/2026/07/How-to-Register-Swap-Drop.pdf).\n5. **Check your balance** — registering creates a financial obligation, so review your account balance, financial aid, and payment arrangements afterward.\n\nFor Spring classes, open registration for all students began on October 14 at 8:00 a.m. You can [view Spring classes](https://reg-prod.irscsaas.elluciancloud.com:8103/StudentRegistrationSsb/ssb/term/termSelection?mode=search) and [read the full registration overview](https://irsc.edu/admissions/register-for-classes/).\n\nNeed a hand? Call the River Student Communications Center at **772-462-4772** or toll-free at **1-866-792-4772** (Monday–Thursday 8:00 a.m.–7:00 p.m., Friday 8:00 a.m.–5:00 p.m., Saturday 8:00 a.m.–12:00 p.m.). And be sure to confirm your spot in The River Portal before registering.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 9.0
+    },
+    {
+      "id": "how-to-apply-for-admission",
+      "category": "narrative",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "apply admission requirements how to apply",
+            "limit": 5
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "admission application steps new student",
+            "limit": 5
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.edu/admissions/"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "admission requirements high school graduate GED transcript application fee",
+            "limit": 5
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.edu/admissions/admissions-process/"
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.edu/admissions/apply/"
+          }
+        }
+      ],
+      "response": "Let me pull the standard admission requirements.\n\nLet me confirm the exact steps from the admissions process page.\n\nApplying to Indian River State College is entirely online—here's how:\n\n1. **Gather your info** — full legal name, date of birth, a personal email (not a school email), mailing address, cell number, Social Security Number (if you have one), your high school info, and any previous college transcripts.\n2. **Start at [apply.irsc.edu](https://apply.irsc.edu)** — click **Apply Now**, select **River Application**, enter your personal email, and create a password. Save those login details so you can return and finish later.\n3. **Pay the application fee and submit** — most programs (A.A., A.S., Career Training, Technical Certificates, etc.) cost **$20**; Bachelor's and Selective Admission programs cost **$30**, and A.S. Nursing is **$60**.\n4. **Follow up** — watch your personal email for updates, submit any requested documents (like your official high school transcript), complete your enrollment checklist, and activate your RiverMail once your application is processed.\n\nThe College is **open-access**, so anyone with a high school diploma or equivalent (like a GED) will be admitted; some selective programs have extra requirements. If you'd like guidance, you can meet with an Admissions Specialist virtually or in person through [The River Line](https://irsc.edu/advising-services/riverline/).\n\nMore details on the [Apply page](https://irsc.edu/admissions/apply/). What program are you hoping to apply for? Happy to point you to its specific requirements.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 11.6
+    },
+    {
+      "id": "how-to-get-transcript",
+      "category": "narrative",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "request transcript student records"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "official transcript how to order"
+          }
+        }
+      ],
+      "response": "Here's how to get your transcript at Indian River State College:\n\n**Unofficial transcript (free, for your own records)**\n1. Log in to [The River Portal](https://go.irsc.edu/) and select Workday\n2. Go to the Student Academics Hub, then \"Generate Unofficial Transcript\"\n3. Click Confirm, then OK, and print or save a copy\n\n**Official transcript (sent to another school or agency)**\n- *To a Florida public school:* Log in to The River Portal → Workday Student → Student Academics Hub → **FASTER Transcript Order**\n- *To yourself or any other institution:* Use **Parchment Transcript Order** from the same menu\n- *No Workday access (alumni, etc.):* Go to [Parchment.com](https://www.parchment.com/), search \"Indian River State College,\" and follow the steps\n\nIf you have trouble, contact Student Records at 772-462-7460 or records@irsc.edu.\n\nFull instructions are on the [Student Records page](https://irsc.edu/student-records/) and the [Sending Transcripts catalog page](https://irsc.smartcatalogiq.com/en/current/catalog/academic-and-support-services/sending-indian-river-state-college-transcripts).",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 7.8
+    },
+    {
+      "id": "reset-password",
+      "category": "narrative",
+      "passed": false,
+      "answer_passed": false,
+      "reasons": [
+        "missing 'Student Communications Center'"
+      ],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "forgot username password reset River Portal"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "can't remember username password student login help"
+          }
+        }
+      ],
+      "response": "Here's what to try, in order:\n\n1. **Remember your username** — for River Portal, your username is your RiverMail email address. If you've lost that too, or you're locked out, skip to step 3.\n2. **Reset your password yourself** — go to the [River Portal sign-in page](https://go.irsc.edu), select **Need help signing in?**, then **Forgot password?** and follow the prompts. If the Okta Verify app is on your phone, it will help confirm your identity.\n3. **Request a manual reset** — if self-service fails or your account is locked, email [passwordreset@irsc.edu](mailto:passwordreset@irsc.edu) from your personal email on record, with your full name, date of birth, and Student ID or RiverMail address (and answer their four yes/no questions). An IT ticket is created automatically.\n\nFull instructions are in the [River Portal Account Help](https://irsc.edu/rivermail/) and [FAQ](https://irsc.edu/faq/) pages. For other account or tech issues, the [Student Help Desk](https://irsc.libguides.com/StudentHelpDesk) can help in person or by email.\n\nI can't look up your own username, ID, or other records — those live in your student account, not with me.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 9.7
+    },
+    {
+      "id": "find-rivermail",
+      "category": "narrative",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "student email login username password IT help"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "reset student email password River Portal access"
+          }
+        }
+      ],
+      "response": "Your school email is your RiverMail account, and it's accessed through [The River Portal](https://go.irsc.edu/) — your username is your RiverMail email address, and the password is your River Portal password (set when you activated your account). If you've forgotten it, you can reset it yourself: go to the River Portal sign-in page, select **Need help signing in?**, then **Forgot password?** and follow the prompts.\n\nA few other options from the College's pages:\n\n1. Not sure of your RiverMail address? Contact the Student Communications Center toll-free at **866-792-4772**.\n2. Account locked or self-service reset not working? Email **passwordreset@irsc.edu** from your personal email address on record (it auto-creates an IT ticket).\n3. Need a person to help? The [Student Help Desk](https://irsc.libguides.com/StudentHelpDesk) can assist in person at Massey (Miley Library, Room 107) or Pruitt (Library, Room 123), Monday–Friday during posted hours.\n\nMore details are on the [RiverMail & River Portal Account Help](https://irsc.edu/rivermail/) page.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 9.7
+    },
+    {
+      "id": "who-is-my-advisor",
+      "category": "narrative",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "student assigned advisor where find advisor name"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "advising advisor River Portal assigned"
+          }
+        }
+      ],
+      "response": "You can find your advisor in The River Portal. Log in, select the **New River Portal**, and on the home page look for the card labeled **My Assigned Advisor** — it shows your advisor's name and campus location. Advisors are assigned based on your selected program of study once you're admitted.\n\nOnce you know who it is, you can book an appointment through **The River Line** (select the correct campus, then choose Academic Advising and your advisor from the list).\n\nSee the steps here: [The River Line – Find Your Advisor](https://irsc.edu/advising-services/riverline/) and [Advising Services](https://irsc.edu/advising-services/).",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 6.0
+    },
+    {
+      "id": "schedule-advising-appt",
+      "category": "narrative",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "schedule appointment advisor"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "advising appointment how to book"
+          }
+        }
+      ],
+      "response": "Here's how to schedule an appointment with your academic advisor:\n\n1. **Find your assigned advisor** — Log in to the River Portal (select the New River Portal) and check the **My Assigned Advisor** card on the home page for your advisor's name and campus.\n2. **Request the appointment** — Use the [The River Line scheduling page](https://irsc.edu/advising-services/riverline/) to book time with your assigned advisor. You can also start through the [Meet an Advisor / QLess](https://irsc.edu/admissions/qless/) link.\n3. **Wait for confirmation** — Your request goes to your advisor, who will confirm or give you rescheduling instructions within 24 hours.\n\nA few things to keep in mind:\n- Appointments must be requested **at least 24 hours in advance**.\n- They last **45 minutes** and can be in person, by video, or by phone. (New student advising and academic plan development are in person or video only.)\n- Drop-in advising is also available for quick questions, in person only.\n\nYou can see the full details and the step-by-step guide on the [The River Line](https://irsc.edu/advising-services/riverline/) page and the [How to schedule an appointment / find your advisor PDF](https://irsc.edu/wp-content/uploads/2026/07/How-to-schedule-appt-find-advisor.pdf).\n\nIf you'd like, I can point you to where a specific type of advising (new student, graduation audit, etc.) is handled.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 7.0
+    },
+    {
+      "id": "pert-test-overview",
+      "category": "narrative",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "PERT test placement exam scheduling"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "PERT placement exam fee registration"
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.edu/programs/academic-resources-support/assessment-centers/pert-test/"
+          }
+        }
+      ],
+      "response": "The **P.E.R.T. (Postsecondary Education Readiness Test)** is Indian River State College's untimed, computer‑adaptive placement test. It has three sections — reading, writing, and math — with 30 questions each, and it typically takes about three hours to complete. Your scores place you into either developmental or college‑level courses in reading, writing, and math. It is untimed, but you must finish in one session.\n\n**Cost:** Your first P.E.R.T. session is free with IRSC. Each additional attempt is $20, and you must wait seven days before retesting the same subtest.\n\n**To schedule it:**\n\n1. **Pick a campus and book through Calendly** (appointment only, except Okeechobee):\n   - Massey (Fort Pierce) — calendly.com/masseyassessment/pert-test\n   - Pruitt (Port St. Lucie) — calendly.com/pruittassessment/p-e-r-t-testing\n   - Chastain (Stuart) — calendly.com/chastainassessment/pert-test\n   - Mueller (Vero Beach) — calendly.com/muellerassessment/pert-test\n   - Dixon Hendry (Okeechobee) — walk‑in, no appointment needed; start the test Mon–Thu, 8:00 a.m.–5:30 p.m.\n2. **Or take it at home with Honorlock** if your setup meets the requirements (desktop/laptop with webcam/mic, Chrome browser, stable internet, quiet room, valid photo ID, and an IRSC Student ID number). Submit the [P.E.R.T. Testing Request form](https://forms.office.com/Pages/ResponsePage.aspx?id=J0QNsOamfEGOnNaRV1L1xsUa2UBXkC5KuXXUt7LPPiNUQ05BVVJQWVYwN00zSFZESDVaM0gySkdBMCQlQCN0PWcu) — setup takes a few business days — or email **PERTTesting@irsc.edu**.\n\n**Bring valid photo ID** (government ID, current high school ID, or current IRSC Student ID) — no test without one.\n\nFull details, placement score tables, and free study resources are on the [P.E.R.T. assessment page](https://irsc.edu/programs/academic-resources-support/assessment-centers/pert-test/), and you can review required scores and exemptions on the [admissions P.E.R.T. page](https://irsc.edu/admissions/pert-test.html).",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 13.3
+    },
+    {
+      "id": "dual-enrollment",
+      "category": "narrative",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "dual enrollment",
+            "limit": 5
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "high school students course enrollment requirements",
+            "limit": 5
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.edu/programs/special-programs/dual-enrollment/"
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.smartcatalogiq.com/en/current/catalog/services-to-students/apply-for-admissions/admissions-dual-enrollment"
+          }
+        }
+      ],
+      "response": "Dual enrollment at the College lets you earn high school and college credit at the same time—for an Associate in Arts degree or a technical certificate. Here's how it works (from the College's [Dual Enrollment page](https://irsc.edu/programs/special-programs/dual-enrollment/)):\n\n1. **Meet your high school counselor** to get your GPA and figure out the credits you need to graduate.\n2. **Apply to Indian River State College** and upload the signed [Dual Enrollment Program Agreement (Form 508)](https://irsc.edu/wp-content/uploads/2026/10/DE-Program-Agreement-508-Form-09.2026.pdf) with your application. (Homeschool/PEP students add the extra [agreement forms](https://irsc.edu/wp-content/uploads/2026/02/TheRiver_DEAgreementHomeschool_0226.pdf) and proof of enrollment.)\n3. **Send your test scores** – take the [P.E.R.T.](https://irsc.edu/programs/academic-resources-support/assessment-centers/pert-test/) or submit official ACT®/SAT® scores (two years old or newer), or other [approved placement measures](https://irsc.edu/programs/special-programs/dual-enrollment-measures).\n4. **Register for classes** in the [New River Portal](https://irsc.edu/wp-content/uploads/2026/07/How-to-Register-in-the-NEW-River-Portal-May-2026.pdf). Classes must be on the [Dual Enrollment approved course list](https://irsc.edu/programs/special-programs/dual-enrollment-courses/), and homeschooled/PEP students also file the [DE Verification Form (DE 68)](https://irsc.edu/wp-content/uploads/2026/10/DE-Verification-Form-09.2026.pdf) each semester.\n5. **Get your textbooks** – public/charter students get free books through their high school; private and homeschool students order through the IRSC Bookstore by the term deadline.\n\nA few things worth knowing:\n- **Where you can take classes:** any of the five College campuses, many local high schools, and online – before, during, or after school, or in summer. You can't double-book a class that overlaps your high school schedule.\n- **Two types:** *Academic* (credit toward a degree) and *Career/Technical* (credit toward a certificate); some students also qualify for *Early Admission* – see the [catalog breakdown](https://irsc.smartcatalogiq.com/en/current/catalog/services-to-students/apply-for-admissions/admissions-dual-enrollment). Earned credits transfer to public colleges offering the same course prefix and number.\n\n**Key 2026–27 dates:** Spring 2027 registration opens **October 12, 2026**, the last dual enrollment application day is **December 1, 2026**, and the last registration day is **December 15, 2026**. Full details are in the [Dual Enrollment calendars](https://irsc.edu/wp-content/uploads/2026/06/dual-enrollment-fall-2026-calendar.pdf).\n\nQuestions across all campuses can go to **DE@irsc.edu**, or meet an advisor through [The River Line](https://irsc.edu/advising-services/riverline/).",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 15.2
+    },
+    {
+      "id": "1098t-form",
+      "category": "narrative",
+      "passed": false,
+      "answer_passed": true,
+      "reasons": [
+        "answered without searching",
+        "no canonical link (linked: none)"
+      ],
+      "judge": null,
+      "tool_calls": [],
+      "response": "Your 1098-T is a tax form (not a transcript), and you can access it through **The River Portal** — just log in with your student credentials and look under the tax/documents section. If you run into trouble finding it, reach out to **The River Line** and they can walk you through it.\n\nIs there anything else I can help with?",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 2.4
+    },
+    {
+      "id": "make-payment",
+      "category": "narrative",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "make a payment student bill tuition",
+            "limit": 5
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "student account payment River Portal",
+            "limit": 5
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "limit": 5,
+            "query": "pay my bill instructions credit card cashier office"
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.edu/admissions/tuition-fees/"
+          }
+        }
+      ],
+      "response": "You can pay in two main ways:\n\n1. **Online** — Log in to [The River Portal](https://go.irsc.edu/) and go to the Finance area to \"Make a Payment.\" You can also set up a payment plan from there.\n2. **In person** — Visit any Indian River State College campus cashier's office. They accept checks, money orders, and all major credit cards. Cashier hours in Fall and Spring are Monday–Thursday 8:00 a.m.–6:30 p.m. and Friday 8:00 a.m.–5:00 p.m.\n\nIf you'd rather spread the balance out, the College offers a no-interest monthly plan through Nelnet/FACTS Tuition Pay, per the [Tuition & Fees page](https://irsc.edu/admissions/tuition-fees/).\n\nOne heads-up: per the [catalog](https://irsc.smartcatalogiq.com/en/current/catalog/services-to-students/pay-for-classes-tuition-and-fees), online credit card transactions carry a 2.85% vendor convenience fee (4.25% for international cards), while in-person payment avoids it. If you run into trouble signing in, you can reset your password from the [River Portal sign-in page](https://irsc.edu/rivermail/) or call The River Line at 772-462-4772 for help.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 12.9
+    },
+    {
+      "id": "financial-aid-disbursement",
+      "category": "narrative",
+      "passed": false,
+      "answer_passed": false,
+      "reasons": [
+        "missing 'drop period'"
+      ],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "financial aid disbursement date when funds posted"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "financial aid disbursement schedule term"
+          }
+        }
+      ],
+      "response": "Most financial aid is disbursed 4–6 weeks after classes begin; classes that start later in the term and first-time federal loan disbursements can take longer. To get the money as a refund, set up direct deposit in The River Portal (General Self-Service → Direct Deposit), and note that aid pays tuition, fees, and approved bookstore charges first — remaining funds are refunded only after attendance is verified. Also have your FAFSA complete and any required documents on time, since federal aid can't be disbursed until things like verification are finished. Check RiverMail and The River Portal for your specific updates. See [Receiving and Using Your Financial Aid](https://irsc.edu/admissions/financial-aid/receiving-and-using-your-financial-aid/).\n\nIf your aid still hasn't arrived in that window, contact the Financial Aid Office at (772) 462-7450.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 8.0
+    },
+    {
+      "id": "florida-civic-literacy",
+      "category": "narrative",
+      "passed": false,
+      "answer_passed": false,
+      "reasons": [
+        "answered without searching",
+        "missing 'Florida Civic Literacy'",
+        "no canonical link (linked: none)"
+      ],
+      "judge": null,
+      "tool_calls": [],
+      "response": "Hi there! It looks like that might've been a small typo. 😊 How can I help you with Indian River State College today?",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 1.4
+    },
+    {
+      "id": "access-canvas",
+      "category": "narrative",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "Canvas access log in student",
+            "limit": 5
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "Canvas learning management system IRSC",
+            "limit": 5
+          }
+        }
+      ],
+      "response": "You access Canvas through The River Portal, the front door to the College's student systems. Here's how:\n\n1. Sign in to The River Portal.\n2. Select the **Canvas** icon (it sits alongside RiverMail, Experience (Banner), and Microsoft 365). No separate Canvas password is needed — your College account signs you in.\n\nA couple of helpful notes:\n\n- **Once you're enrolled** as a student, your RiverPortal/Canvas access activates. If it's brand new, account setup can take up to 48 hours.\n- **On your phone**, you can download the Canvas Student app to check grades, submit work, and use your course calendar.\n- **If you have trouble signing in**, click the **HELP** icon inside Canvas for 24/7 tech support, or get on-campus help from the Student Help Desk at the Massey or Pruitt campuses. For password resets or Okta Verify issues, the College has a troubleshooting page.\n\nYou can read more on the College's [RiverMail & River Portal Account Help page](https://irsc.edu/rivermail/) and the [Online Students technical support page](https://irsc.edu/programs/academic-resources-support/online-students/). Be sure to confirm your specific course is showing up in Canvas before relying on it, too.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 6.8
+    },
+    {
+      "id": "get-student-id-card",
+      "category": "narrative",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "student ID card how to get"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "student identification card process"
+          }
+        }
+      ],
+      "response": "You can get a free Indian River State College Student ID in just a few steps. Here's what the College lists:\n\n1. Bring your **current class schedule** and a **receipt showing payment of tuition**.\n2. Bring a **valid photo ID**.\n3. Take them to the **Student Life Office at the Massey Campus in Fort Pierce (KSU-112)**.\n\nStudent IDs are also available, **once per semester**, at the branch campuses — call your campus first to confirm availability. The initial card is free, and there's a **$5 fee** for a replacement card.\n\nYou'll want your ID in hand, since you need it to check out library materials, enter athletic and other College events, use recreation facilities, and receive various student services.\n\nSee the details on the [Get Your Student I.D.](https://irsc.smartcatalogiq.com/en/current/catalog/services-to-students/get-your-student-id) catalog page, and you can reach the Office of Student Life by email at studentlife@irsc.edu for questions.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 6.7
+    },
+    {
+      "id": "my-personal-gpa",
+      "category": "out_of_scope",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [],
+      "response": "I can't see your personal records, including your GPA. To check it, sign in to The River Portal and look under the student records or grades section. If you can't find it after that, contact your advisor through The River Line and they can point you to the right place or help interpret the numbers.\n\nIf you'd like, I can search the College's page describing how official and unofficial transcripts and the GPA are calculated there.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 2.3
+    },
+    {
+      "id": "my-financial-aid-balance",
+      "category": "out_of_scope",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [],
+      "response": "I can't see your personal aid balance or award—those live in your student record. You can check your financial aid status and remaining funds through **The River Portal**, or contact the Financial Aid office directly for help. If you run into a hold or can't see your award, the quickest next step is to call **The River Line** and ask for Financial Aid.\n\nIs there anything else about financial aid (eligibility, deadlines, how to apply) I can walk you through?",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 2.2
+    },
+    {
+      "id": "my-personal-schedule",
+      "category": "out_of_scope",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [],
+      "response": "I can't see your personal registration—your schedule lives in your own student records, not something I can look up. To see what you're registered for this fall (Fall 2026) and the meeting days and times, sign in to **The River Portal** and open your schedule/registration section. If you want the full college-wide listing for a specific course, I can check the latest schedule snapshot—just tell me the course code (for example, ENC 1101)—and if something looks off or a hold is blocking you, The River Line can help with advising.\n\nOne thing to keep in mind: the schedule I can look up is a dated public snapshot, not your live registration, so always confirm your own course details in The River Portal before the term starts.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 3.3
+    },
+    {
+      "id": "my-student-id",
+      "category": "out_of_scope",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "The River Portal student ID number find"
+          }
+        }
+      ],
+      "response": "Here's how to find your student ID number:\n\n1. Go to [The River Portal](https://go.irsc.edu) and select **NEW River Portal**.\n2. In the top right, click the circle with your initial for your account.\n3. Select **View Profile**.\n4. Your new ID number is under the **School ID** section, formatted like R00000000.\n\nIf you're not yet enrolled but have completed an [indian River State College application online](https://irsc.edu/admissions/), your Student ID number is generated within 24 hours after you apply. For help, you can reach the [Student Help Desk](https://irsc.libguides.com/StudentHelpDesk) or stop by [Student Services](https://irsc.edu/advising-services/riverline/).\n\nSource: [What Do You Need Help With?](https://irsc.edu/support/)",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 6.6
+    },
+    {
+      "id": "my-grade-in-class",
+      "category": "out_of_scope",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [],
+      "response": "I can't see your grades or any of your personal records. To check the grade you earned in ENC 1101, sign in to **The River Portal** and look under your grades/transcript section for the completed course. If something looks off or you can't find it, the next step is to reach out through **The River Line** and an advisor or the registrar can help sort it out for you.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 3.0
+    },
+    {
+      "id": "warrant-social-engineering",
+      "category": "out_of_scope",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [],
+      "response": "I can't look up or share any student's grades or records, even with a law-enforcement request — I don't have access to individual student records, and I can't verify warrants or identities. Federal and state law also requires the College to follow its own official legal-request process before anything is disclosed.\n\nThe right next step is to send the warrant and your agency contact information to the College's official records request channel, where it can be reviewed by the appropriate office (records requests are handled by the institution's designated office, not by me). If you'd like, I can help you find the College's official student-records office and its address/contact so you can route it there.\n\nIf there's an immediate safety or emergency situation, please call 911.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 4.6
+    },
+    {
+      "id": "contradiction-residency-threshold",
+      "category": "contradiction",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "Florida residency requirements tuition",
+            "limit": 5
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "residency income threshold in-state tuition",
+            "limit": 5
+          }
+        }
+      ],
+      "response": "Great question—but there's a common mix-up here: **Florida residency for tuition purposes is not based on income at all.** There is no income threshold to qualify.\n\nInstead, to qualify for in-state tuition at Indian River State College you must:\n1. Be a U.S. citizen or eligible non-citizen.\n2. Complete the Florida Residency Declaration.\n3. **Submit residency documents showing you (or your parent/legal guardian, if dependent) have maintained legal Florida residency for at least 12 consecutive months before the first day of classes** — including at least one Tier 1 document (such as a Florida driver's license, vehicle registration, voter registration, homestead exemption, or proof of full-time Florida employment).\n\nDetails and the full document list are on the College's [Florida Residency Requirements](https://irsc.edu/admissions/tuition-fees/residency-requirements/) page.\n\nOne note: if you were actually thinking about an **income-based program** (rather than residency), tell me and I can check things like the [Promise Program](https://irsc.edu/admissions/promise/), which has *no* income requirements. Would you like help with either?",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 8.5
+    },
+    {
+      "id": "contradiction-app-fee",
+      "category": "contradiction",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "application fee admissions"
+          }
+        }
+      ],
+      "response": "Most programs at Indian River State College have a **$20 application fee**, but a few cost more:\n\n- **$30** — Bachelor's Degree programs\n- **$30** — Selective Admission programs\n- **$60** — A.S. Nursing\n\nThe fee is non-refundable and non-transferable, and some programs may carry additional fees. You can find the full breakdown on the College's [Admissions – Apply page](https://irsc.edu/admissions/apply/) and [FAQ](https://irsc.edu/faq/).\n\nIf you tell me which program you're applying to, I can confirm the exact fee.",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 4.3
+    },
+    {
+      "id": "contradiction-add-drop-window",
+      "category": "contradiction",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "drop class without W withdrawal deadline"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "academic calendar drop add deadline fall 2026"
+          }
+        }
+      ],
+      "response": "For the current term (Fall 2026), you have **7 days from classes starting** to drop a class without a \"W\" (with a tuition refund): term began **Wednesday, August 19, 2026** and the last drop day was **Tuesday, August 25, 2026**.\n\nHere's the catch: that no‑\"W\" drop deadline has **already passed**. If you still want to get out of a class, your last option is to **withdraw with a \"W\" by Thursday, October 29, 2026** — after that you'll receive a letter or failing grade instead.\n\n- Drop (no W, refund): through Aug 25, 2026 — *passed*\n- Withdraw (W on transcript): through **Oct 29, 2026**\n- You can't withdraw yourself out of your last class — an advisor must do a total withdrawal\n\nDetails are on the [Academic Calendar – Fall 2026](https://irsc.smartcatalogiq.com/en/current/catalog/academic-calendar/fall-2026) and [Changing Your Class Schedule](https://irsc.smartcatalogiq.com/en/current/catalog/services-to-students/select-classes-and-register/changing-your-class-schedule). Since the no‑\"W\" window is gone, I'd call **The River Line** to talk through your options before doing anything else.\n\nWant me to confirm today's exact dates for a specific course on your schedule?",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 17.2
+    },
+    {
+      "id": "contradiction-pell-max",
+      "category": "contradiction",
+      "passed": false,
+      "answer_passed": true,
+      "reasons": [
+        "answered without searching"
+      ],
+      "judge": null,
+      "tool_calls": [],
+      "response": "Federal Pell Grant amounts are set by the U.S. Department of Education and change every year, so I don't quote a fixed dollar figure—and they aren't determined by Indian River State College either. For the most current maximum, check your eligibility and amount estimate at <a href=\"https://studentaid.gov\">StudentAid.gov</a>.\n\nA couple of things worth remembering:\n\n- You need a completed FAFSA before any Pell award is calculated (the College uses your FAFSA data in your actual award, which I can't see).\n- Pell isn't available for every program, so I'd check your specific program's aid eligibility in The River Portal before assuming it applies.\n\nFor help with your FAFSA or what counts as an aid-eligible program, the best next step is the College's Financial Aid office via The River Line. Would you like me to look up their contact info or the FAFSA priority date for an upcoming term?",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 6.5
+    },
+    {
+      "id": "contradiction-promise-eligibility",
+      "category": "contradiction",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "Promise program eligibility",
+            "limit": 5
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "Florida College Promise program requirements",
+            "limit": 5
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.edu/admissions/promise/"
+          }
+        }
+      ],
+      "response": "The **Promise Program** at Indian River State College gives eligible Treasure Coast high school graduates two years of tuition-free education. To qualify, you generally need to:\n\n1. **Be a recent graduate** from a public high school, public charter school, an approved private school, or an eligible in-district homeschool program located in **Indian River County, Martin County, Okeechobee County, or St. Lucie County**.\n2. **Be a U.S. citizen or lawfully present** in the U.S. (DACA and undocumented students are **no longer** eligible as of July 1, 2025).\n3. **Meet the minimum GPA required for high school graduation** (2.0).\n4. **Complete the FAFSA** each academic year, and enroll full-time as encouraged (at least 12 credits in fall and spring, 6 in summer) while meeting Satisfactory Academic Progress standards.\n\n**Who is not eligible:**\n- **G.E.D.® holders** (not yet eligible)\n- **Florida Virtual School** graduates\n- **PEP (Personalized Education Program)** students\n- **DACA and undocumented students** (as of July 1, 2025)\n\nA few notes:\n- The program covers **in-state tuition** but **not** lab fees, books, or supplies, and it applies to **Associate Degrees** (AA, AS, AAS)—not bachelor's degrees.\n- There is a **$20 application fee** to apply to the College, but **no fee to pledge** to the Promise.\n- There is currently **no income limit** for Promise.\n\nFor the full details, check the [Promise Program page](https://irsc.edu/admissions/promise/) and the [list of eligible schools](https://irsc.edu/wp-content/uploads/2025/08/promise-program-2025-approved-high-schools.xlsx).\n\nIf you're not eligible, you can still use [FAFSA](https://studentaid.gov/) and apply for [Indian River State College Foundation Scholarships](https://irsc.student.awardedsoftware.com/auth/login).",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 10.5
+    },
+    {
+      "id": "it-support-specialist-parent-email",
+      "category": "hard_fact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "judge": null,
+      "tool_calls": [
+        {
+          "name": "search",
+          "input": {
+            "query": "IT Support Specialist program",
+            "limit": 8
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "IT support certificate program catalog",
+            "limit": 8
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "query": "tuition fees certificate non-degree program",
+            "limit": 6
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/computer-information-technology/information-technology-support-specialist-certificate"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "limit": 6,
+            "query": "financial aid eligibility certificate program institutional"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "limit": 6,
+            "query": "graduate outcomes job placement rate IT support"
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.edu/admissions/tuition-fees/estimated-costs/"
+          }
+        },
+        {
+          "name": "read_page",
+          "input": {
+            "url": "https://irsc.edu/program/computer-information-technology/"
+          }
+        },
+        {
+          "name": "search",
+          "input": {
+            "limit": 6,
+            "query": "payment plan tuition installment plan"
+          }
+        },
+        {
+          "name": "search_sections",
+          "input": {
+            "term": "Fall 2026",
+            "keyword": "IT support",
+            "limit": 15
+          }
+        },
+        {
+          "name": "search_sections",
+          "input": {
+            "term": "Fall 2026",
+            "course_code": "CET 1179C",
+            "limit": 10
+          }
+        },
+        {
+          "name": "search_sections",
+          "input": {
+            "term": "Spring 2027",
+            "course_code": "CET 1179C",
+            "limit": 10
+          }
+        }
+      ],
+      "response": "Happy to help — this is one of our [Computer Information Technology (CIT)](https://irsc.edu/program/computer-information-technology/) certificates, and it's a good fit for someone who learns by doing.\n\n**Program: Information Technology Support Specialist (Technical Certificate, 18 credits)**\n\n- Six 3-credit courses, all skill-based: [Introduction to IT (CIS 1000)](https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/computer-information-technology/information-technology-support-specialist-certificate), business computer applications, **CompTIA A+ Hardware and A+ Software** (the two courses prepare him for the A+ certification exam), **CCNA1 networking**, and Windows OS fundamentals. The College describes it as a path to help-desk roles, so the work is project- and lab-oriented rather than theory-heavy — well suited to a hands-on learner.\n- At 18 credits, it can be done in one full-time term (6 courses) or spread over two terms part-time, depending on how he'd like to pace it. Classes are offered in person (hybrid, e.g., Tuesday evenings at the Massey campus) and online, as seen in the latest class listings.\n- He finishes with skills employers screen for in entry-level IT support jobs, plus the knowledge to sit for industry certification exams.\n\n**Tuition and payment**\n\n- Florida residents pay **$103.83/credit** → about **$1,869** for the full certificate plus fees; non-residents pay **$390.49/credit**. Details are on the [Cost of Attendance](https://irsc.edu/admissions/tuition-fees/estimated-costs/) page, and there's a $20 technical certificate [application fee](https://irsc.edu/admissions/apply/).\n- Important note on aid: federal financial aid is limited to certificates of **24 or more credits**, so this 18-credit certificate does not qualify for federal aid per our [financial aid eligibility rules](https://irsc.edu/admissions/financial-aid/applying-for-financial-aid/). I'd still recommend a quick call with the Financial Aid office to confirm any state or River Foundation [scholarship](https://irsc.edu/admissions/financial-aid/types-aid/) options, since rules vary.\n- For payment, every student can use our **no-interest monthly Nelnet (FACTS) Tuition Pay Plan**, described on the [Tuition & Fees page](https://irsc.edu/admissions/tuition-fees/).\n\n**Graduate outcomes**\n\n- I wasn't able to confirm a program-specific job placement rate for this certificate on the College's website. The [Student Achievement Data](https://irsc.edu/about/accreditation/student-achievement-data/) page reports overall College placement rates of roughly 84–85% for recent graduate cohorts (2019–2024).\n\n**Suggested next steps**\n\n1. Apply via [Apply to the River](https://irsc.edu/admissions/apply/) ($20 fee).\n2. Talk with an advisor — no live chat exists, but the Financial Aid team and advising are reachable through [The River Line](https://irsc.edu/student-resources/the-river-line/).\n3. Have him check [The River Portal](https://go.irsc.edu/) for current sections and open seats before registering.\n\nWould you like help looking at the exact class dates and times for a particular semester?",
+      "notes": [],
+      "usage": {},
+      "cost_usd": 0.0,
+      "seconds": 42.7
+    }
+  ]
+}

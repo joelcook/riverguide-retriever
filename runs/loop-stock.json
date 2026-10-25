@@ -1,0 +1,1337 @@
+{
+  "summary": {
+    "name": "stock",
+    "search": "embedding",
+    "embed_model": "riverguide-retriever-stock",
+    "found": 75,
+    "linked": 66,
+    "n": 75,
+    "no_search": 0
+  },
+  "rows": [
+    {
+      "query": "RN",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "nursing RN program",
+        "registered nurse degree certificate ADN"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/nursing/",
+        "https://irsc.libguides.com/TutoringCenters/HESIA2"
+      ],
+      "error": null,
+      "seconds": 13.7
+    },
+    {
+      "query": "RN program",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "RN nursing program",
+        "registered nurse nursing program catalog"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/nursing/",
+        "https://irsc.edu/landing_page/health-services-nursing/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/nursing-associate-degree-rn"
+      ],
+      "error": null,
+      "seconds": 11.2
+    },
+    {
+      "query": "ADN",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "Associate in Nursing ADN program",
+        "nursing program associate degree"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/nursing/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/nursing-associate-degree-rn"
+      ],
+      "error": null,
+      "seconds": 15.7
+    },
+    {
+      "query": "ASN",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "ASN nursing associate in science nursing program",
+        "nursing degree requirements prerequisite courses"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/nursing/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/nursing-associate-degree-rn/associate-of-science-degree-in-nursing-rn"
+      ],
+      "error": null,
+      "seconds": 11.9
+    },
+    {
+      "query": "AS nursing",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "nursing associate of science program",
+        "nursing AS degree requirements catalog"
+      ],
+      "other_tools": [
+        "read_page",
+        "read_page"
+      ],
+      "links": [
+        "https://irsc.edu/program/nursing/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/nursing-associate-degree-rn/associate-of-science-degree-in-nursing-rn",
+        "https://connect.irsc.edu/?category=nursing"
+      ],
+      "error": null,
+      "seconds": 381.4
+    },
+    {
+      "query": "Nursing Associate Degree RN",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "Nursing Associate Degree RN program requirements",
+        "associate of sciences nursing program IRSC catalog"
+      ],
+      "other_tools": [
+        "read_page",
+        "read_page"
+      ],
+      "links": [
+        "https://irsc.edu/program/nursing/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/nursing-associate-degree-rn/associate-of-science-degree-in-nursing-rn"
+      ],
+      "error": null,
+      "seconds": 18.8
+    },
+    {
+      "query": "LPN to RN",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "LPN to RN program practical nurse registered nurse",
+        "nursing RN program LPN bridge requirements"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/nursing/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/nursing-associate-degree-rn"
+      ],
+      "error": null,
+      "seconds": 12.7
+    },
+    {
+      "query": "BSN",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "BSN Bachelor of Science in Nursing program",
+        "nursing program catalog"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/nursing/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/bachelor-degree-programs/bachelors-degree-program-in-nursing/bachelor-of-science-in-nursing"
+      ],
+      "error": null,
+      "seconds": 16.2
+    },
+    {
+      "query": "RN to BSN",
+      "found": true,
+      "linked": false,
+      "searches": [
+        "RN to BSN registered nurse Bachelor of Science in Nursing",
+        "nursing RN bridge program BSN requirements"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/nursing/"
+      ],
+      "error": null,
+      "seconds": 10.8
+    },
+    {
+      "query": "RN-BSN",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "RN-BSN Bachelor of Science Nursing",
+        "nursing program BSN requirements"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/nursing/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/bachelor-degree-programs/bachelors-degree-program-in-nursing/bachelor-of-science-in-nursing"
+      ],
+      "error": null,
+      "seconds": 12.5
+    },
+    {
+      "query": "LPN",
+      "found": true,
+      "linked": false,
+      "searches": [
+        "nursing program LPN practical nurse",
+        "nursing ADN associate degree RN requirements",
+        "Practical Nursing admission requirements PRN entry"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/nursing/",
+        "https://irsc.edu/landing_page/health_services_nursing/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/practical_nursing",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas_degrees_certificates/nursing_associate_degree\u2013rn/"
+      ],
+      "error": null,
+      "seconds": 17.8
+    },
+    {
+      "query": "PN",
+      "found": true,
+      "linked": false,
+      "searches": [
+        "practical nursing program",
+        "PN nursing certificate"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://connect.irsc.edu/?category=nursing",
+        "https://irsc.edu/program/nursing/",
+        "https://irsc.edu/admissions/apply/"
+      ],
+      "error": null,
+      "seconds": 11.5
+    },
+    {
+      "query": "CNA",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "Certified Nursing Assistant CNA program",
+        "CNA certificate requirements coursework"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/nursing/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/nursing-assistant",
+        "https://irsc.edu/programs/special-programs/lincoln-park-pathways"
+      ],
+      "error": null,
+      "seconds": 12.6
+    },
+    {
+      "query": "EMT",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "EMT emergency medical technician program certificate",
+        "Emergency Medical Technician EMT catalog requirements"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/emergency-medical-services/emergency-medical-technician-certificate-60650",
+        "https://irsc.edu/program/emergency-medical-services/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/emergency-medical-services/associate-in-science-degree-in-emergency-medical-services",
+        "https://irsc.edu/program/firefighter-emt-combined-program"
+      ],
+      "error": null,
+      "seconds": 12.9
+    },
+    {
+      "query": "EMS",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "EMS emergency medical services program",
+        "EMT program certificate"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/emergency-medical-services/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/emergency-medical-services/associate-in-science-degree-in-emergency-medical-services",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/emergency-medical-services/emergency-medical-technician-certificate-60650",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/emergency-medical-services/paramedic-certificate"
+      ],
+      "error": null,
+      "seconds": 10.1
+    },
+    {
+      "query": "paramedic",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "paramedic program",
+        "EMS emergency medical services paramedic certificate"
+      ],
+      "other_tools": [
+        "read_page",
+        "read_page"
+      ],
+      "links": [
+        "https://irsc.edu/wp-content/uploads/2026/09/Paramedic-information.pdf",
+        "https://youtu.be/aBpE51oEzhs",
+        "https://irsc.edu/wp-content/uploads/2026/09/Paramedic-Academic-Calendar-2026-2027.pdf",
+        "https://irsc.edu/program/emergency-medical-services/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/emergency-medical-services/paramedic-certificate"
+      ],
+      "error": null,
+      "seconds": 15.7
+    },
+    {
+      "query": "PTA",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "Physical Therapist Assistant PTA program",
+        "Physical Therapy Assistant associate degree"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/physical-therapist-assistant/"
+      ],
+      "error": null,
+      "seconds": 11.1
+    },
+    {
+      "query": "physical therapy",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "physical therapy program",
+        "physical therapy assistant coursework certificate"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/physical-therapist-assistant/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/physical-therapist-assistant",
+        "https://irsc.edu/wp-content/uploads/2026/07/physical-therapy-assistant-2027-booklet_6_2026.pdf"
+      ],
+      "error": null,
+      "seconds": 8.9
+    },
+    {
+      "query": "MLT",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "MLT medical laboratory technology program",
+        "medical laboratory technology MLT admission requirements selective admission application"
+      ],
+      "other_tools": [
+        "read_page",
+        "read_page",
+        "read_page"
+      ],
+      "links": [
+        "https://irsc.edu/program/medical-laboratory-technology/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/medical-laboratory-technology/associate-in-science-in-medical-laboratory-technology"
+      ],
+      "error": null,
+      "seconds": 18.3
+    },
+    {
+      "query": "rad tech",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "radiologic technology radiography program",
+        "rad tech program requirements admissions"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/wp-content/uploads/2026/06/radiography-admission-book-6-2026.pdf",
+        "https://irsc.edu/admissions/apply/",
+        "https://irsc.edu/program/radiography/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/radiography/associate-of-science-degree-in-radiography"
+      ],
+      "error": null,
+      "seconds": 11.6
+    },
+    {
+      "query": "radiologic technology",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "radiologic technology program",
+        "radiography radiologic science"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/radiography/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/radiography",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/radiography/associate-of-science-degree-in-radiography"
+      ],
+      "error": null,
+      "seconds": 11.2
+    },
+    {
+      "query": "x-ray tech",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "x-ray tech program radiologic technology",
+        "radiography imaging technology certificate"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/wp-content/uploads/2026/06/radiography-admission-book-6-2026.pdf",
+        "https://irsc.edu/program/radiography/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/radiography/associate-of-science-degree-in-radiography"
+      ],
+      "error": null,
+      "seconds": 8.9
+    },
+    {
+      "query": "respiratory therapist",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "respiratory therapy program",
+        "respiratory therapist associate degree admissions requirements"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/wp-content/uploads/2026/08/Respiratory-Care-2027-prog_Application-Book-7-2026-1.pdf",
+        "https://irsc.edu/program/respiratory-care/"
+      ],
+      "error": null,
+      "seconds": 11.2
+    },
+    {
+      "query": "RRT",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "RRT respiratory therapy program",
+        "respiratory care certificate program requirements"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/wp-content/uploads/2026/08/Respiratory-Care-2027-prog_Application-Book-7-2026-1.pdf",
+        "https://irsc.edu/program/respiratory-care/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/respiratory-care"
+      ],
+      "error": null,
+      "seconds": 12.9
+    },
+    {
+      "query": "surgical tech",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "surgical technology program",
+        "surgical tech certificate degree requirements"
+      ],
+      "other_tools": [
+        "read_page"
+      ],
+      "links": [
+        "https://irsc.edu/program/surgical-technology/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/surgical-technology-apprenticeship",
+        "https://irsc.edu/wp-content/uploads/2026/08/Surgical-technology-App-booklet_2027-prog.pdf"
+      ],
+      "error": null,
+      "seconds": 12.0
+    },
+    {
+      "query": "surgical technician",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "surgical technology program",
+        "surgical technician certificate"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/surgical-technology/",
+        "https://irsc.edu/wp-content/uploads/2026/08/Surgical-technology-App-booklet_2027-prog.pdf",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/surgical-technology-apprenticeship",
+        "https://irsc.edu/program/central-services-technology/"
+      ],
+      "error": null,
+      "seconds": 12.3
+    },
+    {
+      "query": "CMA",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "CMA Certified Management Accountant program",
+        "CMA certificate accounting"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/medical-assisting/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/medical-assisting"
+      ],
+      "error": null,
+      "seconds": 14.8
+    },
+    {
+      "query": "medical assistant",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "medical assistant program",
+        "medical assisting certificate degree"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/medical-assisting/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/medical-assisting",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/medical-assisting-apprenticeship"
+      ],
+      "error": null,
+      "seconds": 9.8
+    },
+    {
+      "query": "pharm tech",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "pharmacy technology program certificate",
+        "pharm tech program requirements admission"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/pharmacy-technician/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/pharmacy-technician"
+      ],
+      "error": null,
+      "seconds": 11.0
+    },
+    {
+      "query": "medical coding",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "medical coding program",
+        "medical coding certificate degree",
+        "healthcare informatics specialist certificate credits"
+      ],
+      "other_tools": [
+        "read_page",
+        "read_page"
+      ],
+      "links": [
+        "https://irsc.edu/program/medical-coder-biller/",
+        "https://irsc.edu/program/healthcare-informatics-specialist/",
+        "https://irsc.edu/program/medical-coder-biller/",
+        "https://irsc.edu/program/healthcare-informatics-specialist/"
+      ],
+      "error": null,
+      "seconds": 31.0
+    },
+    {
+      "query": "medical billing",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "medical billing program certificate",
+        "medical billing and coding certificate"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/medical-coder-biller/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/health-information-technology-certificates/medical-coder-biller-certificate",
+        "https://irsc.edu/program/medical-assisting/"
+      ],
+      "error": null,
+      "seconds": 15.9
+    },
+    {
+      "query": "dental hygienist",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "dental hygienist program",
+        "dental hygiene program requirements"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/dental-hygiene/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/dental-hygiene/associate-in-science-degree-in-dental-hygiene"
+      ],
+      "error": null,
+      "seconds": 10.1
+    },
+    {
+      "query": "HHA",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "HHA home health aide program",
+        "home health aide certificate"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/home-health-aide",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/courses/hcp-nursing-patient-care-technician/0000/hcp-0330c",
+        "https://irsc.edu/program/home-health-aide"
+      ],
+      "error": null,
+      "seconds": 10.7
+    },
+    {
+      "query": "sterile processing",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "sterile processing program",
+        "sterile processing technology certificate"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/central-services-technology/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/central-service-technology"
+      ],
+      "error": null,
+      "seconds": 9.6
+    },
+    {
+      "query": "HIM",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "Health Information Management HIM program",
+        "HIM certificate associate degree"
+      ],
+      "other_tools": [
+        "read_page"
+      ],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/health-information-technology-certificates",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/health-information-technology-certificates/medical-coder-biller-certificate",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/health-information-technology-certificates/healthcare-informatics-specialist-certificate",
+        "https://irsc.edu/about/accreditation/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/health-information-technology-certificates",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/health-information-technology-certificates/medical-coder-biller-certificate",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/health-information-technology-certificates/healthcare-informatics-specialist-certificate",
+        "https://irsc.edu/about/accreditation/"
+      ],
+      "error": null,
+      "seconds": 15.8
+    },
+    {
+      "query": "phlebotomist",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "phlebotomy certificate program",
+        "phlebotomist course requirements"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/phlebotomy/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/phlebotomy"
+      ],
+      "error": null,
+      "seconds": 10.4
+    },
+    {
+      "query": "HVAC",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "HVAC program",
+        "heating air conditioning refrigeration"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/air-conditioning-refrigeration-heating/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/ac-refrigeration-heating-systems-tech"
+      ],
+      "error": null,
+      "seconds": 9.7
+    },
+    {
+      "query": "AC repair",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "air conditioning HVAC refrigeration program",
+        "HVAC air conditioning repair certificate program catalog"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/air-conditioning-refrigeration-heating/",
+        "https://info.irsc.edu/"
+      ],
+      "error": null,
+      "seconds": 9.8
+    },
+    {
+      "query": "CDL",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "CDL commercial driver license program",
+        "commercial driver license training"
+      ],
+      "other_tools": [
+        "read_page"
+      ],
+      "links": [
+        "https://rivercontinuinged.gosignmeup.com",
+        "https://irsc.edu/programs/continuing-education/commercial-vehicle-driving/"
+      ],
+      "error": null,
+      "seconds": 15.5
+    },
+    {
+      "query": "diesel mechanic",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "diesel mechanic program",
+        "automotive technology diesel"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/diesel-technician-apprenticeship",
+        "https://irsc.edu/program/apprenticeships/"
+      ],
+      "error": null,
+      "seconds": 10.8
+    },
+    {
+      "query": "auto mechanic",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "auto mechanic automotive program",
+        "automotive technology certificate AAS"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/automotive/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/automotive-service-management-technology"
+      ],
+      "error": null,
+      "seconds": 9.0
+    },
+    {
+      "query": "electrician",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "electrician program",
+        "electrical trade certificate program"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/electrical-apprenticeship",
+        "https://irsc.edu/program/electrical-power-technology/",
+        "https://irsc.edu/program/electronics-engineering-technology/",
+        "https://irsc.edu/program/apprenticeships/"
+      ],
+      "error": null,
+      "seconds": 14.0
+    },
+    {
+      "query": "plumber",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "plumbing program",
+        "plumber certificate apprenticeship"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/apprenticeships/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/plumbing-apprenticeship"
+      ],
+      "error": null,
+      "seconds": 12.3
+    },
+    {
+      "query": "CAD",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "CAD computer aided design program",
+        "CAD drafting drafting technology"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/drafting-designing-technology/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/drafting-and-design-certificates/drafting-certificate",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/drafting-and-design-certificates/autocad-foundations-certificate"
+      ],
+      "error": null,
+      "seconds": 10.3
+    },
+    {
+      "query": "nail tech",
+      "found": true,
+      "linked": false,
+      "searches": [
+        "nail technology program",
+        "cosmetology nail tech certificate"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/cosmetology/",
+        "https://irsc.edu/program/cosmetology/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/courses/csp-cosmetology/0000/csp-0010"
+      ],
+      "error": null,
+      "seconds": 11.5
+    },
+    {
+      "query": "esthetician",
+      "found": true,
+      "linked": false,
+      "searches": [
+        "esthetician program",
+        "cosmetology esthetics program catalog"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/cosmetology/",
+        "https://irsc.edu/study_area/cos/"
+      ],
+      "error": null,
+      "seconds": 9.7
+    },
+    {
+      "query": "barber",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "barbering program",
+        "cosmetology barber certificate program"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/barbering/",
+        "https://irsc.smartcatalogiq.com/current/catalog/career-and-technical-education-programs/barbering",
+        "https://irsc.edu/landing_page/barbering-search/"
+      ],
+      "error": null,
+      "seconds": 10.1
+    },
+    {
+      "query": "welder",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "welding program certificate degree",
+        "welder welding technology"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/welding/",
+        "https://irsc.smartcatalogiq.com/current/catalog/career-and-technical-education-programs/welding-technology",
+        "https://irsc.edu/program/apprenticeships/"
+      ],
+      "error": null,
+      "seconds": 9.7
+    },
+    {
+      "query": "EV mechanic",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "electric vehicle mechanic program automotive",
+        "EV hybrid automotive technology certificate"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/automotive-service-management-technology/hybrid-and-electric-vehicle-maintenance",
+        "https://irsc.edu/program/hybrid-and-electric-vehicle-maintenance"
+      ],
+      "error": null,
+      "seconds": 8.0
+    },
+    {
+      "query": "police academy",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "police academy program",
+        "law enforcement criminal justice certification"
+      ],
+      "other_tools": [
+        "read_page",
+        "read_page"
+      ],
+      "links": [
+        "https://irsc.edu/program/law-enforcement/",
+        "https://irsc.edu/public-service/criminal-justice-institute/"
+      ],
+      "error": null,
+      "seconds": 17.3
+    },
+    {
+      "query": "BRT",
+      "found": true,
+      "linked": false,
+      "searches": [
+        "Business Recreation and Technology BRT department programs",
+        "BRT programs certificates Indian River State College",
+        "BRT program",
+        "Building and Refrigeration Technology BRT",
+        "\"BRT\" program catalog",
+        "BRT course listing",
+        "\"Bronx River\" OR \"BRT\" department",
+        "business and recreation technology"
+      ],
+      "other_tools": [
+        "read_page"
+      ],
+      "links": [
+        "https://irsc.edu/program/business/",
+        "https://irsc.edu/program/air-conditioning-refrigeration-heating/",
+        "https://irsc.edu/program/building-construction-technology/",
+        "https://irsc.edu/advising-services/riverline/"
+      ],
+      "error": null,
+      "seconds": 34.7
+    },
+    {
+      "query": "corrections officer",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "corrections officer program",
+        "corrections officer certificate ASET"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/correctional-officer-basic-recruit-training/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/courses/cjk-criminal-justice-technology/0000/cjk-0301",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/basic-recruit-training-program-for-florida-corrections-officers",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/law-enforcement-officer-crossover-from-correctional-officer",
+        "https://irsc.edu/study_area/publicsafety/"
+      ],
+      "error": null,
+      "seconds": 13.1
+    },
+    {
+      "query": "firefighter",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "firefighter program",
+        "fire protection career technical"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/fire-fighter-emergency-medical-technician-combined",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/firefighting-basic-recruit-training",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/fire-science-technology",
+        "https://irsc.edu/program/fire-science/",
+        "https://info.irsc.edu/"
+      ],
+      "error": null,
+      "seconds": 13.7
+    },
+    {
+      "query": "FF/EMT",
+      "found": true,
+      "linked": false,
+      "searches": [
+        "firefighter EMT program",
+        "FF/EMT"
+      ],
+      "other_tools": [
+        "read_page",
+        "read_page"
+      ],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/career-and-technical-education-programs/firefighting-basic-recruit-training",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/emergency-medical-services/emergency-medical-technician-certificate-60650",
+        "https://irsc.edu/program/emergency-medical-services/",
+        "https://irsc.edu/program/fire-science/"
+      ],
+      "error": null,
+      "seconds": 15.6
+    },
+    {
+      "query": "CJ",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "criminal justice program",
+        "criminal justice degree certificate"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/criminal-justice-technology",
+        "https://irsc.edu/program/criminal-justice/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/bachelor-degree-programs/bachelors-degree-program-in-criminal-justice/bachelor-of-science-in-criminal-justice",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/associate-in-arts-degree/criminal-justice-track",
+        "https://irsc.edu/public-service/criminal-justice-institute/"
+      ],
+      "error": null,
+      "seconds": 10.5
+    },
+    {
+      "query": "CSI",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "crime scene investigation CSI program",
+        "forensic science program"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/crime-scene-technology/associate-in-science-degree-in-crime-scene-technology",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/criminal-justice-technology/associate-of-science-in-criminal-justice-technology",
+        "https://irsc.smartcatalogiq.com/current/catalog/bachelor-degree-programs/bachelors-degree-program-in-criminal-justice/bachelor-of-science-in-criminal-justice/",
+        "https://irsc.edu/public-service/criminal-justice-institute/"
+      ],
+      "error": null,
+      "seconds": 11.5
+    },
+    {
+      "query": "IT",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "information technology programs",
+        "IT certificates degree programs"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/computer-information-technology/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/bachelor-degree-programs/bachelors-degree-program-in-information-technology-management-and-cyber-security/bachelor-of-science-degree-in-information-technology-management-and-cyber-security"
+      ],
+      "error": null,
+      "seconds": 9.2
+    },
+    {
+      "query": "IT support",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "information technology support program AAS certificate",
+        "computer information technology program catalog"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/computer-information-technology/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/computer-information-technology/information-technology-support-specialist-certificate",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/computer-information-technology/help-desk-support-technician-60630",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/computer-information-technology/associate-in-science-degree-in-computer-information-technology"
+      ],
+      "error": null,
+      "seconds": 10.9
+    },
+    {
+      "query": "CIT",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "CIT Computer Information Technology program",
+        "CIT program catalog degrees certificates"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/computer-information-technology/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/computer-information-technology"
+      ],
+      "error": null,
+      "seconds": 9.5
+    },
+    {
+      "query": "cybersecurity",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "cybersecurity program",
+        "cybersecurity certificate associate degree"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/bachelor-degree-programs/bachelors-degree-program-in-information-technology-management-and-cyber-security/bachelor-of-science-degree-in-information-technology-management-and-cyber-security",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/computer-information-technology/associate-in-science-degree-in-computer-information-technology",
+        "https://irsc.edu/program/computer-information-technology/"
+      ],
+      "error": null,
+      "seconds": 14.6
+    },
+    {
+      "query": "AI",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "artificial intelligence program certificate",
+        "AI artificial intelligence course computer science"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/artificial-intelligence-awareness",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/courses/cai-computing-artificial-intelligence/2000/cai-2001",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/courses/cai-computing-artificial-intelligence/1000/cai-1000",
+        "https://irsc.edu/cybergen-academy-at-the-river/"
+      ],
+      "error": null,
+      "seconds": 11.7
+    },
+    {
+      "query": "BSBA",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "BSBA business administration bachelor degree program",
+        "Bachelor of Science in Business Administration degree"
+      ],
+      "other_tools": [
+        "read_page"
+      ],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/bachelor-degree-programs/bachelors-degree-program-in-business-administration/bachelor-of-science-degree-in-business-administration",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/services-to-students/apply-for-admissions/admissions-baccalaureate-programs",
+        "https://irsc.edu/program/business/"
+      ],
+      "error": null,
+      "seconds": 14.7
+    },
+    {
+      "query": "HR",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "human resources program certificate",
+        "human resources associate degree"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/business-administration/human-resources-administrator",
+        "https://irsc.edu/program/business/"
+      ],
+      "error": null,
+      "seconds": 12.7
+    },
+    {
+      "query": "BAS organizational management",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "BAS organizational management bachelor applied science program",
+        "organizational management bachelor's degree catalog"
+      ],
+      "other_tools": [
+        "read_page"
+      ],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/bachelor-degree-programs/bachelors-degree-programs-in-organizational-management/bachelor-of-applied-science-degree-in-organizational-management",
+        "https://irsc.edu/program/business/"
+      ],
+      "error": null,
+      "seconds": 10.5
+    },
+    {
+      "query": "ESL",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "ESL English as a Second Language program",
+        "ESL English language courses"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/english-as-a-second-language-program/",
+        "https://irsc.edu/adult-education/",
+        "https://irsc.edu/admissions/apply/"
+      ],
+      "error": null,
+      "seconds": 8.7
+    },
+    {
+      "query": "ESOL",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "ESOL English for Speakers of Other Languages program",
+        "ESOL courses catalog"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/english-as-a-second-language-program/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/adult-educationl/english-as-a-second-language",
+        "https://irsc.edu/admissions/apply/"
+      ],
+      "error": null,
+      "seconds": 10.5
+    },
+    {
+      "query": "GED",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "GED program",
+        "GED testing preparation"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/ged-preparation/",
+        "https://irsc.edu/adult-education/",
+        "https://irsc.edu/admissions/apply/",
+        "https://irsc.edu/admissions/apply/"
+      ],
+      "error": null,
+      "seconds": 15.7
+    },
+    {
+      "query": "ABE",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "ABE adult basic education program",
+        "ABE program catalog"
+      ],
+      "other_tools": [
+        "read_page",
+        "read_page"
+      ],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/adult-educationl/adult-basic-education",
+        "https://irsc.edu/adult-education/",
+        "https://irsc.edu/admissions/apply/"
+      ],
+      "error": null,
+      "seconds": 11.5
+    },
+    {
+      "query": "EPI",
+      "found": true,
+      "linked": false,
+      "searches": [
+        "EPI program",
+        "EPI certificate"
+      ],
+      "other_tools": [
+        "read_page"
+      ],
+      "links": [],
+      "error": null,
+      "seconds": 13.6
+    },
+    {
+      "query": "teacher certification",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "teacher certification program",
+        "education certification associate degree"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/teacher-education/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/bachelor-degree-programs/bachelors-degree-programs-in-education/bachelor-of-science-degree-in-elementary-education-with-reading-and-esol-endorsements",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/bachelor-degree-programs/bachelors-degree-programs-in-education/bachelor-of-science-degree-in-exceptional-student-education-with-reading-and-esol-endorsements",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/certificate-of-professional-preparation/educator-preparation-institute",
+        "https://irsc.edu/program/early-childhood-education/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/associate-in-arts-degree",
+        "https://irsc.edu"
+      ],
+      "error": null,
+      "seconds": 13.8
+    },
+    {
+      "query": "ECE",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "ECE early childhood education program",
+        "early childhood education certificate degree"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/early-childhood-education/early-childhood-education",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/early-childhood-education/preschool-specialization",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/early-childhood-education/child-care-center-management-specialization",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/early-childhood-education/child-development-and-early-intervention-certificate",
+        "https://irsc.edu/program/early-childhood-education/"
+      ],
+      "error": null,
+      "seconds": 11.8
+    },
+    {
+      "query": "ESE",
+      "found": true,
+      "linked": false,
+      "searches": [
+        "Exceptional Student Education ESE program",
+        "ESE 311 ESE 312 ESE 330 course catalog"
+      ],
+      "other_tools": [
+        "read_page",
+        "read_page",
+        "read_page"
+      ],
+      "links": [
+        "https://paratoteacherprogram.com/",
+        "https://info.irsc.edu/",
+        "https://irsc.edu/admissions/admissions-process/"
+      ],
+      "error": null,
+      "seconds": 21.4
+    },
+    {
+      "query": "AA psychology",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "AA psychology associate degree program",
+        "psychology degree requirements catalog"
+      ],
+      "other_tools": [
+        "read_page"
+      ],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/associate-in-arts-degree/psychology-track",
+        "https://irsc.edu/program/psychology/"
+      ],
+      "error": null,
+      "seconds": 10.5
+    },
+    {
+      "query": "AS business",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "Associate in Science business degree program",
+        "business AS degree requirements catalog"
+      ],
+      "other_tools": [
+        "read_page"
+      ],
+      "links": [
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/business-administration/associate-in-science-degree-in-business-administration",
+        "https://irsc.edu/program/business/"
+      ],
+      "error": null,
+      "seconds": 18.7
+    },
+    {
+      "query": "AAS HVAC",
+      "found": true,
+      "linked": true,
+      "searches": [
+        "AAS HVAC HVACR air conditioning refrigeration program",
+        "HVAC associate of applied science degree requirements"
+      ],
+      "other_tools": [],
+      "links": [
+        "https://irsc.edu/program/air-conditioning-refrigeration-heating/",
+        "https://irsc.smartcatalogiq.com/en/current/catalog/aas-degrees-certificates/ac-refrigeration-heating-systems-tech/associate-in-applied-science-in-air-conditioning-refrigeration-and-heating-systems-technology-degree"
+      ],
+      "error": null,
+      "seconds": 10.9
+    }
+  ]
+}
