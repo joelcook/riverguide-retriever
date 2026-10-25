@@ -26,7 +26,7 @@ done
 
 # The command for ENGINE at fallback ATTEMPT (1 = best settings); empty when out of attempts.
 engine_cmd() {
-  local port
+  local port=11434
   case "$1" in
     ollama-p4) port=11436 ;; llamacpp) port=11437 ;; vllm) port=11438 ;; sglang) port=11439 ;;
   esac
