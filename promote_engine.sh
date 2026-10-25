@@ -19,9 +19,11 @@ say() { echo "$(date +%T) [promote] $*"; }
 setenv() { if grep -q "^$2=" "$1"; then sed -i "s|^$2=.*|$2=$3|" "$1"; else echo "$2=$3" >> "$1"; fi; }
 
 remove_losers() {
-  for e in llamacpp vllm sglang; do [ "$e" = "$WIN" ] || { rm -rf "${E:?}/$e"; say "removed $e"; }; done
-  [[ $WIN == vllm || $WIN == sglang ]] || rm -rf "$E/models/qwen3.8-27b-w4a16" "$E/hf"
-  [ "$WIN" = llamacpp ] || rm -rf "$E/models/qwen3.8-27b-template"
+  for e in llamacpp vllm sglang; do [ "$e" = "${WIN%%-*}" ] || { rm -rf "${E:?}/$e"; say "removed $e"; }; done
+  [[ ${WIN%%-*} == vllm || ${WIN%%-*} == sglang ]] || rm -rf "$E/models/qwen3.8-27b-w4a16" "$E/hf"
+  [ "${WIN%%-*}" = llamacpp ] || rm -rf "$E/models/qwen3.8-27b-template"
+  [ "$WIN" = llamacpp-dflash ] || rm -rf "$E/models/qwen3.8-27b-dflash2-gguf"
+  [[ $WIN == vllm-dflash || $WIN == sglang-dflash ]] || rm -rf "$E/models/qwen3.8-27b-dflash2-w4a16"
 }
 table() { python3 bakeoff_verdict.py $(python3 -c "import json; print(' '.join(json.load(open('runs/bakeoff.json'))['engines']))") | tail -n +1; }
 
@@ -38,7 +40,7 @@ else
   BASE_NEW=http://127.0.0.1:11440 API=openai; [[ $WIN == ollama-* ]] && API=ollama
   cmd=$(python3 -c "import json; print(json.load(open('runs/bake-$WIN.json'))['command'])")
   cmd=$(sed -E 's/--port [0-9]+/--port 11440/; s/OLLAMA_HOST=127\.0\.0\.1:[0-9]+/OLLAMA_HOST=127.0.0.1:11440/' <<< "$cmd")
-  if [ "$WIN" = llamacpp ]; then   # its own copy of the GGUF, so Ollama can drop models freely
+  if [ "${WIN%%-*}" = llamacpp ]; then   # its own copy of the GGUF, so Ollama can drop models freely
     gguf=$(grep -oE '/var/lib/ollama/blobs/sha256-[0-9a-f]+' <<< "$cmd")
     cp -n "$gguf" "$E/models/qwen3.8-27b.gguf" && cmd=${cmd//$gguf/$E/models/qwen3.8-27b.gguf}
   fi
@@ -82,7 +84,7 @@ fi
 [ "$BASE_NEW" = http://127.0.0.1:11434 ] && sed -i '/^OLLAMA_URL=/d' "$GW" || setenv "$GW" OLLAMA_URL "$BASE_NEW"
 # How many questions the gateway lets through at once: what the engine answers together (Ollama and
 # llama.cpp run 4 slots; vLLM and SGLang batch up to 16, so 8 keeps each answer quick).
-case "$WIN" in vllm|sglang) cap=8 ;; *) cap=4 ;; esac
+case "$WIN" in vllm*|sglang*) cap=8 ;; *) cap=4 ;; esac
 setenv "$GW" RIVERGUIDE_MODEL_MAX_IN_FLIGHT "$cap"
 setenv "$FUND/.env" LLM_API "'$API'"
 setenv "$FUND/.env" OLLAMA_URL "'$BASE_NEW'"

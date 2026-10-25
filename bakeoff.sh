@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Lab job (night): which engine should serve production's Qwen3.8 27B on the 4090?
-#   ./bakeoff.sh [ENGINE...]      (default: all of ollama-p1 ollama-p4 llamacpp vllm sglang)
+#   ./bakeoff.sh [ENGINE...]      (default: Ollama 1 and 4 slots and tuned; llama.cpp, vLLM and SGLang, each with MTP and with DFlash2)
 # Each engine serves the same model under the same name (qwen3.8:27b) with production Ollama's
 # sampling (temperature 1, top-k 20, top-p 0.95), then gets: the golden set twice through
 # RiverGuide's loop (quality), the load test at 1, 4, 8 and 16 students (speed), fundraising's
@@ -16,7 +16,7 @@ NAME=qwen3.8:27b
 GGUF=/var/lib/ollama/blobs/sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d
 CKPT=$E/models/qwen3.8-27b-w4a16 TEMPLATE=$E/models/qwen3.8-27b-template/chat_template.jinja
 SAMPLING='{"temperature": 1.0, "top_p": 0.95, "top_k": 20, "min_p": 0.0}'
-ENGINES=("${@:-ollama-p1 ollama-p4 llamacpp vllm sglang}"); ENGINES=(${ENGINES[@]})
+ENGINES=("${@:-ollama-p1 ollama-p4 ollama-max llamacpp-mtp llamacpp-dflash vllm-dflash vllm-mtp sglang-dflash sglang-mtp}"); ENGINES=(${ENGINES[@]})
 say() { echo "$(date +%T) $*"; }
 PID= BASE= CMD=
 # Wait for install_engines.sh: every engine READY or FAILED, the shared checkpoint too.
@@ -25,35 +25,49 @@ for need in llamacpp vllm sglang models/qwen3.8-27b-w4a16; do
 done
 
 # The command for ENGINE at fallback ATTEMPT (1 = best settings); empty when out of attempts.
+# Every engine runs at its limit, with everything it offers: Qwen3.8's own multi-token prediction
+# (MTP) and the DFlash2 drafter where it supports them (each its own variant, so neither hides the
+# other), flash attention, an 8-bit KV cache, prefix caching. A variant whose speedup won't start
+# is recorded as failed; it never falls back to plain decoding (that would run it handicapped).
 engine_cmd() {
   local port=11434
-  case "$1" in
-    ollama-p4) port=11436 ;; llamacpp) port=11437 ;; vllm) port=11438 ;; sglang) port=11439 ;;
+  case "${1%%-*}" in
+    ollama) [ "$1" = ollama-p1 ] || port=11436 ;; llamacpp) port=11437 ;; vllm) port=11438 ;; sglang) port=11439 ;;
   esac
-  BASE=http://127.0.0.1:${port:-11434}
+  BASE=http://127.0.0.1:$port
+  local dfl_gguf=$E/models/qwen3.8-27b-dflash2-gguf/Qwen3.8-27B-DFlash2-Q4_K_M.gguf
+  local dfl_w4=$E/models/qwen3.8-27b-dflash2-w4a16
+  local ollama_env="OLLAMA_HOST=127.0.0.1:$port OLLAMA_MODELS=/var/lib/ollama OLLAMA_NUM_PARALLEL=4 OLLAMA_MAX_LOADED_MODELS=1 OLLAMA_NOPRUNE=1 OLLAMA_NO_CLOUD=1"
+  local llama="$E/llamacpp/src/build/bin/llama-server -m $GGUF --alias $NAME --host 127.0.0.1 --port $port \
+    -ngl 999 -fa on -np 4 -ctk q8_0 -ctv q8_0 --jinja --chat-template-file $TEMPLATE --cache-reuse 256 \
+    --temp 1.0 --top-k 20 --top-p 0.95 --min-p 0"
+  local llama_mtp="--spec-type draft-mtp --spec-draft-n-max 3 --spec-draft-p-min 0.75"
+  local llama_dfl="-md $dfl_gguf -ngld 999 --spec-type draft-dflash --spec-draft-n-max 7"
   local vllm="$E/vllm/.venv/bin/vllm serve $CKPT --served-model-name $NAME --host 127.0.0.1 --port $port \
     --gpu-memory-utilization 0.95 --max-num-seqs 16 --enable-prefix-caching --reasoning-parser qwen3 \
-    --enable-auto-tool-choice --tool-call-parser qwen3_coder --override-generation-config '$SAMPLING'"
+    --enable-auto-tool-choice --tool-call-parser qwen3_coder --override-generation-config '$SAMPLING' --kv-cache-dtype fp8"
+  local vllm_mtp="--speculative-config '{\"method\": \"mtp\", \"num_speculative_tokens\": 3}'"
+  local vllm_dfl="--speculative-config '{\"method\": \"dflash\", \"model\": \"$dfl_w4\", \"num_speculative_tokens\": 7}'"
   local sglang="$E/sglang/.venv/bin/python -m sglang.launch_server --model-path $CKPT --served-model-name $NAME \
     --host 127.0.0.1 --port $port --max-running-requests 16 --reasoning-parser qwen3 --tool-call-parser qwen3_coder"
-  # Every engine runs Qwen3.8's own multi-token prediction (MTP) where it can, as Ollama does
-  # (draft_num_predict 4): its first settings use it, the last ones go without.
-  local llama_mtp="--spec-type draft-mtp --spec-draft-n-max 4"
   local sglang_mtp="--speculative-algorithm NEXTN --speculative-num-steps 3 --speculative-eagle-topk 1 --speculative-num-draft-tokens 4"
-  local llama="$E/llamacpp/src/build/bin/llama-server -m $GGUF --alias $NAME --host 127.0.0.1 --port $port \
-    -ngl 999 -fa on -np 4 --jinja --chat-template-file $TEMPLATE --cache-reuse 256 --temp 1.0 --top-k 20 --top-p 0.95 --min-p 0"
+  local sglang_dfl="--speculative-algorithm DFLASH --speculative-draft-model-path $dfl_w4 --speculative-num-draft-tokens 8"
   case "$1:$2" in
     ollama-p1:1) CMD="(system Ollama, 1 slot)" ;;
-    ollama-p4:1) CMD="env OLLAMA_HOST=127.0.0.1:$port OLLAMA_MODELS=/var/lib/ollama OLLAMA_NUM_PARALLEL=4 OLLAMA_MAX_LOADED_MODELS=1 OLLAMA_NOPRUNE=1 OLLAMA_NO_CLOUD=1 ollama serve" ;;
-    llamacpp:1) CMD="$llama -c 65536 $llama_mtp" ;;
-    llamacpp:2) CMD="$llama -c 32768 $llama_mtp" ;;
-    llamacpp:3) CMD="$llama -c 32768" ;;
-    vllm:1) CMD="$vllm --max-model-len 32768 --kv-cache-dtype fp8 --speculative-config '{\"method\": \"mtp\", \"num_speculative_tokens\": 3}'" ;;
-    vllm:2) CMD="$vllm --max-model-len 32768 --kv-cache-dtype fp8" ;;
-    vllm:3) CMD="$vllm --max-model-len 16384 --kv-cache-dtype fp8 --enforce-eager" ;;
-    sglang:1) CMD="$sglang --context-length 32768 --mem-fraction-static 0.88 --kv-cache-dtype fp8_e5m2 $sglang_mtp" ;;
-    sglang:2) CMD="$sglang --context-length 16384 --mem-fraction-static 0.85 $sglang_mtp" ;;
-    sglang:3) CMD="$sglang --context-length 16384 --mem-fraction-static 0.85" ;;
+    ollama-p4:1) CMD="env $ollama_env ollama serve" ;;
+    ollama-max:1) CMD="env $ollama_env OLLAMA_FLASH_ATTENTION=1 OLLAMA_KV_CACHE_TYPE=q8_0 ollama serve" ;;
+    llamacpp-mtp:1) CMD="$llama -c 65536 $llama_mtp" ;;
+    llamacpp-mtp:2) CMD="$llama -c 32768 $llama_mtp" ;;
+    llamacpp-dflash:1) CMD="$llama -c 32768 $llama_dfl" ;;
+    llamacpp-dflash:2) CMD="$llama -c 16384 $llama_dfl" ;;
+    vllm-dflash:1) CMD="$vllm --max-model-len 32768 $vllm_dfl" ;;
+    vllm-dflash:2) CMD="$vllm --max-model-len 16384 --enforce-eager $vllm_dfl" ;;
+    vllm-mtp:1) CMD="$vllm --max-model-len 32768 $vllm_mtp" ;;
+    vllm-mtp:2) CMD="$vllm --max-model-len 16384 --enforce-eager $vllm_mtp" ;;
+    sglang-dflash:1) CMD="$sglang --context-length 32768 --mem-fraction-static 0.88 --kv-cache-dtype fp8_e5m2 $sglang_dfl" ;;
+    sglang-dflash:2) CMD="$sglang --context-length 16384 --mem-fraction-static 0.85 $sglang_dfl" ;;
+    sglang-mtp:1) CMD="$sglang --context-length 32768 --mem-fraction-static 0.88 --kv-cache-dtype fp8_e5m2 $sglang_mtp" ;;
+    sglang-mtp:2) CMD="$sglang --context-length 16384 --mem-fraction-static 0.85 $sglang_mtp" ;;
     *) CMD= ;;
   esac
 }
@@ -63,7 +77,7 @@ start() {  # start ENGINE ATTEMPT: true once it answers on $BASE
   if [ "$1" = ollama-p1 ]; then
     curl -s "$BASE/api/chat" -d "{\"model\": \"$NAME\", \"messages\": []}" > /dev/null; PID=; return 0
   fi
-  [[ $1 == ollama-* ]] || [ -f "$E/$1/READY" ] || { echo "not installed: $(cat "$E/$1/FAILED" 2>/dev/null)" > "logs/bake-$1.log"; return 2; }
+  [[ $1 == ollama-* ]] || [ -f "$E/${1%%-*}/READY" ] || { echo "not installed: $(cat "$E/${1%%-*}/FAILED" 2>/dev/null)" > "logs/bake-$1.log"; return 2; }
   bash -c "exec $CMD" > "logs/bake-$1.log" 2>&1 &
   PID=$!
   for _ in $(seq 180); do                                    # up to 15 minutes: vLLM compiles on first start
