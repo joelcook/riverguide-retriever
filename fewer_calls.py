@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import statistics
 import sys
 import time
@@ -38,13 +39,24 @@ from riverguide.index import default_index  # noqa: E402
 from trained_search import TrainedSearch, wait_for_canary  # noqa: E402
 
 
+# web/src/records.ts, as production runs it: questions about a student's own records (their GPA,
+# schedule) are not searched first, since no page has them and the model redirects.
+HOW_TO = re.compile(r"\bhow (do|can|could|would|should|to)\b", re.I)
+OWN = re.compile(r"\b(my|am i|did i|do i (have|owe)|have i|i'?m (registered|enrolled|taking))\b", re.I)
+RECORD = re.compile(r"\b(gpa|grades?|schedule|classes|courses|balance|holds?|refund|standing|credits|registered|enrolled|owe)\b", re.I)
+
+
+def own_record(question: str) -> bool:
+    return bool(OWN.search(question) and RECORD.search(question) and not HOW_TO.search(question))
+
+
 def answer(system: run.System, question: str, model: str, base: str, prefetch, max_steps: int = 8) -> dict:
     """search_ab.answer, plus an optional search already done on the question."""
     tools = [{"type": "function", "function": {"name": t["name"], "description": t["description"], "parameters": t["input_schema"]}}
              for t in system.tools]
     messages: list[dict[str, Any]] = [{"role": "system", "content": system.prompt}, {"role": "user", "content": question}]
     calls: list[dict] = []
-    if prefetch is not None:
+    if prefetch is not None and not own_record(question):
         args = {"query": question}
         messages.append({"role": "assistant", "content": "", "tool_calls": [
             {"id": "prefetch", "type": "function", "function": {"name": "search", "arguments": json.dumps(args)}}]})
