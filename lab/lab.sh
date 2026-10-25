@@ -58,7 +58,9 @@ night_deadline() {  # prints the deadline if a night job may start now
   done < "$LAB/offline.conf"
   return 1
 }
-fundraising_idle() {  # its worker's Ollama calls (/api/generate) stopped 10+ minutes ago
+fundraising_idle() {  # its worker isn't running, or its Ollama calls (/api/generate) stopped 10+ minutes ago
+  # (only while it runs: ollama rm also calls /api/generate, to unload the model it deletes)
+  pgrep -f "fundraising-prospect-discovery/manage.py worker" > /dev/null || return 0
   ! journalctl -u ollama --since "10 min ago" --no-pager -o cat 2>/dev/null | grep -q 'POST .*"/api/generate"'
 }
 may_start() {
