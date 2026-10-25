@@ -102,6 +102,9 @@ for engine in "${ENGINES[@]}"; do
       "$engine" "logs/bake-$engine.log" "runs/bake-$engine.json"
     say "$engine: did not start"; continue
   fi
+  # Engines that load lazily (Ollama) hold no weights until the first question: ask one, then measure.
+  curl -s "$BASE/v1/chat/completions" -H "content-type: application/json" \
+    -d "{\"model\": \"$NAME\", \"messages\": [{\"role\": \"user\", \"content\": \"hi\"}], \"max_tokens\": 1}" > /dev/null
   memory=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits)
   say "$engine: up with settings $attempt (${memory} MiB); golden x2"
   for r in 1 2; do
