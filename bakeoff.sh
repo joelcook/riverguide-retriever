@@ -19,8 +19,11 @@ SAMPLING='{"temperature": 1.0, "top_p": 0.95, "top_k": 20, "min_p": 0.0}'
 ENGINES=("${@:-ollama-p1 ollama-p4 ollama-max llamacpp-mtp llamacpp-dflash vllm-dflash vllm-mtp sglang-dflash sglang-mtp}"); ENGINES=(${ENGINES[@]})
 say() { echo "$(date +%T) $*"; }
 PID= BASE= CMD=
-# Wait for install_engines.sh: every engine READY or FAILED, the shared checkpoint too.
-for need in llamacpp vllm sglang models/qwen3.8-27b-w4a16; do
+# Wait for install_engines.sh: every engine still to measure READY or FAILED, its checkpoint too.
+# (Measured engines may be gone: promote_engine.sh removes the losers.)
+todo=$(for e in "${ENGINES[@]}"; do [ -f "runs/bake-$e.json" ] || echo "${e%%-*}"; done | sort -u | grep -v ollama)
+[[ $todo == *vllm* || $todo == *sglang* ]] && todo="$todo models/qwen3.8-27b-w4a16"
+for need in $todo; do
   [ -f "$E/$need/READY" ] || [ -f "$E/$need/FAILED" ] || { say "waiting for the install of $need"; exit 75; }
 done
 [ -f "$E/sglang/READY" ] && { python3 engine_patches/sglang_mtp_shared_embed.py "$E"/sglang/.venv/lib/python3.*/site-packages > /dev/null || say "the SGLang patch didn't apply"; }
@@ -133,6 +136,13 @@ stop() {
 }
 trap stop EXIT
 
+crashed() {  # crashed ENGINE STAGE: its server died under the test, so record that rather than its empty answers
+  [ -n "$PID" ] && ! kill -0 "$PID" 2>/dev/null || return 1
+  python3 -c "import json,sys; json.dump({'engine': sys.argv[1], 'started': False, 'why': {'crashed during ' + sys.argv[2]: open(sys.argv[3]).read()[-400:]}}, open(sys.argv[4], 'w'), indent=2)" \
+    "$1" "$2" "$(readlink -f "logs/bake-$1.log")" "runs/bake-$1.json"
+  say "$1: crashed during $2"; PID=; stop
+}
+
 fundraising_ok() {  # fundraising's own extraction call against $BASE
   local api=openai; [[ $1 == ollama-* ]] && api=ollama
   (cd "$FUND" && LLM_API=$api OLLAMA_URL=$BASE OLLAMA_MODEL=$SERVED timeout 600 .venv/bin/python manage.py shell -c "
@@ -172,8 +182,10 @@ for engine in "${ENGINES[@]}"; do
   for r in 1 2; do
     (cd "$RG" && .venv/bin/python "$ROOT/golden_ab.py" --name "bake-$engine-r$r" --search keyword --model "$SERVED" --ollama "$BASE" | grep -E "passed, answers")
   done
+  crashed "$engine" "the golden set" && continue
   say "$engine: load test"
   (cd "$RG" && .venv/bin/python "$ROOT/load_test.py" --name "bake-$engine" --base "$BASE" --model "$SERVED" --levels 1 4 8 16)
+  crashed "$engine" "the load test" && continue
   fund=false; fundraising_ok "$engine" && fund=true
   say "$engine: fundraising call ok: $fund"
   python3 -c "import json,sys; json.dump({'engine': sys.argv[1], 'started': True, 'settings': int(sys.argv[2]), 'command': sys.argv[3],
