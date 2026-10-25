@@ -12,7 +12,7 @@
 set -uo pipefail
 cd "$(dirname "$0")"
 ROOT=$PWD RG=/home/irsc/Projects/riverguide FUND=/home/irsc/Projects/fundraising-prospect-discovery E=$HOME/engines
-NAME=qwen3.8:27b
+NAME=qwen3.8:27b SERVED=qwen3.8:27b   # SERVED: the name the engine under test answers to
 GGUF=/var/lib/ollama/blobs/sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d
 CKPT=$E/models/qwen3.8-27b-w4a16 TEMPLATE=$E/models/qwen3.8-27b-template/chat_template.jinja
 SAMPLING='{"temperature": 1.0, "top_p": 0.95, "top_k": 20, "min_p": 0.0}'
@@ -43,6 +43,7 @@ engine_cmd() {
     ollama) [ "$1" = ollama-p1 ] || port=11436 ;; llamacpp) port=11437 ;; vllm) port=11438 ;; sglang) port=11439 ;;
   esac
   BASE=http://127.0.0.1:$port
+  SERVED=$NAME; [ "${1%%-*}" = sglang ] && SERVED=qwen3.8-27b   # SGLang reads a colon as "model:adapter"
   local dfl_gguf=$E/models/qwen3.8-27b-dflash2-gguf/Qwen3.8-27B-DFlash2-Q4_K_M.gguf
   local dfl_w4=$E/models/qwen3.8-27b-dflash2-w4a16
   local ollama_env="OLLAMA_HOST=127.0.0.1:$port OLLAMA_MODELS=/var/lib/ollama OLLAMA_NUM_PARALLEL=4 OLLAMA_MAX_LOADED_MODELS=1 OLLAMA_NOPRUNE=1 OLLAMA_NO_CLOUD=1"
@@ -56,7 +57,7 @@ engine_cmd() {
     --enable-auto-tool-choice --tool-call-parser qwen3_coder --override-generation-config '$SAMPLING' --kv-cache-dtype fp8"
   local vllm_mtp="--speculative-config '{\"method\": \"mtp\", \"num_speculative_tokens\": 3}'"
   local vllm_dfl="--speculative-config '{\"method\": \"dflash\", \"model\": \"$dfl_w4\", \"num_speculative_tokens\": 7}'"
-  local sglang="$E/sglang/.venv/bin/python -m sglang.launch_server --model-path $CKPT --served-model-name $NAME \
+  local sglang="$E/sglang/.venv/bin/python -m sglang.launch_server --model-path $CKPT --served-model-name $SERVED \
     --host 127.0.0.1 --port $port --context-length 32768 --kv-cache-dtype fp8_e5m2 --reasoning-parser qwen3 --tool-call-parser qwen3_coder"
   local sglang_mtp="--speculative-algorithm NEXTN --speculative-num-steps 3 --speculative-eagle-topk 1 --speculative-num-draft-tokens 4"
   local sglang_dfl="--speculative-algorithm DFLASH --speculative-draft-model-path $dfl_w4 --speculative-num-draft-tokens 8"
@@ -116,7 +117,7 @@ trap stop EXIT
 
 fundraising_ok() {  # fundraising's own extraction call against $BASE
   local api=openai; [[ $1 == ollama-* ]] && api=ollama
-  (cd "$FUND" && LLM_API=$api OLLAMA_URL=$BASE OLLAMA_MODEL=$NAME timeout 600 .venv/bin/python manage.py shell -c "
+  (cd "$FUND" && LLM_API=$api OLLAMA_URL=$BASE OLLAMA_MODEL=$SERVED timeout 600 .venv/bin/python manage.py shell -c "
 from prospect.extraction import request_extraction
 r = request_extraction('Extract documented philanthropic facts. Return only the requested JSON schema.',
     'In 2024 Jane Example gave \$50,000 to endow a nursing scholarship at Indian River State College.')
@@ -147,14 +148,14 @@ for engine in "${ENGINES[@]}"; do
   fi
   # Engines that load lazily (Ollama) hold no weights until the first question: ask one, then measure.
   curl -s "$BASE/v1/chat/completions" -H "content-type: application/json" \
-    -d "{\"model\": \"$NAME\", \"messages\": [{\"role\": \"user\", \"content\": \"hi\"}], \"max_tokens\": 1}" > /dev/null
+    -d "{\"model\": \"$SERVED\", \"messages\": [{\"role\": \"user\", \"content\": \"hi\"}], \"max_tokens\": 1}" > /dev/null
   memory=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits)
   say "$engine: up with settings $attempt (${memory} MiB); golden x2"
   for r in 1 2; do
-    (cd "$RG" && .venv/bin/python "$ROOT/golden_ab.py" --name "bake-$engine-r$r" --search keyword --model "$NAME" --ollama "$BASE" | grep -E "passed, answers")
+    (cd "$RG" && .venv/bin/python "$ROOT/golden_ab.py" --name "bake-$engine-r$r" --search keyword --model "$SERVED" --ollama "$BASE" | grep -E "passed, answers")
   done
   say "$engine: load test"
-  (cd "$RG" && .venv/bin/python "$ROOT/load_test.py" --name "bake-$engine" --base "$BASE" --model "$NAME" --levels 1 4 8 16)
+  (cd "$RG" && .venv/bin/python "$ROOT/load_test.py" --name "bake-$engine" --base "$BASE" --model "$SERVED" --levels 1 4 8 16)
   fund=false; fundraising_ok "$engine" && fund=true
   say "$engine: fundraising call ok: $fund"
   python3 -c "import json,sys; json.dump({'engine': sys.argv[1], 'started': True, 'settings': int(sys.argv[2]), 'command': sys.argv[3],
@@ -163,6 +164,8 @@ for engine in "${ENGINES[@]}"; do
   stop
 done
 
+missing=$(for e in "${ENGINES[@]}"; do [ -f "runs/bake-$e.json" ] || echo -n "$e "; done)
+[ -z "$missing" ] || { say "not measured yet: $missing; the next window resumes"; exit 75; }
 python3 bakeoff_verdict.py "${ENGINES[@]}" || exit 1
 winner=$(python3 -c "import json; print(json.load(open('runs/bakeoff.json'))['winner'])")
 ./promote_engine.sh "$winner"
