@@ -62,6 +62,17 @@ def load_model(path: str) -> SentenceTransformer:
     return model
 
 
+def encode(model: SentenceTransformer, texts: list[str], batch_size: int) -> np.ndarray:
+    """On the GPU beside Qwen (kept loaded) and the live retriever: 1.6 GiB at batch 32, about 1 GiB
+    to spare. If the GPU still runs out part way, all of it again on the CPU, in one precision."""
+    try:
+        return model.encode(texts, batch_size=batch_size, normalize_embeddings=True, convert_to_numpy=True)
+    except torch.cuda.OutOfMemoryError:
+        torch.cuda.empty_cache()
+        model.to("cpu", dtype=torch.float32)
+        return model.encode(texts, batch_size=batch_size, normalize_embeddings=True, convert_to_numpy=True)
+
+
 def git_head(repo: Path) -> str:
     return subprocess.run(["git", "-C", str(repo), "rev-parse", "--short", "HEAD"],
                           capture_output=True, text=True).stdout.strip()
@@ -71,8 +82,7 @@ def refresh(model: SentenceTransformer, model_path: str) -> tuple[SearchIndex, l
     corpus = RIVERGUIDE / "corpus"
     index = SearchIndex(load_pages(corpus), read_checked(corpus))
     docs = build_docs(index)
-    emb = model.encode([d["text"] for d in docs], batch_size=32, normalize_embeddings=True,
-                       convert_to_numpy=True).astype(np.float32)
+    emb = encode(model, [d["text"] for d in docs], 32).astype(np.float32)
     trained = DATA / "docs.jsonl"
     trained_urls = {json.loads(line)["url"] for line in open(trained, encoding="utf-8")} if trained.exists() else None
     meta = {
@@ -111,8 +121,7 @@ def check(model: SentenceTransformer, index: SearchIndex, docs: list[dict], emb:
     tests["val"] = [c for c in tests.get("val", []) if c["url"] in present]
     scores = {}
     for name, cases in tests.items():
-        q = model.encode([QUERY_INSTRUCT + c["query"] for c in cases], batch_size=64, normalize_embeddings=True,
-                         convert_to_numpy=True).astype(np.float32)
+        q = encode(model, [QUERY_INSTRUCT + c["query"] for c in cases], 64).astype(np.float32)
         rankings = []
         for s in q @ emb.T:
             best = np.full(len(urls), -np.inf, dtype=np.float32)

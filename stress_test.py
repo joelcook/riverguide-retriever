@@ -4,9 +4,10 @@
 
 Each question goes the way the Worker sends it (web/src/chat.ts): the retriever searches it first,
 through the model gateway's /v1/search, then Qwen answers through the gateway's chat route with the
-three tools, up to 8 steps, everything authenticated with the gateway's token. When the gateway is
-full it answers 503; like the Worker's AI SDK, a call waits the retry hint and tries twice more, and
-if it is still full the question counts as overflow (in production, Claude would answer it).
+three tools, up to 8 steps (the last, or any past 24K tokens, without tools), everything
+authenticated with the gateway's token. When the gateway is full it answers 503; like the Worker's
+AI SDK, a call waits the retry hint and tries twice more, and if it is still full the question
+counts as overflow (in production, Claude would answer it).
 
 Arrivals are random (a Poisson process), not fixed groups of students:
   ramp    --rates questions a minute, --minutes each, letting the queue drain between rates
@@ -38,6 +39,7 @@ import yaml  # noqa: E402
 from evals import run  # noqa: E402
 
 MODEL = "qwen3.8:27b"
+ANSWER_AT_TOKENS = 24_000  # web/src/budget.ts: past this, or on the last step, no tools
 FOUND = ("Excerpts from official College pages, all re-checked against the live site on the "
          "'checked' date. Quote dates, amounts, and contacts exactly as written.")
 
@@ -75,8 +77,8 @@ class RiverGuide:
             with self.local:
                 return self.system.dispatch("search", {"query": query, "limit": limit or 8})
 
-    def chat(self, messages: list, stats: dict) -> dict:
-        body = {"model": MODEL, "messages": messages, "tools": self.tools, "max_tokens": 8000}
+    def chat(self, messages: list, stats: dict, tools: bool = True) -> dict:
+        body = {"model": MODEL, "messages": messages, "max_tokens": 8000, **({"tools": self.tools} if tools else {})}
         for attempt in range(3):  # the AI SDK's default: two retries, honoring the retry hint
             try:
                 return self.post("/v1/chat/completions", body)
@@ -99,11 +101,13 @@ class RiverGuide:
                 {"id": "prefetch", "type": "function", "function": {"name": "search", "arguments": json.dumps(args)}}]})
             messages.append({"role": "tool", "tool_call_id": "prefetch", "content": json.dumps(self.search(question), ensure_ascii=False)})
             calls.append({"name": "search", "input": args, "prefetched": True})
-        texts = []
-        for _ in range(8):
+        texts, context = [], 0
+        for step in range(8):
             stats["model_calls"] += 1
-            reply = self.chat(messages, stats)
-            stats["prompt_tokens"] += (reply.get("usage") or {}).get("prompt_tokens", 0)
+            reply = self.chat(messages, stats, tools=step < 7 and context <= ANSWER_AT_TOKENS)
+            usage = reply.get("usage") or {}
+            stats["prompt_tokens"] += usage.get("prompt_tokens", 0)
+            context = usage.get("prompt_tokens", 0) + usage.get("completion_tokens", 0)
             message = reply["choices"][0]["message"]
             if (message.get("content") or "").strip():
                 texts.append(message["content"].strip())
@@ -123,6 +127,7 @@ class RiverGuide:
                     with self.local:
                         output = self.system.dispatch(name, args)
                 messages.append({"role": "tool", "tool_call_id": call.get("id", name), "content": json.dumps(output, default=str, ensure_ascii=False)})
+                context += len(messages[-1]["content"]) // 3
         return {"response": "\n\n".join(texts), "tool_calls": calls, "error": "tool loop cap reached", "notes": [], **stats}
 
 

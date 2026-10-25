@@ -46,6 +46,9 @@ else
     gguf=$(grep -oE '/var/lib/ollama/blobs/sha256-[0-9a-f]+' <<< "$cmd")
     cp -n "$gguf" "$E/models/qwen3.8-27b.gguf" && cmd=${cmd//$gguf/$E/models/qwen3.8-27b.gguf}
   fi
+  # Ollama unloads a model after 5 idle minutes and the next student waits for it (3.5 s from the
+  # page cache, longer from disk); the card is Qwen's, so keep it loaded.
+  [[ $WIN == ollama-* ]] && cmd=${cmd/ ollama serve/ OLLAMA_KEEP_ALIVE=-1 ollama serve}
   printf '#!/usr/bin/env bash\n# Production engine (%s), written by riverguide-retriever/promote_engine.sh on %s.\nexec %s\n' \
     "$WIN" "$(date +%F)" "$cmd" > "$E/serve-production.sh"
   chmod +x "$E/serve-production.sh"
