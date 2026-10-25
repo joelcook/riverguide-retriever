@@ -123,6 +123,7 @@ pool_fits() {  # SGLang serves even when its token pool is smaller than --contex
   [[ $1 == sglang-* ]] || return 0
   local pool; pool=$(grep -o -m1 "max_total_num_tokens=[0-9]*" "logs/bake-$1-s$2.log" | cut -d= -f2)
   [ "${pool:-0}" -ge 32768 ] && return 0
+  kill "$PID" 2>/dev/null; wait "$PID" 2>/dev/null; PID=; sleep 3   # first, or SGLang writes over the note
   echo "bakeoff: a ${pool:-unknown}-token pool can't hold a 32,768-token conversation" >> "logs/bake-$1-s$2.log"; return 1
 }
 stop() {
