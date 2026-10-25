@@ -1,0 +1,1 @@
+vLLM 0.32 with vision tower loaded: the drafter's own output head (2.37 GiB) hit OOM at every setting (2026-10-25 03:04). Retried text-only.

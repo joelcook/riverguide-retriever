@@ -1,0 +1,9 @@
+{
+  "engine": "sglang-dflash",
+  "started": false,
+  "why": {
+    "logs/bake-sglang-dflash-s1.log": "x-x86_64-gnu/lib/python3.12/subprocess.py\", line 1955, in _execute_child\n    raise child_exception_type(errno_num, err_msg, err_filename)\nFileNotFoundError: [Errno 2] No such file or directory: 'ninja'\n\n[2026-10-25 07:13:40] Received sigquit from a child process. It usually means the child failed.\n[2026-10-25 07:13:40] kill_process_tree called: parent_pid=1267477, include_parent=True, pid=1267477\n",
+    "logs/bake-sglang-dflash-s2.log": "x-x86_64-gnu/lib/python3.12/subprocess.py\", line 1955, in _execute_child\n    raise child_exception_type(errno_num, err_msg, err_filename)\nFileNotFoundError: [Errno 2] No such file or directory: 'ninja'\n\n[2026-10-25 07:13:58] Received sigquit from a child process. It usually means the child failed.\n[2026-10-25 07:13:58] kill_process_tree called: parent_pid=1267875, include_parent=True, pid=1267875\n",
+    "logs/bake-sglang-dflash-s3.log": "x-x86_64-gnu/lib/python3.12/subprocess.py\", line 1955, in _execute_child\n    raise child_exception_type(errno_num, err_msg, err_filename)\nFileNotFoundError: [Errno 2] No such file or directory: 'ninja'\n\n[2026-10-25 07:14:18] Received sigquit from a child process. It usually means the child failed.\n[2026-10-25 07:14:18] kill_process_tree called: parent_pid=1268266, include_parent=True, pid=1268266\n"
+  }
+}

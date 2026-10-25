@@ -1,0 +1,8 @@
+{
+  "engine": "llamacpp-mtp",
+  "started": true,
+  "settings": 3,
+  "command": "/home/irsc/engines/llamacpp/src/build/bin/llama-server -m /var/lib/ollama/blobs/sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d --alias qwen3.8:27b --host 127.0.0.1 --port 11437     -ngl 999 -fa on -ctk q8_0 -ctv q8_0 --jinja --chat-template-file /home/irsc/engines/models/qwen3.8-27b-template/chat_template.jinja --cache-reuse 256     --temp 1.0 --top-k 20 --top-p 0.95 --min-p 0 -np 3 -c 98304 -ctkd q8_0 -ctvd q8_0 --spec-type draft-mtp --spec-draft-n-max 3 --spec-draft-p-min 0.75",
+  "memory_mib": 22785,
+  "fundraising_ok": true
+}

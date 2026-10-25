@@ -1,0 +1,8 @@
+{
+  "engine": "ollama-p1",
+  "started": true,
+  "settings": 1,
+  "command": "(system Ollama, 1 slot)",
+  "memory_mib": 20853,
+  "fundraising_ok": true
+}

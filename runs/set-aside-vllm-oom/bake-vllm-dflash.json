@@ -1,0 +1,9 @@
+{
+  "engine": "vllm-dflash",
+  "started": false,
+  "why": {
+    "logs/bake-vllm-dflash-s1.log": " \"/home/irsc/engines/vllm/.venv/lib/python3.12/site-packages/vllm/v1/engine/utils.py\", line 1351, in launch_core_engines\n    wait_for_engine_startup(\n  File \"/home/irsc/engines/vllm/.venv/lib/python3.12/site-packages/vllm/v1/engine/utils.py\", line 1431, in wait_for_engine_startup\n    raise RuntimeError(\nRuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}\n",
+    "logs/bake-vllm-dflash-s2.log": " \"/home/irsc/engines/vllm/.venv/lib/python3.12/site-packages/vllm/v1/engine/utils.py\", line 1351, in launch_core_engines\n    wait_for_engine_startup(\n  File \"/home/irsc/engines/vllm/.venv/lib/python3.12/site-packages/vllm/v1/engine/utils.py\", line 1431, in wait_for_engine_startup\n    raise RuntimeError(\nRuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}\n",
+    "logs/bake-vllm-dflash-s3.log": " \"/home/irsc/engines/vllm/.venv/lib/python3.12/site-packages/vllm/v1/engine/utils.py\", line 1351, in launch_core_engines\n    wait_for_engine_startup(\n  File \"/home/irsc/engines/vllm/.venv/lib/python3.12/site-packages/vllm/v1/engine/utils.py\", line 1431, in wait_for_engine_startup\n    raise RuntimeError(\nRuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}\n"
+  }
+}

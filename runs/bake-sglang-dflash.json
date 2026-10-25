@@ -1,0 +1,9 @@
+{
+  "engine": "sglang-dflash",
+  "started": false,
+  "why": {
+    "logs/bake-sglang-dflash-s1.log": "d: parent_pid=1306932, include_parent=False, pid=1306932\n[2026-10-25 09:09:10] INFO:     Shutting down\n[2026-10-25 09:09:10] INFO:     Waiting for application shutdown.\n[2026-10-25 09:09:10] INFO:     Application shutdown complete.\n[2026-10-25 09:09:10] INFO:     Finished server process [1306932]\n[2026-10-25 09:09:10] kill_process_tree called: parent_pid=1306932, include_parent=False, pid=1306932\n",
+    "logs/bake-sglang-dflash-s2.log": "d: parent_pid=1307606, include_parent=False, pid=1307606\n[2026-10-25 09:09:45] INFO:     Shutting down\n[2026-10-25 09:09:45] INFO:     Waiting for application shutdown.\n[2026-10-25 09:09:45] INFO:     Application shutdown complete.\n[2026-10-25 09:09:45] INFO:     Finished server process [1307606]\n[2026-10-25 09:09:45] kill_process_tree called: parent_pid=1307606, include_parent=False, pid=1307606\n",
+    "bakeoff": "token pool 14,221 (8 draft tokens) and 28,814 (4) at --mem-fraction-static 0.95 with bf16 state: neither holds a 32,768-token conversation; in probes its drafter accepted 0% of drafts"
+  }
+}

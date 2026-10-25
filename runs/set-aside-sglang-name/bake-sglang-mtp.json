@@ -1,0 +1,9 @@
+{
+  "engine": "sglang-mtp",
+  "started": false,
+  "why": {
+    "logs/bake-sglang-mtp-s1.log": "/sglang/.venv/lib/python3.12/site-packages/sglang/srt/arg_groups/validation_hook.py\", line 214, in check_server_args\n    assert \":\" not in cfg.served_model_name, (\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: served_model_name cannot contain a colon (':') character. The colon is reserved for the 'model:adapter' syntax used in LoRA adapter specification. Invalid value: 'qwen3.8:27b'\n",
+    "logs/bake-sglang-mtp-s2.log": "/sglang/.venv/lib/python3.12/site-packages/sglang/srt/arg_groups/validation_hook.py\", line 214, in check_server_args\n    assert \":\" not in cfg.served_model_name, (\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: served_model_name cannot contain a colon (':') character. The colon is reserved for the 'model:adapter' syntax used in LoRA adapter specification. Invalid value: 'qwen3.8:27b'\n",
+    "logs/bake-sglang-mtp-s3.log": "/sglang/.venv/lib/python3.12/site-packages/sglang/srt/arg_groups/validation_hook.py\", line 214, in check_server_args\n    assert \":\" not in cfg.served_model_name, (\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: served_model_name cannot contain a colon (':') character. The colon is reserved for the 'model:adapter' syntax used in LoRA adapter specification. Invalid value: 'qwen3.8:27b'\n"
+  }
+}

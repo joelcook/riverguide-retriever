@@ -1,0 +1,1 @@
+2026-10-25 07:07-07:15: vLLM and SGLang ran without ninja/nvcc on PATH (cron), so FlashInfer was disabled and JIT builds crashed. vllm-dflash's OOM came first; all four re-run.

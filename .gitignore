@@ -19,3 +19,6 @@ drift_floors.json
 lab/production.env
 lab/offline.conf
 *.lab-bak
+# Qwen's answers to RiverGuide's private golden set: kept in riverguide/evals/runs/lab-*, not here
+runs/**/golden-*.json
+runs/invalid-small-context/

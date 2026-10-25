@@ -1,0 +1,1 @@
+llama.cpp MTP, 4 slots sharing a 98K --kv-unified pool (2026-10-25 02:27): golden 94/108, median 8.4 s at 1 student, p90 68.6 s at 4; decode 36 tok/s per stream vs 95 with separate slots. Superseded by -np 4 -c 131072 -ub 256.

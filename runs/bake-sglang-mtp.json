@@ -1,0 +1,8 @@
+{
+  "engine": "sglang-mtp",
+  "started": true,
+  "settings": 1,
+  "command": "env PATH=/home/irsc/engines/sglang/.venv/bin:/opt/cuda/bin:/home/irsc/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/home/irsc/.local/share/mise/shims:/home/irsc/.local/bin:/opt/cuda/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl CUDA_HOME=/opt/cuda RIVERGUIDE_MTP_SHARED_EMBED=1 SGLANG_OPT_MAMBA_SKIP_DECODE_LOCK=1 /home/irsc/engines/sglang/.venv/bin/python -m sglang.launch_server --model-path /home/irsc/engines/models/qwen3.8-27b-w4a16 --served-model-name qwen3.8-27b     --host 127.0.0.1 --port 11439 --context-length 32768 --kv-cache-dtype fp8_e5m2 --reasoning-parser qwen3 --tool-call-parser qwen3_coder --mem-fraction-static 0.91 --max-running-requests 1 --max-mamba-cache-size 4 --mamba-radix-cache-strategy extra_buffer_lazy --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph --chunked-prefill-size 2048 --enable-linear-replayssm-spec --speculative-algorithm NEXTN --speculative-num-steps 3 --speculative-eagle-topk 1 --speculative-num-draft-tokens 4",
+  "memory_mib": 23215,
+  "fundraising_ok": false
+}

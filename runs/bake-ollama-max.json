@@ -1,0 +1,8 @@
+{
+  "engine": "ollama-max",
+  "started": true,
+  "settings": 1,
+  "command": "env OLLAMA_HOST=127.0.0.1:11436 OLLAMA_MODELS=/var/lib/ollama OLLAMA_NUM_PARALLEL=4 OLLAMA_MAX_LOADED_MODELS=1 OLLAMA_NOPRUNE=1 OLLAMA_NO_CLOUD=1 OLLAMA_FLASH_ATTENTION=1 OLLAMA_KV_CACHE_TYPE=q8_0 ollama serve",
+  "memory_mib": 19983,
+  "fundraising_ok": true
+}

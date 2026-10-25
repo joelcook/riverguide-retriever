@@ -1,0 +1,8 @@
+{
+  "engine": "vllm-mtp",
+  "started": true,
+  "settings": 2,
+  "command": "env PATH=/home/irsc/engines/vllm/.venv/bin:/opt/cuda/bin:/home/irsc/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/opt/cuda/bin:/home/irsc/.local/share/mise/shims:/home/irsc/.local/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl CUDA_HOME=/opt/cuda /home/irsc/engines/vllm/.venv/bin/vllm serve /home/irsc/engines/models/qwen3.8-27b-w4a16 --served-model-name qwen3.8:27b --host 127.0.0.1 --port 11438     --gpu-memory-utilization 0.95 --max-model-len 32768 --language-model-only --enable-prefix-caching --reasoning-parser qwen3     --enable-auto-tool-choice --tool-call-parser qwen3_coder --override-generation-config '{\"temperature\": 1.0, \"top_p\": 0.95, \"top_k\": 20, \"min_p\": 0.0}' --kv-cache-dtype fp8 --max-num-seqs 4 --speculative-config '{\"method\": \"mtp\", \"num_speculative_tokens\": 3}'",
+  "memory_mib": 22559,
+  "fundraising_ok": true
+}
