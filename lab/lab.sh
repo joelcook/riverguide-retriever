@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # The lab: RiverGuide's experiments, run without anyone starting them. Cron calls it every 10
-# minutes for each lane; each lane runs one queued job at a time, in name order.
+# minutes for each lane; each lane runs its queued jobs one at a time, in name order, back to back.
 #   lab/lab.sh gpu    share and night jobs (the GPU)
 #   lab/lab.sh cpu    cpu jobs (installs, downloads)
 # A job is an executable in lab/queue/ whose second line is "# class: cpu|share|night":
@@ -44,8 +44,8 @@ warm_production() {
   curl -s localhost:11434/api/chat -d '{"model": "qwen3.8:27b", "messages": []}' > /dev/null
 }
 [ "$LANE" = gpu ] && [ ! -e "$LAB/.maintenance" ] && heal_offload
-now=$(date +%s)
-hm=$((10#$(date +%H) * 60 + 10#$(date +%M)))
+clock() { now=$(date +%s); hm=$((10#$(date +%H) * 60 + 10#$(date +%M))); }
+clock
 night_deadline() {  # prints the deadline if a night job may start now
   if (( hm >= 30 && hm < 180 )); then date -d "today 04:10" +%s; return 0; fi
   [ -f "$LAB/offline.conf" ] || return 1
@@ -68,28 +68,46 @@ may_start() {
   esac
 }
 
-for job in "$LAB"/queue/*; do
-  [ -x "$job" ] || continue
-  class=$(sed -n 's/^# class: *//p' "$job" | head -1)
-  may_start "$class" || continue
-  name=$(basename "$job") stamp=$(date +%F-%H%M)
-  log="$LAB/done/$stamp-$name.log"
-  say "start $name ($class)"
-  if [ "$class" = night ]; then
-    export LAB_DEADLINE=$(night_deadline)
-    "$LAB/maintenance.sh" start "$name" "$LAB_DEADLINE" >> "$LAB/logs/lab.log" 2>&1
-    ( cd "$LAB/.." && "$job" ) > "$log" 2>&1
-    code=$?
-    "$LAB/maintenance.sh" end >> "$LAB/logs/lab.log" 2>&1
-  else
-    [ "$class" = share ] && warm_production
-    ( cd "$LAB/.." && "$job" ) > "$log" 2>&1
-    code=$?
-    [ "$class" = share ] && heal_offload
-  fi
-  say "end $name: exit $code"
-  if [ "$code" -eq 75 ]; then rm -f "$log"; continue; fi        # not ready: stays queued
-  mv "$job" "$LAB/done/$stamp-$name"
-  [ "$code" -ne 0 ] && "$OPS" open riverguide "lab job $name failed (exit $code); log: riverguide-retriever/lab/done/$stamp-$name.log" --key "riverguide:lab-$name"
-  exit 0
+# Run jobs back to back until none may start: no waiting for the next cron tick between them.
+# Consecutive night jobs share one maintenance window, so RiverGuide isn't brought back up and
+# taken down again in between. A job that says "not ready" (exit 75) waits for the next tick.
+offline=0
+close_window() { if [ "$offline" = 1 ]; then "$LAB/maintenance.sh" end >> "$LAB/logs/lab.log" 2>&1; offline=0; fi; }
+trap close_window EXIT
+declare -A deferred=()
+while true; do
+  clock
+  ran=0
+  for job in "$LAB"/queue/*; do
+    [ -x "$job" ] || continue
+    name=$(basename "$job")
+    [ -n "${deferred[$name]:-}" ] && continue
+    class=$(sed -n 's/^# class: *//p' "$job" | head -1)
+    may_start "$class" || continue
+    stamp=$(date +%F-%H%M)
+    log="$LAB/done/$stamp-$name.log"
+    say "start $name ($class)"
+    if [ "$class" = night ]; then
+      export LAB_DEADLINE=$(night_deadline)
+      if [ "$offline" = 0 ]; then
+        "$LAB/maintenance.sh" start "$name" "$LAB_DEADLINE" >> "$LAB/logs/lab.log" 2>&1
+        offline=1
+      fi
+      ( cd "$LAB/.." && "$job" ) > "$log" 2>&1
+      code=$?
+    else
+      close_window
+      [ "$class" = share ] && warm_production
+      ( cd "$LAB/.." && "$job" ) > "$log" 2>&1
+      code=$?
+      [ "$class" = share ] && heal_offload
+    fi
+    say "end $name: exit $code"
+    if [ "$code" -eq 75 ]; then rm -f "$log"; deferred[$name]=1; continue; fi   # not ready: stays queued
+    mv "$job" "$LAB/done/$stamp-$name"
+    [ "$code" -ne 0 ] && "$OPS" open riverguide "lab job $name failed (exit $code); log: riverguide-retriever/lab/done/$stamp-$name.log" --key "riverguide:lab-$name"
+    ran=1
+    break                                                     # rescan: the queue and the clock have moved
+  done
+  [ "$ran" = 1 ] || break
 done
