@@ -14,7 +14,7 @@ index.old/
 lab/queue/
 lab/done/
 lab/logs/
-lab/.lock
+lab/.lock*
 drift_floors.json
 lab/production.env
 lab/offline.conf
