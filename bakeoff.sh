@@ -45,7 +45,7 @@ engine_cmd() {
   local llama="$E/llamacpp/src/build/bin/llama-server -m $GGUF --alias $NAME --host 127.0.0.1 --port $port \
     -ngl 999 -fa on -ctk q8_0 -ctv q8_0 --jinja --chat-template-file $TEMPLATE --cache-reuse 256 \
     --temp 1.0 --top-k 20 --top-p 0.95 --min-p 0"
-  local llama_mtp="--spec-type draft-mtp --spec-draft-n-max 3 --spec-draft-p-min 0.75"
+  local llama_mtp="-ctkd q8_0 -ctvd q8_0 --spec-type draft-mtp --spec-draft-n-max 3 --spec-draft-p-min 0.75"
   local llama_dfl="-md $dfl_gguf -ngld 999 -ctkd q8_0 -ctvd q8_0 --spec-type draft-dflash --spec-draft-n-max 7"
   local vllm="$E/vllm/.venv/bin/vllm serve $CKPT --served-model-name $NAME --host 127.0.0.1 --port $port \
     --gpu-memory-utilization 0.95 --max-model-len 32768 --enable-prefix-caching --reasoning-parser qwen3 \
