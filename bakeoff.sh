@@ -36,18 +36,24 @@ engine_cmd() {
     --enable-auto-tool-choice --tool-call-parser qwen3_coder --override-generation-config '$SAMPLING'"
   local sglang="$E/sglang/.venv/bin/python -m sglang.launch_server --model-path $CKPT --served-model-name $NAME \
     --host 127.0.0.1 --port $port --max-running-requests 16 --reasoning-parser qwen3 --tool-call-parser qwen3_coder"
+  # Every engine runs Qwen3.8's own multi-token prediction (MTP) where it can, as Ollama does
+  # (draft_num_predict 4): its first settings use it, the last ones go without.
+  local llama_mtp="--spec-type draft-mtp --spec-draft-n-max 4"
+  local sglang_mtp="--speculative-algorithm NEXTN --speculative-num-steps 3 --speculative-eagle-topk 1 --speculative-num-draft-tokens 4"
   local llama="$E/llamacpp/src/build/bin/llama-server -m $GGUF --alias $NAME --host 127.0.0.1 --port $port \
     -ngl 999 -fa on -np 4 --jinja --chat-template-file $TEMPLATE --cache-reuse 256 --temp 1.0 --top-k 20 --top-p 0.95 --min-p 0"
   case "$1:$2" in
     ollama-p1:1) CMD="(system Ollama, 1 slot)" ;;
     ollama-p4:1) CMD="env OLLAMA_HOST=127.0.0.1:$port OLLAMA_MODELS=/var/lib/ollama OLLAMA_NUM_PARALLEL=4 OLLAMA_MAX_LOADED_MODELS=1 OLLAMA_NOPRUNE=1 OLLAMA_NO_CLOUD=1 ollama serve" ;;
-    llamacpp:1) CMD="$llama -c 65536" ;;
-    llamacpp:2) CMD="$llama -c 32768" ;;
+    llamacpp:1) CMD="$llama -c 65536 $llama_mtp" ;;
+    llamacpp:2) CMD="$llama -c 32768 $llama_mtp" ;;
+    llamacpp:3) CMD="$llama -c 32768" ;;
     vllm:1) CMD="$vllm --max-model-len 32768 --kv-cache-dtype fp8 --speculative-config '{\"method\": \"mtp\", \"num_speculative_tokens\": 3}'" ;;
     vllm:2) CMD="$vllm --max-model-len 32768 --kv-cache-dtype fp8" ;;
     vllm:3) CMD="$vllm --max-model-len 16384 --kv-cache-dtype fp8 --enforce-eager" ;;
-    sglang:1) CMD="$sglang --context-length 32768 --mem-fraction-static 0.88 --kv-cache-dtype fp8_e5m2" ;;
-    sglang:2) CMD="$sglang --context-length 16384 --mem-fraction-static 0.85" ;;
+    sglang:1) CMD="$sglang --context-length 32768 --mem-fraction-static 0.88 --kv-cache-dtype fp8_e5m2 $sglang_mtp" ;;
+    sglang:2) CMD="$sglang --context-length 16384 --mem-fraction-static 0.85 $sglang_mtp" ;;
+    sglang:3) CMD="$sglang --context-length 16384 --mem-fraction-static 0.85" ;;
     *) CMD= ;;
   esac
 }
