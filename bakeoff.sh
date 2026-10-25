@@ -32,7 +32,8 @@ done
 # Every setting gives each conversation 32,768 tokens, as production Ollama does (RiverGuide's
 # longer tool loops reach 25K). A fallback gives up parallel slots or CUDA graphs, never context:
 # a smaller context fails long questions, and that's a handicap, not a setting. (llama.cpp's -c is
-# shared by its -np slots, so 4 slots of 32K is -c 131072.)
+# shared by its -np slots, so 4 slots of 32K is -c 131072; with --kv-unified the slots share one
+# pool instead, and any one conversation may use 32K or more of it.)
 engine_cmd() {
   local port=11434
   case "${1%%-*}" in
@@ -61,12 +62,14 @@ engine_cmd() {
     ollama-p4:1) CMD="env $ollama_env ollama serve" ;;
     ollama-max:1) CMD="env $ollama_env OLLAMA_FLASH_ATTENTION=1 OLLAMA_KV_CACHE_TYPE=q8_0 ollama serve" ;;
     llamacpp-mtp:1) CMD="$llama -np 4 -c 131072 $llama_mtp" ;;
-    llamacpp-mtp:2) CMD="$llama -np 3 -c 98304 $llama_mtp" ;;
-    llamacpp-mtp:3) CMD="$llama -np 2 -c 65536 $llama_mtp" ;;
+    llamacpp-mtp:2) CMD="$llama -np 4 -c 98304 --kv-unified $llama_mtp" ;;
+    llamacpp-mtp:3) CMD="$llama -np 3 -c 98304 $llama_mtp" ;;
+    llamacpp-mtp:4) CMD="$llama -np 2 -c 65536 $llama_mtp" ;;
     llamacpp-dflash:1) CMD="$llama -np 4 -c 131072 $llama_dfl" ;;
-    llamacpp-dflash:2) CMD="$llama -np 3 -c 98304 $llama_dfl" ;;
-    llamacpp-dflash:3) CMD="$llama -np 2 -c 65536 $llama_dfl" ;;
-    llamacpp-dflash:4) CMD="$llama -np 1 -c 32768 $llama_dfl" ;;
+    llamacpp-dflash:2) CMD="$llama -np 4 -c 98304 --kv-unified $llama_dfl" ;;
+    llamacpp-dflash:3) CMD="$llama -np 4 -c 65536 --kv-unified $llama_dfl" ;;
+    llamacpp-dflash:4) CMD="$llama -np 2 -c 65536 $llama_dfl" ;;
+    llamacpp-dflash:5) CMD="$llama -np 1 -c 32768 $llama_dfl" ;;
     vllm-dflash:1) CMD="$vllm --max-num-seqs 16 $vllm_dfl" ;;
     vllm-dflash:2) CMD="$vllm --max-num-seqs 8 $vllm_dfl" ;;
     vllm-dflash:3) CMD="$vllm --max-num-seqs 4 --enforce-eager $vllm_dfl" ;;
