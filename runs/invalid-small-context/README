@@ -1,0 +1,1 @@
+llama.cpp ran with 16K (MTP) and 4K (DFlash2) per slot on 2026-10-24/25; production Ollama gives 32K. Set aside, re-run fair.

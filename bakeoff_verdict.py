@@ -29,7 +29,7 @@ def production_engine() -> str:
 def result(engine: str) -> dict:
     meta = json.loads((RUNS / f"bake-{engine}.json").read_text())
     if not meta.get("started"):
-        return {"engine": engine, "started": False, "why": meta.get("why", "")[-200:]}
+        return {"engine": engine, "started": False, "why": str(meta.get("why", ""))[-300:]}
     golden = [json.loads((RUNS / f"golden-bake-{engine}-r{r}.json").read_text())["summary"] for r in (1, 2)]
     load = {lv["students"]: lv for lv in json.loads((RUNS / f"load-bake-{engine}.json").read_text())["levels"]}
     return {
