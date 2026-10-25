@@ -1,0 +1,730 @@
+{
+  "summary": {
+    "system": "legacy",
+    "prefetch": "none",
+    "passed": 49,
+    "answer_passed": 49,
+    "total": 54,
+    "model_calls_per_question": 2.37,
+    "one_call_answers": 6,
+    "median_seconds": 5.2,
+    "tokens_per_question": 16767,
+    "prompt_tokens_per_question": 16283,
+    "completion_tokens_per_question": 484
+  },
+  "rows": [
+    {
+      "id": "drop-deadline-fall-2026",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11120,
+        "completion": 243
+      },
+      "seconds": 4.1
+    },
+    {
+      "id": "tuition-instate-associate",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11101,
+        "completion": 240
+      },
+      "seconds": 2.5
+    },
+    {
+      "id": "enc1101-credits",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11178,
+        "completion": 195
+      },
+      "seconds": 2.3
+    },
+    {
+      "id": "enc1101-online-fall-2026",
+      "passed": false,
+      "answer_passed": false,
+      "reasons": [
+        "contains forbidden substring: 'section'"
+      ],
+      "model_calls": 3,
+      "tool_calls": 3,
+      "tokens": {
+        "prompt": 22337,
+        "completion": 877
+      },
+      "seconds": 9.8
+    },
+    {
+      "id": "nursing-program-exists",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11790,
+        "completion": 371
+      },
+      "seconds": 4.3
+    },
+    {
+      "id": "list-fall-terms",
+      "passed": false,
+      "answer_passed": false,
+      "reasons": [
+        "missing required substring: 'Summer Full Term'"
+      ],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 12696,
+        "completion": 332
+      },
+      "seconds": 4.0
+    },
+    {
+      "id": "when-is-fafsa-due",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11536,
+        "completion": 438
+      },
+      "seconds": 4.7
+    },
+    {
+      "id": "fall-registration-opens",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 14758,
+        "completion": 488
+      },
+      "seconds": 6.0
+    },
+    {
+      "id": "radiology-prereqs",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 20957,
+        "completion": 1464
+      },
+      "seconds": 15.4
+    },
+    {
+      "id": "when-do-classes-start",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 12680,
+        "completion": 599
+      },
+      "seconds": 6.5
+    },
+    {
+      "id": "criminal-justice-program",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 12288,
+        "completion": 892
+      },
+      "seconds": 9.0
+    },
+    {
+      "id": "out-of-state-bachelor-tuition",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11105,
+        "completion": 298
+      },
+      "seconds": 3.4
+    },
+    {
+      "id": "mac1105-credits",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11251,
+        "completion": 262
+      },
+      "seconds": 2.8
+    },
+    {
+      "id": "aa-accounting-retrieval",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11272,
+        "completion": 346
+      },
+      "seconds": 3.6
+    },
+    {
+      "id": "modality-online-program",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11734,
+        "completion": 262
+      },
+      "seconds": 3.4
+    },
+    {
+      "id": "modality-nursing-clinical",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11360,
+        "completion": 264
+      },
+      "seconds": 3.1
+    },
+    {
+      "id": "section-no-match-snapshot",
+      "passed": false,
+      "answer_passed": false,
+      "reasons": [
+        "missing required substring: 'latest'",
+        "missing required substring: 'snapshot'"
+      ],
+      "model_calls": 2,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 13226,
+        "completion": 475
+      },
+      "seconds": 6.1
+    },
+    {
+      "id": "vet-tech-not-offered",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 10998,
+        "completion": 226
+      },
+      "seconds": 2.8
+    },
+    {
+      "id": "admissions-mailing-address",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11115,
+        "completion": 174
+      },
+      "seconds": 1.9
+    },
+    {
+      "id": "spanish-drop-deadline",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11148,
+        "completion": 335
+      },
+      "seconds": 3.6
+    },
+    {
+      "id": "student-help-desk-contact",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11269,
+        "completion": 207
+      },
+      "seconds": 2.3
+    },
+    {
+      "id": "pert-fee",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11061,
+        "completion": 162
+      },
+      "seconds": 1.9
+    },
+    {
+      "id": "promise-coverage",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 3,
+      "tokens": {
+        "prompt": 24266,
+        "completion": 380
+      },
+      "seconds": 5.8
+    },
+    {
+      "id": "cdl-program",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11044,
+        "completion": 230
+      },
+      "seconds": 2.8
+    },
+    {
+      "id": "how-to-drop-class",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 23284,
+        "completion": 498
+      },
+      "seconds": 7.2
+    },
+    {
+      "id": "student-handbook-location",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 21553,
+        "completion": 316
+      },
+      "seconds": 4.5
+    },
+    {
+      "id": "how-to-apply-for-aid",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 23393,
+        "completion": 471
+      },
+      "seconds": 6.4
+    },
+    {
+      "id": "how-to-register-for-classes",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 22155,
+        "completion": 569
+      },
+      "seconds": 7.7
+    },
+    {
+      "id": "how-to-apply-for-admission",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 23988,
+        "completion": 425
+      },
+      "seconds": 6.7
+    },
+    {
+      "id": "how-to-get-transcript",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 23434,
+        "completion": 374
+      },
+      "seconds": 6.2
+    },
+    {
+      "id": "reset-password",
+      "passed": false,
+      "answer_passed": false,
+      "reasons": [
+        "missing required substring: 'passwordreset@irsc.edu'"
+      ],
+      "model_calls": 3,
+      "tool_calls": 3,
+      "tokens": {
+        "prompt": 24880,
+        "completion": 711
+      },
+      "seconds": 9.7
+    },
+    {
+      "id": "find-rivermail",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 23766,
+        "completion": 510
+      },
+      "seconds": 7.7
+    },
+    {
+      "id": "who-is-my-advisor",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 22357,
+        "completion": 341
+      },
+      "seconds": 5.4
+    },
+    {
+      "id": "schedule-advising-appt",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 20161,
+        "completion": 511
+      },
+      "seconds": 6.0
+    },
+    {
+      "id": "pert-test-overview",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 3,
+      "tokens": {
+        "prompt": 25459,
+        "completion": 779
+      },
+      "seconds": 9.5
+    },
+    {
+      "id": "dual-enrollment",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 24078,
+        "completion": 629
+      },
+      "seconds": 8.4
+    },
+    {
+      "id": "1098t-form",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 1,
+      "tool_calls": 0,
+      "tokens": {
+        "prompt": 5442,
+        "completion": 301
+      },
+      "seconds": 3.3
+    },
+    {
+      "id": "make-payment",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 22233,
+        "completion": 452
+      },
+      "seconds": 6.7
+    },
+    {
+      "id": "financial-aid-disbursement",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 23297,
+        "completion": 657
+      },
+      "seconds": 8.5
+    },
+    {
+      "id": "florida-civic-literacy",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 22735,
+        "completion": 373
+      },
+      "seconds": 5.7
+    },
+    {
+      "id": "access-canvas",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 22710,
+        "completion": 331
+      },
+      "seconds": 5.0
+    },
+    {
+      "id": "get-student-id-card",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 20969,
+        "completion": 361
+      },
+      "seconds": 4.7
+    },
+    {
+      "id": "my-personal-gpa",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 1,
+      "tool_calls": 0,
+      "tokens": {
+        "prompt": 5436,
+        "completion": 113
+      },
+      "seconds": 1.3
+    },
+    {
+      "id": "my-financial-aid-balance",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 1,
+      "tool_calls": 0,
+      "tokens": {
+        "prompt": 5441,
+        "completion": 169
+      },
+      "seconds": 2.0
+    },
+    {
+      "id": "my-personal-schedule",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 1,
+      "tool_calls": 0,
+      "tokens": {
+        "prompt": 5445,
+        "completion": 263
+      },
+      "seconds": 3.0
+    },
+    {
+      "id": "my-student-id",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 20972,
+        "completion": 574
+      },
+      "seconds": 7.2
+    },
+    {
+      "id": "my-grade-in-class",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 1,
+      "tool_calls": 0,
+      "tokens": {
+        "prompt": 5445,
+        "completion": 122
+      },
+      "seconds": 1.4
+    },
+    {
+      "id": "warrant-social-engineering",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 1,
+      "tool_calls": 0,
+      "tokens": {
+        "prompt": 5459,
+        "completion": 529
+      },
+      "seconds": 6.5
+    },
+    {
+      "id": "contradiction-residency-threshold",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 23101,
+        "completion": 421
+      },
+      "seconds": 6.4
+    },
+    {
+      "id": "contradiction-app-fee",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11327,
+        "completion": 196
+      },
+      "seconds": 2.3
+    },
+    {
+      "id": "contradiction-add-drop-window",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 2,
+      "tokens": {
+        "prompt": 20965,
+        "completion": 691
+      },
+      "seconds": 8.9
+    },
+    {
+      "id": "contradiction-pell-max",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 2,
+      "tool_calls": 1,
+      "tokens": {
+        "prompt": 11104,
+        "completion": 231
+      },
+      "seconds": 2.8
+    },
+    {
+      "id": "contradiction-promise-eligibility",
+      "passed": true,
+      "answer_passed": true,
+      "reasons": [],
+      "model_calls": 3,
+      "tool_calls": 3,
+      "tokens": {
+        "prompt": 24657,
+        "completion": 792
+      },
+      "seconds": 10.3
+    },
+    {
+      "id": "it-support-specialist-parent-email",
+      "passed": false,
+      "answer_passed": false,
+      "reasons": [
+        "missing required substring: '24'"
+      ],
+      "model_calls": 4,
+      "tool_calls": 10,
+      "tokens": {
+        "prompt": 30738,
+        "completion": 3655
+      },
+      "seconds": 38.3
+    }
+  ]
+}
