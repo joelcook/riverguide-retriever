@@ -45,8 +45,11 @@ done
 # target's; engine_patches/sglang_mtp_shared_embed.py builds them empty instead (its switch,
 # RIVERGUIDE_MTP_SHARED_EMBED, is on for SGLang). Qwen3.8's linear-attention layers keep a 147 MB
 # state per cached slot, 3 slots a request with SGLang's lazy prefix buffer and skip-decode-lock
-# option; --enable-linear-replayssm-spec drops the per-draft-token copies of that state. What's
-# left on 24 GB is one conversation at a time (a 41K-token pool). SGLang starts even when its pool
+# option, plus one spare (with exactly 3, a chunked-prefill checkpoint found none and the server
+# died); --enable-linear-replayssm-spec drops the per-draft-token copies of that state. Its HTTP
+# process holds a 454 MiB CUDA context outside --mem-fraction-static, so 0.915 and up run out
+# mid-prefill, as do 4096-token chunks. What's left on 24 GB is one conversation at a time (a
+# 36.7K-token pool). SGLang starts even when its pool
 # can't hold --context-length, so start() checks the pool. Its DFlash2 fits at most 28.6K tokens
 # (bf16 state, 4 draft tokens; ReplaySSM refuses DFlash on this model) and accepted 0% of drafts.
 # (SGLang samples by the checkpoint's generation_config.json: production's temperature 1, top-k 20, top-p 0.95.)
@@ -73,7 +76,7 @@ engine_cmd() {
   local vllm_dfl="--speculative-config '{\"method\": \"dflash\", \"model\": \"$dfl_w4\", \"num_speculative_tokens\": 7}'"
   local sglang="env PATH=$E/sglang/.venv/bin:/opt/cuda/bin:$PATH CUDA_HOME=/opt/cuda RIVERGUIDE_MTP_SHARED_EMBED=1 SGLANG_OPT_MAMBA_SKIP_DECODE_LOCK=1 $E/sglang/.venv/bin/python -m sglang.launch_server --model-path $CKPT --served-model-name $SERVED \
     --host 127.0.0.1 --port $port --context-length 32768 --kv-cache-dtype fp8_e5m2 --reasoning-parser qwen3 --tool-call-parser qwen3_coder"
-  local sglang_one="--max-running-requests 1 --max-mamba-cache-size 3 --mamba-radix-cache-strategy extra_buffer_lazy"
+  local sglang_one="--max-running-requests 1 --max-mamba-cache-size 4 --mamba-radix-cache-strategy extra_buffer_lazy"
   local sglang_mtp="--enable-linear-replayssm-spec --speculative-algorithm NEXTN --speculative-num-steps 3 --speculative-eagle-topk 1 --speculative-num-draft-tokens 4"
   local sglang_dfl="--speculative-algorithm DFLASH --speculative-draft-model-path $dfl_w4 --speculative-num-draft-tokens 8"
   case "$1:$2" in
@@ -99,9 +102,9 @@ engine_cmd() {
     vllm-mtp:4) CMD="$vllm --max-num-seqs 2 --enforce-eager --gpu-memory-utilization 0.97 $vllm_mtp" ;;
     sglang-dflash:1) CMD="$sglang --mem-fraction-static 0.95 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph --chunked-prefill-size 2048 --mamba-ssm-dtype bfloat16 $sglang_dfl" ;;
     sglang-dflash:2) CMD="$sglang --mem-fraction-static 0.95 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph --chunked-prefill-size 2048 --mamba-ssm-dtype bfloat16 ${sglang_dfl% 8} 4" ;;
-    sglang-mtp:1) CMD="$sglang --mem-fraction-static 0.91 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph $sglang_mtp" ;;
-    sglang-mtp:2) CMD="$sglang --mem-fraction-static 0.905 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph $sglang_mtp" ;;
-    sglang-mtp:3) CMD="$sglang --mem-fraction-static 0.91 $sglang_one --disable-decode-cuda-graph --disable-prefill-cuda-graph $sglang_mtp" ;;
+    sglang-mtp:1) CMD="$sglang --mem-fraction-static 0.91 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph --chunked-prefill-size 2048 $sglang_mtp" ;;
+    sglang-mtp:2) CMD="$sglang --mem-fraction-static 0.905 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph --chunked-prefill-size 2048 $sglang_mtp" ;;
+    sglang-mtp:3) CMD="$sglang --mem-fraction-static 0.91 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph --chunked-prefill-size 1024 $sglang_mtp" ;;
     *) CMD= ;;
   esac
 }

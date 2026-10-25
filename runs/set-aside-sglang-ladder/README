@@ -1,3 +1,6 @@
 2026-10-25 08:40: SGLang DFlash2 ran a fallback ladder that lowered --mem-fraction-static, the wrong direction for its failure:
 the hybrid (linear-attention) state cache needs more static memory, not less. Probes in ~/engines/probe-sglang{,2,3,4,5}
 found the settings that fit (bakeoff.sh comments); both SGLang variants re-run with them.
+2026-10-25 09:10: SGLang MTP (3 state slots, 4096-token prefill chunks) died on its first golden question ("Can not alloc mamba
+cache" at a chunked-prefill checkpoint) and was scored on empty answers. Probes 6-7 under real load-test traffic found 4 slots,
+--mem-fraction-static 0.91 and 2048-token chunks survive; it re-runs with those.
