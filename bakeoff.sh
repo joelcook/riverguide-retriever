@@ -52,12 +52,13 @@ engine_cmd() {
     --temp 1.0 --top-k 20 --top-p 0.95 --min-p 0"
   local llama_mtp="-ctkd q8_0 -ctvd q8_0 --spec-type draft-mtp --spec-draft-n-max 3 --spec-draft-p-min 0.75"
   local llama_dfl="-md $dfl_gguf -ngld 999 -ctkd q8_0 -ctvd q8_0 --spec-type draft-dflash --spec-draft-n-max 7"
-  local vllm="$E/vllm/.venv/bin/vllm serve $CKPT --served-model-name $NAME --host 127.0.0.1 --port $port \
+  # Their kernel JITs (FlashInfer, sgl-kernel) need nvcc and ninja; cron's PATH has neither.
+  local vllm="env PATH=$E/vllm/.venv/bin:/opt/cuda/bin:$PATH CUDA_HOME=/opt/cuda $E/vllm/.venv/bin/vllm serve $CKPT --served-model-name $NAME --host 127.0.0.1 --port $port \
     --gpu-memory-utilization 0.95 --max-model-len 32768 --language-model-only --enable-prefix-caching --reasoning-parser qwen3 \
     --enable-auto-tool-choice --tool-call-parser qwen3_coder --override-generation-config '$SAMPLING' --kv-cache-dtype fp8"
   local vllm_mtp="--speculative-config '{\"method\": \"mtp\", \"num_speculative_tokens\": 3}'"
   local vllm_dfl="--speculative-config '{\"method\": \"dflash\", \"model\": \"$dfl_w4\", \"num_speculative_tokens\": 7}'"
-  local sglang="$E/sglang/.venv/bin/python -m sglang.launch_server --model-path $CKPT --served-model-name $SERVED \
+  local sglang="env PATH=$E/sglang/.venv/bin:/opt/cuda/bin:$PATH CUDA_HOME=/opt/cuda $E/sglang/.venv/bin/python -m sglang.launch_server --model-path $CKPT --served-model-name $SERVED \
     --host 127.0.0.1 --port $port --context-length 32768 --kv-cache-dtype fp8_e5m2 --reasoning-parser qwen3 --tool-call-parser qwen3_coder"
   local sglang_mtp="--speculative-algorithm NEXTN --speculative-num-steps 3 --speculative-eagle-topk 1 --speculative-num-draft-tokens 4"
   local sglang_dfl="--speculative-algorithm DFLASH --speculative-draft-model-path $dfl_w4 --speculative-num-draft-tokens 8"
