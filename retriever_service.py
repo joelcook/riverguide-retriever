@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -69,9 +70,14 @@ def main() -> int:
     parser.add_argument("--model", default=str(ROOT / "models" / "full"))
     parser.add_argument("--port", type=int, default=8791)
     parser.add_argument("--threads", type=int, default=8)
+    # cuda: about 1.2 GB beside production's Qwen, in bfloat16 as refresh.py builds the index.
+    parser.add_argument("--device", default=os.environ.get("RETRIEVER_DEVICE", "cpu"), choices=["cpu", "cuda"])
     args = parser.parse_args()
     torch.set_num_threads(args.threads)
-    model = SentenceTransformer(args.model, device="cpu")
+    if args.device == "cuda":
+        model = SentenceTransformer(args.model, device="cuda", model_kwargs={"dtype": torch.bfloat16})
+    else:
+        model = SentenceTransformer(args.model, device="cpu")
     model.max_seq_length = 256
     encode_lock = threading.Lock()
     index = Index()
@@ -122,7 +128,7 @@ def main() -> int:
         def log_message(self, *a) -> None:
             pass
 
-    print(f"retriever on 127.0.0.1:{args.port} ({args.model}, cpu)", flush=True)
+    print(f"retriever on 127.0.0.1:{args.port} ({args.model}, {args.device})", flush=True)
     ThreadingHTTPServer(("127.0.0.1", args.port), Handler).serve_forever()
     return 0
 

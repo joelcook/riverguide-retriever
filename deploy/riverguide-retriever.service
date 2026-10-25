@@ -1,0 +1,15 @@
+[Unit]
+Description=RiverGuide retriever: models/full on the GPU (bfloat16, 1.7 GB) over the nightly index (127.0.0.1:8791)
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Projects/riverguide-retriever
+Environment=RETRIEVER_DEVICE=cuda
+ExecStart=%h/Projects/riverguide-retriever/.venv/bin/python retriever_service.py
+Restart=always
+RestartSec=5
+UMask=0077
+
+[Install]
+WantedBy=default.target

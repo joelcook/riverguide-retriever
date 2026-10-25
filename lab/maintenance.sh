@@ -21,6 +21,7 @@ case "${1:?start or end}" in
     echo "$2 $3" > "$LAB/.maintenance"
     crontab -l | sed "s|^\([0-9].*${CANARY}.*\)$|#lab-paused# \1|" | crontab -
     systemctl --user stop riverguide-model
+    systemctl --user stop riverguide-retriever   # on the GPU since 2026-10-25: give lab jobs the whole card
     . "$LAB/production.env"; [ -n "${SERVICE:-}" ] && systemctl --user stop "$SERVICE"   # a non-Ollama production engine
     for pid in $(pgrep -f "fundraising-prospect-discovery/manage.py worker"); do
       [ "$(readlink "/proc/$pid/cwd")" = "$HOME/Projects/fundraising-prospect-discovery" ] || continue
@@ -37,6 +38,7 @@ case "${1:?start or end}" in
     . "$LAB/production.env"; [ -n "${SERVICE:-}" ] && systemctl --user start "$SERVICE"
     [ -f "$LAB/.maintenance-paused" ] && xargs -r kill -CONT < "$LAB/.maintenance-paused" 2>/dev/null
     rm -f "$LAB/.maintenance-paused"
+    systemctl --user start riverguide-retriever
     systemctl --user start riverguide-model
     # Warm production's model when the gateway is in front of Ollama (its default upstream).
     upstream=$(sed -n 's/^OLLAMA_URL=//p' ~/.config/riverguide/model-gateway.env)
