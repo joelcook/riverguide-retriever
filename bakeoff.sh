@@ -23,6 +23,7 @@ PID= BASE= CMD=
 for need in llamacpp vllm sglang models/qwen3.8-27b-w4a16; do
   [ -f "$E/$need/READY" ] || [ -f "$E/$need/FAILED" ] || { say "waiting for the install of $need"; exit 75; }
 done
+[ -f "$E/sglang/READY" ] && { python3 engine_patches/sglang_mtp_shared_embed.py "$E"/sglang/.venv/lib/python3.*/site-packages > /dev/null || say "the SGLang patch didn't apply"; }
 
 # The command for ENGINE at fallback ATTEMPT (1 = best settings); empty when out of attempts.
 # Every engine runs at its limit, with everything it offers: Qwen3.8's own multi-token prediction
@@ -37,6 +38,15 @@ done
 # stream against 95 with separate slots. A smaller ubatch, -ub 256, frees the memory instead.)
 # vLLM runs text-only (--language-model-only), as RiverGuide is: the vision tower costs 0.8 GB,
 # and each drafter allocates its own 16-bit output head (2.37 GiB for Qwen's 248K vocabulary).
+# SGLang: its MTP draft builds its own embedding and output head (4.7 GiB) before swapping in the
+# target's; engine_patches/sglang_mtp_shared_embed.py builds them empty instead (its switch,
+# RIVERGUIDE_MTP_SHARED_EMBED, is on for SGLang). Qwen3.8's linear-attention layers keep a 147 MB
+# state per cached slot, 3 slots a request with SGLang's lazy prefix buffer and skip-decode-lock
+# option; --enable-linear-replayssm-spec drops the per-draft-token copies of that state. What's
+# left on 24 GB is one conversation at a time (a 41K-token pool). SGLang starts even when its pool
+# can't hold --context-length, so start() checks the pool. Its DFlash2 fits at most 28.6K tokens
+# (bf16 state, 4 draft tokens; ReplaySSM refuses DFlash on this model) and accepted 0% of drafts.
+# (SGLang samples by the checkpoint's generation_config.json: production's temperature 1, top-k 20, top-p 0.95.)
 engine_cmd() {
   local port=11434
   case "${1%%-*}" in
@@ -58,9 +68,10 @@ engine_cmd() {
     --enable-auto-tool-choice --tool-call-parser qwen3_coder --override-generation-config '$SAMPLING' --kv-cache-dtype fp8"
   local vllm_mtp="--speculative-config '{\"method\": \"mtp\", \"num_speculative_tokens\": 3}'"
   local vllm_dfl="--speculative-config '{\"method\": \"dflash\", \"model\": \"$dfl_w4\", \"num_speculative_tokens\": 7}'"
-  local sglang="env PATH=$E/sglang/.venv/bin:/opt/cuda/bin:$PATH CUDA_HOME=/opt/cuda $E/sglang/.venv/bin/python -m sglang.launch_server --model-path $CKPT --served-model-name $SERVED \
+  local sglang="env PATH=$E/sglang/.venv/bin:/opt/cuda/bin:$PATH CUDA_HOME=/opt/cuda RIVERGUIDE_MTP_SHARED_EMBED=1 SGLANG_OPT_MAMBA_SKIP_DECODE_LOCK=1 $E/sglang/.venv/bin/python -m sglang.launch_server --model-path $CKPT --served-model-name $SERVED \
     --host 127.0.0.1 --port $port --context-length 32768 --kv-cache-dtype fp8_e5m2 --reasoning-parser qwen3 --tool-call-parser qwen3_coder"
-  local sglang_mtp="--speculative-algorithm NEXTN --speculative-num-steps 3 --speculative-eagle-topk 1 --speculative-num-draft-tokens 4"
+  local sglang_one="--max-running-requests 1 --max-mamba-cache-size 3 --mamba-radix-cache-strategy extra_buffer_lazy"
+  local sglang_mtp="--enable-linear-replayssm-spec --speculative-algorithm NEXTN --speculative-num-steps 3 --speculative-eagle-topk 1 --speculative-num-draft-tokens 4"
   local sglang_dfl="--speculative-algorithm DFLASH --speculative-draft-model-path $dfl_w4 --speculative-num-draft-tokens 8"
   case "$1:$2" in
     ollama-p1:1) CMD="(system Ollama, 1 slot)" ;;
@@ -83,12 +94,11 @@ engine_cmd() {
     vllm-mtp:2) CMD="$vllm --max-num-seqs 4 $vllm_mtp" ;;
     vllm-mtp:3) CMD="$vllm --max-num-seqs 4 --enforce-eager $vllm_mtp" ;;
     vllm-mtp:4) CMD="$vllm --max-num-seqs 2 --enforce-eager --gpu-memory-utilization 0.97 $vllm_mtp" ;;
-    sglang-dflash:1) CMD="$sglang --mem-fraction-static 0.88 --max-running-requests 16 $sglang_dfl" ;;
-    sglang-dflash:2) CMD="$sglang --mem-fraction-static 0.85 --max-running-requests 8 --cuda-graph-max-bs-decode 8 $sglang_dfl" ;;
-    sglang-dflash:3) CMD="$sglang --mem-fraction-static 0.82 --max-running-requests 4 --disable-decode-cuda-graph --disable-prefill-cuda-graph $sglang_dfl" ;;
-    sglang-mtp:1) CMD="$sglang --mem-fraction-static 0.88 --max-running-requests 16 $sglang_mtp" ;;
-    sglang-mtp:2) CMD="$sglang --mem-fraction-static 0.85 --max-running-requests 8 --cuda-graph-max-bs-decode 8 $sglang_mtp" ;;
-    sglang-mtp:3) CMD="$sglang --mem-fraction-static 0.82 --max-running-requests 4 --disable-decode-cuda-graph --disable-prefill-cuda-graph $sglang_mtp" ;;
+    sglang-dflash:1) CMD="$sglang --mem-fraction-static 0.95 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph --chunked-prefill-size 2048 --mamba-ssm-dtype bfloat16 $sglang_dfl" ;;
+    sglang-dflash:2) CMD="$sglang --mem-fraction-static 0.95 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph --chunked-prefill-size 2048 --mamba-ssm-dtype bfloat16 ${sglang_dfl% 8} 4" ;;
+    sglang-mtp:1) CMD="$sglang --mem-fraction-static 0.91 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph $sglang_mtp" ;;
+    sglang-mtp:2) CMD="$sglang --mem-fraction-static 0.905 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph $sglang_mtp" ;;
+    sglang-mtp:3) CMD="$sglang --mem-fraction-static 0.91 $sglang_one --disable-decode-cuda-graph --disable-prefill-cuda-graph $sglang_mtp" ;;
     *) CMD= ;;
   esac
 }
@@ -104,10 +114,16 @@ start() {  # start ENGINE ATTEMPT: true once it answers on $BASE
   PID=$!
   for _ in $(seq 180); do                                    # up to 15 minutes: vLLM compiles on first start
     kill -0 "$PID" 2>/dev/null || return 1
-    curl -sf "$BASE/v1/models" > /dev/null && return 0
+    curl -sf "$BASE/v1/models" > /dev/null && { pool_fits "$1" "$2"; return; }
     sleep 5
   done
   return 1
+}
+pool_fits() {  # SGLang serves even when its token pool is smaller than --context-length
+  [[ $1 == sglang-* ]] || return 0
+  local pool; pool=$(grep -o -m1 "max_total_num_tokens=[0-9]*" "logs/bake-$1-s$2.log" | cut -d= -f2)
+  [ "${pool:-0}" -ge 32768 ] && return 0
+  echo "bakeoff: a ${pool:-unknown}-token pool can't hold a 32,768-token conversation" >> "logs/bake-$1-s$2.log"; return 1
 }
 stop() {
   if [ -n "$PID" ]; then kill "$PID" 2>/dev/null; wait "$PID" 2>/dev/null; PID=; fi
@@ -131,7 +147,7 @@ for engine in "${ENGINES[@]}"; do
     say "not enough time left for $engine; the next window resumes"; exit 75
   fi
   say "$engine: starting"
-  attempt=1 started=false
+  attempt=1 started=false; rm -f logs/bake-"$engine"-s*.log   # an earlier run's attempts aren't this one's
   while true; do
     if (( attempt > 1 )) && [ -n "${LAB_DEADLINE:-}" ] && (( $(date +%s) + 2400 > LAB_DEADLINE )); then
       say "not enough time left for $engine settings $attempt; the next window starts it over"; exit 75

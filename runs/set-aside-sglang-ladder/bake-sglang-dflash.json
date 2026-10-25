@@ -1,0 +1,9 @@
+{
+  "engine": "sglang-dflash",
+  "started": false,
+  "why": {
+    "logs/bake-sglang-dflash-s1.log": "_memory=0.46 GB, mamba_cache_per_req=146.81 MB). Try: (1) reduce --max-running-requests, (2) increase --mem-fraction-static, (3) reduce --speculative-num-draft-tokens, or (4) use GPUs with more memory.\n\n[2026-10-25 08:40:24] Received sigquit from a child process. It usually means the child failed.\n[2026-10-25 08:40:24] kill_process_tree called: parent_pid=1289182, include_parent=True, pid=1289182\n",
+    "logs/bake-sglang-dflash-s2.log": "memory=-0.22 GB, mamba_cache_per_req=146.81 MB). Try: (1) reduce --max-running-requests, (2) increase --mem-fraction-static, (3) reduce --speculative-num-draft-tokens, or (4) use GPUs with more memory.\n\n[2026-10-25 08:40:49] Received sigquit from a child process. It usually means the child failed.\n[2026-10-25 08:40:49] kill_process_tree called: parent_pid=1289653, include_parent=True, pid=1289653\n",
+    "logs/bake-sglang-dflash-s3.log": "memory=-0.89 GB, mamba_cache_per_req=146.81 MB). Try: (1) reduce --max-running-requests, (2) increase --mem-fraction-static, (3) reduce --speculative-num-draft-tokens, or (4) use GPUs with more memory.\n\n[2026-10-25 08:41:13] Received sigquit from a child process. It usually means the child failed.\n[2026-10-25 08:41:13] kill_process_tree called: parent_pid=1290122, include_parent=True, pid=1290122\n"
+  }
+}

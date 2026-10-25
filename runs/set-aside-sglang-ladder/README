@@ -1,0 +1,3 @@
+2026-10-25 08:40: SGLang DFlash2 ran a fallback ladder that lowered --mem-fraction-static, the wrong direction for its failure:
+the hybrid (linear-attention) state cache needs more static memory, not less. Probes in ~/engines/probe-sglang{,2,3,4,5}
+found the settings that fit (bakeoff.sh comments); both SGLang variants re-run with them.
