@@ -4,7 +4,7 @@
 # on :8787 with today's corpus in a local D1, and evals.run --system api against it, once with
 # RETRIEVER=omarchy and once with it off, the same evening. Log: logs/gate-retriever-first.log
 set -uo pipefail
-WT=/home/irsc/Projects/riverguide-retriever-first PY=/home/irsc/Projects/riverguide/.venv/bin/python
+WT=${GATE_WORKTREE:-/home/irsc/Projects/riverguide-retriever-first} PY=/home/irsc/Projects/riverguide/.venv/bin/python
 cd "$WT"
 say() { echo "$(date +%T) $*"; }
 GW_PID= DEV_PID=
