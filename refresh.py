@@ -1,6 +1,6 @@
 """Keep the retriever current with RiverGuide's corpus, and say when it needs retraining.
 
-    .venv/bin/python refresh.py            # nightly: re-embed tonight's crawl with models/full
+    .venv/bin/python refresh.py            # nightly: re-embed tonight's crawl with models/production
     .venv/bin/python refresh.py --check    # Sundays: also test it on that crawl; alert on a drop
 
 Facts live in the pages, so a changed fee or deadline needs only a re-embed, never a retrain.
@@ -169,7 +169,7 @@ def alert(action: str, message: str = "") -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default=str(ROOT / "models" / "full"))
+    parser.add_argument("--model", default=str((ROOT / "models" / "production").resolve()))
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
 

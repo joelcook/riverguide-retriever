@@ -1,12 +1,13 @@
-"""RiverGuide's retriever as a service: models/full on the CPU, over the nightly index.
+"""RiverGuide's retriever as a service: models/production, over the nightly index.
 
     .venv/bin/python retriever_service.py           # 127.0.0.1:8791 (riverguide-retriever.service)
 
-POST /search {"query": "...", "limit": 8} returns {"checked", "results"} shaped exactly like
-RiverGuide's search tool (title, url, updated, section, excerpt; the best chunk per page, at most
-10 pages). The Worker reaches it through the model gateway's /v1/search and falls back to keyword
-search when it can't. CPU only, so Qwen keeps the whole GPU: a query embeds in about a tenth of a
-second. It serves index/ as refresh.py last swapped it in, and picks up a new one by itself.
+models/production links to the model that last passed RiverGuide's golden gate (gate_retriever.sh
+moves it). POST /search {"query": "...", "limit": 8} returns {"checked", "results"} shaped exactly
+like RiverGuide's search tool (title, url, updated, section, excerpt; the best chunk per page, at
+most 10 pages). The Worker reaches it through the model gateway's /v1/search and falls back to
+keyword search when it can't. On the GPU in bfloat16 (RETRIEVER_DEVICE=cuda, 15 ms a search) or
+the CPU. It serves index/ as refresh.py last swapped it in, and picks up a new one by itself.
 Logs outcomes and timing, never the query (RiverGuide's rule 7).
 """
 from __future__ import annotations
@@ -67,7 +68,7 @@ class Index:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default=str(ROOT / "models" / "full"))
+    parser.add_argument("--model", default=str(ROOT / "models" / "production"))
     parser.add_argument("--port", type=int, default=8791)
     parser.add_argument("--threads", type=int, default=8)
     # cuda: about 1.2 GB beside production's Qwen, in bfloat16 as refresh.py builds the index.

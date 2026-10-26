@@ -7,4 +7,4 @@ cd "$(dirname "$0")"
 flock -w 7200 /home/irsc/Projects/riverguide/logs/nightly.lock true
 args=()
 [ "$(date +%u)" = 7 ] && args+=(--check)
-.venv/bin/python refresh.py "${args[@]}" "$@" 2>&1 | grep -v "Batches\|Loading weights\|Warning"
+.venv/bin/python refresh.py --model "$(readlink -f models/production)" "${args[@]}" "$@" 2>&1 | grep -v "Batches\|Loading weights\|Warning"

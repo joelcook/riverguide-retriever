@@ -1,7 +1,7 @@
 """Grade keyword search, the stock embedder, and the retriever on students' real first questions.
 
     .venv/bin/python real_questions.py --org https://<org>.crm.dynamics.com --bot <River Guide bot id>
-        [--systems keyword=keyword stock=Qwen/Qwen3-Embedding-0.6B full=models/full] [--deep full] [--label NAME]
+        [--systems keyword=keyword stock=Qwen/Qwen3-Embedding-0.6B production=models/production] [--deep production] [--label NAME]
 
 --systems names the three lists the judge sees (keyword=keyword is keyword search). --deep NAME sorts
 that system's misses: production's Qwen reads the top 20 pages of every system together and says
@@ -48,7 +48,7 @@ from riverguide.index import SearchIndex
 STARTERS = Path("/home/irsc/Projects/irsc-knowledge-base/prompts/copilot_studio_conversation_start.yaml")
 OLLAMA = os.environ.get("PROD_BASE", "http://127.0.0.1:11434")  # production's engine (lab/production.env)
 JUDGE = "qwen3.8:27b"
-SYSTEMS = {"keyword": None, "stock": "Qwen/Qwen3-Embedding-0.6B", "full": str(ROOT / "models" / "full")}
+SYSTEMS = {"keyword": None, "stock": "Qwen/Qwen3-Embedding-0.6B", "production": str(ROOT / "models" / "production")}
 TOP = 5
 DEEP = 20
 TOPICS = ["admissions and applying", "registration and classes", "financial aid and scholarships",

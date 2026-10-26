@@ -76,7 +76,8 @@ shown the way search shows it: page title, section, and the excerpt.
 
 ## In production
 
-- `retriever_service.py`: models/full on omarchy's **GPU** in bfloat16, as refresh.py builds the index
+- `retriever_service.py`: models/production (the model that last passed the golden gate,
+  `gate_retriever.sh`) on omarchy's **GPU** in bfloat16, as refresh.py builds the index
   (15 ms a query, 60+ a second, 1.7 GB beside Qwen; on the CPU it was 165 ms and 6-8 a second, so 32
   at once waited past the Worker's 4 s timeout), stopped during lab maintenance windows,
   serving `index/` on 127.0.0.1:8791 as the user service `riverguide-retriever`. RiverGuide's

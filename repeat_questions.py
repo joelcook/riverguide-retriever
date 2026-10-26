@@ -9,7 +9,7 @@ questions would that cover, and how often would the match give the wrong answer?
 
 Real first questions of River Guide (Copilot Studio) sessions, redacted in memory as
 real_questions.py does, minus the conversation-starter buttons (the Worker's prewarm already caches
-those). Embedded with the retriever's model (models/full). The first --train-days build the library:
+those). Embedded with the retriever's model (models/production). The first --train-days build the library:
 questions grouped greedily (each joins the most similar earlier group's lead at cosine >= t), the
 --library largest groups each answered once. The later days test it: a question is covered when the
 nearest library lead is at cosine >= t. Qwen judges every covered pair: would one answer serve both?
@@ -95,7 +95,7 @@ def main() -> int:
     cut = asked[0][0] + args.train_days * 86400
     train = [q for t, q in asked if t < cut]
     test = [q for t, q in asked if t >= cut]
-    model = load_model(str(ROOT / "models" / "full"))
+    model = load_model(str(ROOT / "models" / "production"))
     emb = lambda qs: model.encode([QUERY_INSTRUCT + q for q in qs], batch_size=64, normalize_embeddings=True,  # noqa: E731
                                   convert_to_numpy=True).astype(np.float32)
     e_train, e_test = emb(train), emb(test)
