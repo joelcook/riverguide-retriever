@@ -3,7 +3,8 @@
     .venv/bin/python real_questions.py --org https://<org>.crm.dynamics.com --bot <River Guide bot id>
         [--systems keyword=keyword stock=Qwen/Qwen3-Embedding-0.6B production=models/production] [--deep production] [--label NAME]
 
---systems names the three lists the judge sees (keyword=keyword is keyword search). --deep NAME sorts
+--systems names the three lists the judge sees (keyword=keyword is keyword search; MODEL+rerankN
+has Qwen3-Reranker-0.6B re-sort MODEL's top N pages before the top 5 are judged). --deep NAME sorts
 that system's misses: production's Qwen reads the top 20 pages of every system together and says
 whether any of them answers the question. If one does, search missed it; if none does, the website
 may not answer it (a list for the College's web team). Only counts, ranks, topics, and page URLs
@@ -23,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import gc
 import hashlib
 import json
 import os
@@ -49,6 +51,7 @@ STARTERS = Path("/home/irsc/Projects/irsc-knowledge-base/prompts/copilot_studio_
 OLLAMA = os.environ.get("PROD_BASE", "http://127.0.0.1:11434")  # production's engine (lab/production.env)
 JUDGE = "qwen3.8:27b"
 SYSTEMS = {"keyword": None, "stock": "Qwen/Qwen3-Embedding-0.6B", "production": str(ROOT / "models" / "production")}
+RERANK: dict[str, int] = {}  # system -> how many of its top pages the reranker re-sorts (MODEL+rerankN)
 TOP = 5
 DEEP = 20
 TOPICS = ["admissions and applying", "registration and classes", "financial aid and scholarships",
@@ -156,7 +159,10 @@ def key(text: str) -> str:
 def dense_rankings(name: str, path: str, index: SearchIndex, docs: list[dict], questions: list[str], depth: int = TOP) -> list[list[int]]:
     """Top pages as chunk ids (each page's best chunk), for each question."""
     model = load_model(path)
-    cache = ROOT / "runs" / f"emb-{name}-{git_head(RIVERGUIDE)}.npy"
+    # Keyed by the model's own directory, not the system's name: models/production moves to each new
+    # model that passes its gate, and a system named after it mustn't reuse the last model's embeddings.
+    tag = Path(path).resolve().name if Path(path).exists() else name
+    cache = ROOT / "runs" / f"emb-{tag}-{git_head(RIVERGUIDE)}.npy"
     if cache.exists():
         emb = np.load(cache)
     else:
@@ -166,6 +172,7 @@ def dense_rankings(name: str, path: str, index: SearchIndex, docs: list[dict], q
     q = model.encode([QUERY_INSTRUCT + x for x in questions], batch_size=64, normalize_embeddings=True,
                      convert_to_numpy=True).astype(np.float32)
     del model
+    gc.collect()  # the model sits in a reference cycle: without this its 1.9 GB stays on the GPU
     torch.cuda.empty_cache()
     doc_page = np.array([d["page"] for d in docs])
     out = []
@@ -178,6 +185,25 @@ def dense_rankings(name: str, path: str, index: SearchIndex, docs: list[dict], q
                 if len(picked) == depth:
                     break
         out.append(picked)
+    return out
+
+
+def rerank(questions: list[str], ids: list[list[int]], docs: list[dict], n: int) -> list[list[int]]:
+    """Each question's first n pages (their best chunks) re-sorted by Qwen3-Reranker-0.6B, the rest after."""
+    from rerank import Judge  # loads only when a system asks for it
+
+    judge = Judge(device=os.environ.get("RERANK_DEVICE", "cpu"))  # the GPU is production's (rerank.py)
+    pairs = [(q, docs[c]["text"]) for q, r in zip(questions, ids) for c in r[:n]]
+    scores = judge.score(pairs, batch=int(os.environ.get("JUDGE_BATCH", 16)))
+    del judge
+    gc.collect()
+    torch.cuda.empty_cache()
+    out, k = [], 0
+    for r in ids:
+        head = r[:n]
+        order = sorted(range(len(head)), key=lambda j: -scores[k + j])
+        out.append([head[j] for j in order] + r[n:])
+        k += len(head)
     return out
 
 
@@ -228,8 +254,12 @@ def main() -> int:
     args = parser.parse_args()
     global SYSTEMS
     if args.systems:
-        SYSTEMS = {n: (None if m == "keyword" else str(ROOT / m) if (ROOT / m).exists() else m)
-                   for n, m in (x.split("=", 1) for x in args.systems)}
+        SYSTEMS = {}
+        for n, m in (x.split("=", 1) for x in args.systems):
+            m, _, depth = m.partition("+rerank")
+            if depth:
+                RERANK[n] = int(depth)
+            SYSTEMS[n] = None if m == "keyword" else str(ROOT / m) if (ROOT / m).exists() else m
     assert not args.deep or args.deep in SYSTEMS, "--deep must name one of --systems"
     assert args.min_show >= 2, "never show questions asked once"
 
@@ -248,7 +278,10 @@ def main() -> int:
     depth = DEEP if args.deep else TOP
     lists, pools = {}, {}  # pools: each system's top `depth` pages, for --deep
     for name, path in SYSTEMS.items():
-        if path:
+        if path and name in RERANK:
+            ids = dense_rankings(name, path, index, docs, questions, max(depth, RERANK[name]))
+            ranked = [[index._result(c) for c in r] for r in rerank(questions, ids, docs, RERANK[name])]
+        elif path:
             ranked = [[index._result(c) for c in r] for r in dense_rankings(name, path, index, docs, questions, depth)]
         else:
             ranked = [index.search(q, limit=depth) for q in questions]

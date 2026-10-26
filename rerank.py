@@ -1,7 +1,9 @@
 """Qwen3-Reranker-0.6B as a relevance judge: P(the passage answers the query).
 
 Used by build_data.py to drop generated queries their own chunk doesn't answer and mined
-negatives that are really other right answers. Prompt format from the model card.
+negatives that are really other right answers, and by real_questions.py to re-sort a retriever's
+top pages (on the CPU there: beside production's Qwen and retriever the GPU has no room for a
+second process's model). Prompt format from the model card.
 """
 from __future__ import annotations
 
@@ -18,9 +20,11 @@ SUFFIX = "<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
 
 
 class Judge:
-    def __init__(self, max_length: int = 640):
+    def __init__(self, max_length: int = 640, device: str = "cuda"):
         self.tok = AutoTokenizer.from_pretrained(MODEL, padding_side="left")
-        self.model = AutoModelForCausalLM.from_pretrained(MODEL, dtype=torch.bfloat16).cuda().eval()
+        self.device = device
+        dtype = torch.bfloat16 if device == "cuda" else torch.float32
+        self.model = AutoModelForCausalLM.from_pretrained(MODEL, dtype=dtype).to(device).eval()
         self.yes = self.tok.convert_tokens_to_ids("yes")
         self.no = self.tok.convert_tokens_to_ids("no")
         self.prefix = self.tok.encode(PREFIX, add_special_tokens=False)
@@ -37,7 +41,7 @@ class Judge:
             texts = [f"<Instruct>: {INSTRUCT}\n<Query>: {pairs[i][0]}\n<Document>: {pairs[i][1]}" for i in idx]
             enc = self.tok(texts, add_special_tokens=False, truncation=True, max_length=room)
             ids = [self.prefix + x + self.suffix for x in enc["input_ids"]]
-            enc = self.tok.pad({"input_ids": ids}, padding=True, return_tensors="pt").to("cuda")
+            enc = self.tok.pad({"input_ids": ids}, padding=True, return_tensors="pt").to(self.device)
             for attempt in range(20):  # the canary may load Qwen mid-run; wait for the GPU, don't die
                 try:
                     logits = self.model(**enc, logits_to_keep=1).logits[:, -1, :]
