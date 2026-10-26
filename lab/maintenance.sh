@@ -27,7 +27,7 @@ case "${1:?start or end}" in
       [ "$(readlink "/proc/$pid/cwd")" = "$HOME/Projects/fundraising-prospect-discovery" ] || continue
       kill -STOP "$pid" && echo "$pid" >> "$LAB/.maintenance-paused"
     done
-    for m in $(curl -s localhost:11434/api/ps | python3 -c 'import json,sys; print(" ".join(x["name"] for x in json.load(sys.stdin)["models"]))'); do
+    for m in $(curl -s localhost:11434/api/ps | "$HOME/.local/bin/riverguide-lab" ollama-ps); do
       curl -s localhost:11434/api/chat -d "{\"model\": \"$m\", \"messages\": [], \"keep_alive\": 0}" > /dev/null
     done
     "$OPS" open riverguide "RiverGuide is offline for lab job $2 until $(date -d "@$3" +%H:%M) at the latest; it comes back on its own." --key riverguide:maintenance
@@ -38,14 +38,14 @@ case "${1:?start or end}" in
     . "$LAB/production.env"; [ -n "${SERVICE:-}" ] && systemctl --user start "$SERVICE"
     [ -f "$LAB/.maintenance-paused" ] && xargs -r kill -CONT < "$LAB/.maintenance-paused" 2>/dev/null
     rm -f "$LAB/.maintenance-paused"
+    # Load production's Qwen before anything else takes GPU memory, or Ollama splits it onto the CPU
+    # (2026-10-25 22:23: 59 of 66 layers on the GPU, after the next lab job loaded its models first).
+    # An engine that isn't Ollama loaded its model as it started; /api/chat is a harmless 404 there.
+    model=$(sed -n 's/^RIVERGUIDE_MODEL=//p' ~/.config/riverguide/model-gateway.env)
+    for _ in $(seq 60); do curl -sf "${BASE:-http://127.0.0.1:11434}/v1/models" > /dev/null && break; sleep 2; done
+    curl -s "${BASE:-http://127.0.0.1:11434}/api/chat" -d "{\"model\": \"${model:-qwen3.8:27b}\", \"messages\": []}" > /dev/null
     systemctl --user start riverguide-retriever
     systemctl --user start riverguide-model
-    # Warm production's model when the gateway is in front of Ollama (its default upstream).
-    upstream=$(sed -n 's/^OLLAMA_URL=//p' ~/.config/riverguide/model-gateway.env)
-    model=$(sed -n 's/^RIVERGUIDE_MODEL=//p' ~/.config/riverguide/model-gateway.env)
-    if [ -z "$upstream" ] || [[ $upstream == *:11434* ]]; then
-      curl -s localhost:11434/api/chat -d "{\"model\": \"${model:-qwen3.8:27b}\", \"messages\": []}" > /dev/null
-    fi
     "$OPS" clear riverguide --key riverguide:maintenance
     rm -f "$LAB/.maintenance"
     say "back online"

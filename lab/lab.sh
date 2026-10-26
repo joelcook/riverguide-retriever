@@ -32,21 +32,24 @@ fi
 # Jobs call production's engine at PROD_BASE (lab/production.env, kept by promote_engine.sh).
 PROD_BASE=$(sed -n 's/^BASE=//p' "$LAB/production.env" 2>/dev/null); export PROD_BASE=${PROD_BASE:-http://127.0.0.1:11434}
 # Qwen split onto the CPU (it loaded while something else held GPU memory) answers at CPU speed.
-# Between jobs, unload it so the next question loads it whole on the GPU.
+# Between jobs, unload it so it loads whole on the GPU: in the system Ollama, and in production's
+# engine when that's an Ollama of its own (riverguide-engine on :11440), which is reloaded right
+# away. (2026-10-25 22:23: production loaded 59 of 66 layers on the GPU beside a lab job's models
+# and nothing noticed, because only :11434 was checked.)
 heal_offload() {
-  curl -s localhost:11434/api/ps | python3 -c '
-import json, sys
-for m in json.load(sys.stdin)["models"]:
-    if m.get("size_vram", 0) < m.get("size", 0):
-        print(m["name"])' | while read -r m; do
-    curl -s localhost:11434/api/chat -d "{\"model\": \"$m\", \"messages\": [], \"keep_alive\": 0}" > /dev/null
-    say "unloaded $m: it was partly on the CPU"
+  local base
+  for base in $(printf '%s\n' http://127.0.0.1:11434 "$PROD_BASE" | sort -u); do
+    curl -s "$base/api/ps" | "$HOME/.local/bin/riverguide-lab" ollama-ps --partial | while read -r m; do
+      curl -s "$base/api/chat" -d "{\"model\": \"$m\", \"messages\": [], \"keep_alive\": 0}" > /dev/null
+      say "unloaded $m from $base: it was partly on the CPU"
+      [ "$base" = "$PROD_BASE" ] && { warm_production; say "reloaded $m for production"; }
+    done
   done
 }
 # Load production's Qwen before a share job loads its own models, so Qwen gets the GPU first.
+# (An engine that isn't Ollama loaded its model when it started; /api/chat is a harmless 404 there.)
 warm_production() {
-  [[ $PROD_BASE == *:11434* ]] || return 0
-  curl -s localhost:11434/api/chat -d '{"model": "qwen3.8:27b", "messages": []}' > /dev/null
+  curl -s "$PROD_BASE/api/chat" -d '{"model": "qwen3.8:27b", "messages": []}' > /dev/null
 }
 [ "$LANE" = gpu ] && [ ! -e "$LAB/.maintenance" ] && heal_offload
 clock() { now=$(date +%s); hm=$((10#$(date +%H) * 60 + 10#$(date +%M))); }
