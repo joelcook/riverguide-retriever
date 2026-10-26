@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Make the bake-off's survivor production for RiverGuide (and fundraising's config, for when that
-# shelved app comes back), then remove the losers.
+# shelved app comes back), then remove the engines it fairly beat. riverguide-lab's verdict lists
+# them (runs/bakeoff.json "remove_paths"): an engine whose run wasn't fair stays installed for a
+# re-run, and so do the model files it reads (rust/src/verdict.rs).
 #   ./promote_engine.sh ENGINE        (inside the lab's maintenance window, from bakeoff.sh)
 # Any survivor but production's own Ollama (ollama-p1) runs as the user service riverguide-engine
 # on 127.0.0.1:11440, with the exact settings that won. RiverGuide's gateway and fundraising's
@@ -16,22 +18,23 @@ GW=$HOME/.config/riverguide/model-gateway.env
 FUND=$HOME/Projects/fundraising-prospect-discovery
 UNIT=$HOME/.config/systemd/user/riverguide-engine.service
 OPS=$(command -v ops-alert || echo "$HOME/.local/bin/ops-alert")
+RL=$HOME/.local/bin/riverguide-lab
 say() { echo "$(date +%T) [promote] $*"; }
 . lab/production.env
 setenv() { if grep -q "^$2=" "$1"; then sed -i "s|^$2=.*|$2=$3|" "$1"; else echo "$2=$3" >> "$1"; fi; }
 
 remove_losers() {
-  for e in llamacpp vllm sglang; do [ "$e" = "${WIN%%-*}" ] || { rm -rf "${E:?}/$e"; say "removed $e"; }; done
-  [[ ${WIN%%-*} == vllm || ${WIN%%-*} == sglang ]] || rm -rf "$E/models/qwen3.8-27b-w4a16" "$E/hf"
-  [ "${WIN%%-*}" = llamacpp ] || rm -rf "$E/models/qwen3.8-27b-template"
-  [ "$WIN" = llamacpp-dflash ] || rm -rf "$E/models/qwen3.8-27b-dflash2-gguf"
-  [[ $WIN == vllm-dflash || $WIN == sglang-dflash ]] || rm -rf "$E/models/qwen3.8-27b-dflash2-w4a16"
+  for p in $("$RL" json runs/bakeoff.json remove_paths); do rm -rf "${E:?}/$p"; say "removed $p"; done
 }
-table() { python3 bakeoff_verdict.py $(python3 -c "import json; print(' '.join(json.load(open('runs/bakeoff.json'))['engines']))") | tail -n +1; }
+outcome() {  # what the alert says was removed and kept
+  local gone kept
+  gone=$("$RL" json runs/bakeoff.json remove | xargs) kept=$("$RL" json runs/bakeoff.json kept_families | xargs)
+  echo "Removed: ${gone:-nothing}.${kept:+ Kept for a re-run (not a fair run yet): $kept.}"
+}
 
 if [ "$WIN" = "$ENGINE" ]; then
   remove_losers
-  "$OPS" open riverguide "Engine bake-off: $WIN stays. $(python3 -c "import json; print(json.load(open('runs/bakeoff.json'))['reason'])"). Removed the other engines. Details: riverguide-retriever/runs/bakeoff.json" --key riverguide:bakeoff
+  "$OPS" open riverguide "Engine bake-off: $WIN stays. $("$RL" json runs/bakeoff.json reason). $(outcome) Details: riverguide-retriever/runs/bakeoff.json" --key riverguide:bakeoff
   exit 0
 fi
 
@@ -40,7 +43,7 @@ if [ "$WIN" = ollama-p1 ]; then
   BASE_NEW=http://127.0.0.1:11434 API=ollama
 else
   BASE_NEW=http://127.0.0.1:11440 API=openai; [[ $WIN == ollama-* ]] && API=ollama
-  cmd=$(python3 -c "import json; print(json.load(open('runs/bake-$WIN.json'))['command'])")
+  cmd=$("$RL" json "runs/bake-$WIN.json" command)
   cmd=$(sed -E 's/--port [0-9]+/--port 11440/; s/OLLAMA_HOST=127\.0\.0\.1:[0-9]+/OLLAMA_HOST=127.0.0.1:11440/' <<< "$cmd")
   if [ "${WIN%%-*}" = llamacpp ]; then   # its own copy of the GGUF, so Ollama can drop models freely
     gguf=$(grep -oE '/var/lib/ollama/blobs/sha256-[0-9a-f]+' <<< "$cmd")
@@ -89,8 +92,10 @@ fi
 [ "$BASE_NEW" = http://127.0.0.1:11434 ] && sed -i '/^OLLAMA_URL=/d' "$GW" || setenv "$GW" OLLAMA_URL "$BASE_NEW"
 # How many questions the gateway lets through at once: twice what the engine answers together
 # (Ollama and llama.cpp run 4 slots), so a short burst waits a few seconds in the engine's queue
-# instead of a student seeing "busy" (approved 2026-10-25). vLLM and SGLang batch up to 16.
-case "$WIN" in vllm*|sglang*) cap=16 ;; *) cap=8 ;; esac
+# instead of a student seeing "busy" (approved 2026-10-25). An engine that sizes its own batch
+# (vLLM or SGLang with no cap on running requests) gets 16.
+slots=$("$RL" json runs/bakeoff.json "engines.$WIN.checks.concurrency" 2>/dev/null)
+case "$slots" in ''|auto|*[!0-9]*) cap=16 ;; *) cap=$((2 * slots)); (( cap > 16 )) && cap=16 ;; esac
 setenv "$GW" RIVERGUIDE_MODEL_MAX_IN_FLIGHT "$cap"
 setenv "$FUND/.env" LLM_API "'$API'"
 setenv "$FUND/.env" OLLAMA_URL "'$BASE_NEW'"
@@ -105,8 +110,8 @@ r = request_extraction('Extract documented philanthropic facts. Return only the 
     'In 2024 Jane Example gave \$50,000 to endow a nursing scholarship at Indian River State College.')
 print('FUND_OK', len(r['prospects']))" 2>&1) | grep -q FUND_OK || say "fundraising's extraction call failed on $WIN (app shelved; check before un-shelving)"
 (cd /home/irsc/Projects/riverguide && .venv/bin/python "$ROOT/load_test.py" --name promote-check --base "$BASE_NEW" --levels 1 --per-level 3)
-python3 -c "import json,sys; lv=json.load(open('runs/load-promote-check.json'))['levels'][0]; sys.exit(0 if lv['unfinished'] == 0 and lv['passed'] >= 2 else 1)" \
-  || rollback "RiverGuide's check questions failed"
+unfinished=$("$RL" json runs/load-promote-check.json levels.0.unfinished) passed=$("$RL" json runs/load-promote-check.json levels.0.passed)
+[ "$unfinished" = 0 ] && [ "${passed%.*}" -ge 2 ] 2>/dev/null || rollback "RiverGuide's check questions failed"
 rm -f runs/load-promote-check.json
 
 printf '# The engine serving production Qwen, kept by promote_engine.sh. BASE is what the lab'"'"'s tools call.\nENGINE=%s\nBASE=%s\nSERVICE=%s\n' \
@@ -114,4 +119,4 @@ printf '# The engine serving production Qwen, kept by promote_engine.sh. BASE is
 rm -f "$GW.lab-bak" "$FUND/.env.lab-bak" lab/production.env.lab-bak
 remove_losers
 say "production is now $WIN at $BASE_NEW"
-"$OPS" open riverguide "Engine bake-off: $WIN now serves RiverGuide and fundraising ($(python3 -c "import json; print(json.load(open('runs/bakeoff.json'))['reason'])")). Removed the losing engines. Details: riverguide-retriever/runs/bakeoff.json" --key riverguide:bakeoff
+"$OPS" open riverguide "Engine bake-off: $WIN now serves RiverGuide and fundraising ($("$RL" json runs/bakeoff.json reason)). $(outcome) Details: riverguide-retriever/runs/bakeoff.json" --key riverguide:bakeoff

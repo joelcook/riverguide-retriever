@@ -1,0 +1,10 @@
+The morning bake-off's results for ollama-max, sglang-mtp and sglang-dflash (2026-10-25), set aside
+at 23:20 that night so the next bake-off re-measures all three under riverguide-lab's fairness gate
+(rust/src/fair.rs). The gate rejects both SGLang runs:
+  - sglang-mtp: its best settings served 1 conversation at once against production's 4 (the 16, 8
+    and 4 tries were hand probes, never recorded), and its server crashed on fundraising's
+    structured-output call (a grammar kernel loaded with 0.24 GiB free) after the load test.
+  - sglang-dflash: never started (no settings held a 32,768-token conversation), and in probes
+    syvai's W4A16 conversion of the DFlash2 drafter accepted no drafts.
+promote_engine.sh then removed SGLang as a loser. bakeoff.json is that verdict (ollama-max won).
+The servers' logs are in logs/set-aside-before-fairness-gate/ (logs/ isn't in git).

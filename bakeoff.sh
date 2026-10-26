@@ -5,10 +5,13 @@
 # sampling (temperature 1, top-k 20, top-p 0.95), then gets: the golden set twice through
 # RiverGuide's loop (quality), the load test at 1, 4, 8 and 16 students (speed), fundraising's
 # own extraction call (one engine serves both apps), and its GPU memory. An engine that won't
-# start tries its fallback settings, then is recorded as failed and loses. Results:
+# start, or crashes under the test, tries its fallback settings; every attempt is noted in
 # runs/bake-<engine>.json (+ golden-bake-*, load-bake-*). Once every engine has a result,
-# bakeoff_verdict.py picks the survivor and promote_engine.sh makes it production. Out of
-# time first: exit 75, and the lab's next window picks up where this left off.
+# riverguide-lab's verdict picks the survivor among fair runs only (rust/src/fair.rs) and
+# promote_engine.sh makes it production. An engine whose run wasn't fair (best settings below
+# production's concurrency, a drafter that accepts nothing, a crash, a pool short of 32K) is kept
+# for a re-run and an ops-alert says why. Out of time first: exit 75, and the lab's next window
+# picks up where this left off.
 set -uo pipefail
 cd "$(dirname "$0")"
 ROOT=$PWD RG=/home/irsc/Projects/riverguide FUND=/home/irsc/Projects/fundraising-prospect-discovery E=$HOME/engines
@@ -19,6 +22,9 @@ SAMPLING='{"temperature": 1.0, "top_p": 0.95, "top_k": 20, "min_p": 0.0}'
 ENGINES=("${@:-ollama-p1 ollama-p4 ollama-max llamacpp-mtp llamacpp-dflash vllm-dflash vllm-mtp sglang-dflash sglang-mtp}"); ENGINES=(${ENGINES[@]})
 say() { echo "$(date +%T) $*"; }
 PID= BASE= CMD=
+RL=$HOME/.local/bin/riverguide-lab   # cargo install --locked --path rust --root ~/.local
+OPS=$(command -v ops-alert || echo "$HOME/.local/bin/ops-alert")
+[ -x "$RL" ] || { say "riverguide-lab isn't installed: cargo install --locked --path rust --root ~/.local"; exit 1; }
 # Wait for install_engines.sh: every engine still to measure READY or FAILED, its checkpoint too.
 # (Measured engines may be gone: promote_engine.sh removes the losers.)
 todo=$(for e in "${ENGINES[@]}"; do [ -f "runs/bake-$e.json" ] || echo "${e%%-*}"; done | sort -u | grep -v ollama)
@@ -26,7 +32,7 @@ todo=$(for e in "${ENGINES[@]}"; do [ -f "runs/bake-$e.json" ] || echo "${e%%-*}
 for need in $todo; do
   [ -f "$E/$need/READY" ] || [ -f "$E/$need/FAILED" ] || { say "waiting for the install of $need"; exit 75; }
 done
-[ -f "$E/sglang/READY" ] && { python3 engine_patches/sglang_mtp_shared_embed.py "$E"/sglang/.venv/lib/python3.*/site-packages > /dev/null || say "the SGLang patch didn't apply"; }
+[ -f "$E/sglang/READY" ] && { "$RL" patch-sglang "$E"/sglang/.venv/lib/python3.*/site-packages > /dev/null || say "the SGLang patch didn't apply"; }
 
 # The command for ENGINE at fallback ATTEMPT (1 = best settings); empty when out of attempts.
 # Every engine runs at its limit, with everything it offers: Qwen3.8's own multi-token prediction
@@ -42,17 +48,22 @@ done
 # vLLM runs text-only (--language-model-only), as RiverGuide is: the vision tower costs 0.8 GB,
 # and each drafter allocates its own 16-bit output head (2.37 GiB for Qwen's 248K vocabulary).
 # SGLang: its MTP draft builds its own embedding and output head (4.7 GiB) before swapping in the
-# target's; engine_patches/sglang_mtp_shared_embed.py builds them empty instead (its switch,
+# target's; riverguide-lab patch-sglang (rust/src/main.rs) builds them empty instead (its switch,
 # RIVERGUIDE_MTP_SHARED_EMBED, is on for SGLang). Qwen3.8's linear-attention layers keep a 147 MB
 # state per cached slot, 3 slots a request with SGLang's lazy prefix buffer and skip-decode-lock
 # option, plus one spare (with exactly 3, a chunked-prefill checkpoint found none and the server
 # died); --enable-linear-replayssm-spec drops the per-draft-token copies of that state. Its HTTP
-# process holds a 454 MiB CUDA context outside --mem-fraction-static, so 0.915 and up run out
-# mid-prefill, as do 4096-token chunks. What's left on 24 GB is one conversation at a time (a
-# 36.7K-token pool). SGLang starts even when its pool
-# can't hold --context-length, so start() checks the pool. Its DFlash2 fits at most 28.6K tokens
-# (bf16 state, 4 draft tokens; ReplaySSM refuses DFlash on this model) and accepted 0% of drafts.
+# process holds a 454 MiB CUDA context outside --mem-fraction-static, so 0.915 and up ran out
+# mid-prefill with 2048-token chunks, and 4096-token chunks did too. SGLang starts even when its
+# pool can't hold --context-length, so start() checks the pool. Like every engine, its settings
+# start at production's 4 conversations at once and fall back one at a time (riverguide-lab
+# preflight refuses a ladder that starts lower; on 2026-10-25 it started at 1, and the 4/8/16
+# attempts were hand probes nobody recorded); sglang_n N sizes the state slots for N. Its DFlash2
+# fit at most 28.6K tokens (bf16 state, 4 draft tokens; ReplaySSM refuses DFlash on this model)
+# with syvai's W4A16 conversion of the drafter, which accepted 0% of drafts; settings "diag" runs
+# Inco AI's bf16 original at 8K tokens to tell a bad conversion from an SGLang bug.
 # (SGLang samples by the checkpoint's generation_config.json: production's temperature 1, top-k 20, top-p 0.95.)
+sglang_n() { echo "--max-running-requests $1 --max-mamba-cache-size $((3 * $1 + 1)) --cuda-graph-max-bs-decode $1"; }
 engine_cmd() {
   local port=11434
   case "${1%%-*}" in
@@ -75,10 +86,10 @@ engine_cmd() {
   local vllm_mtp="--speculative-config '{\"method\": \"mtp\", \"num_speculative_tokens\": 3}'"
   local vllm_dfl="--speculative-config '{\"method\": \"dflash\", \"model\": \"$dfl_w4\", \"num_speculative_tokens\": 7}'"
   local sglang="env PATH=$E/sglang/.venv/bin:/opt/cuda/bin:$PATH CUDA_HOME=/opt/cuda RIVERGUIDE_MTP_SHARED_EMBED=1 SGLANG_OPT_MAMBA_SKIP_DECODE_LOCK=1 $E/sglang/.venv/bin/python -m sglang.launch_server --model-path $CKPT --served-model-name $SERVED \
-    --host 127.0.0.1 --port $port --context-length 32768 --kv-cache-dtype fp8_e5m2 --reasoning-parser qwen3 --tool-call-parser qwen3_coder"
-  local sglang_one="--max-running-requests 1 --max-mamba-cache-size 4 --mamba-radix-cache-strategy extra_buffer_lazy"
+    --host 127.0.0.1 --port $port --context-length 32768 --kv-cache-dtype fp8_e5m2 --reasoning-parser qwen3 --tool-call-parser qwen3_coder \
+    --mamba-radix-cache-strategy extra_buffer_lazy --disable-prefill-cuda-graph"
   local sglang_mtp="--enable-linear-replayssm-spec --speculative-algorithm NEXTN --speculative-num-steps 3 --speculative-eagle-topk 1 --speculative-num-draft-tokens 4"
-  local sglang_dfl="--speculative-algorithm DFLASH --speculative-draft-model-path $dfl_w4 --speculative-num-draft-tokens 8"
+  local sglang_dfl="--mamba-ssm-dtype bfloat16 --speculative-algorithm DFLASH --speculative-draft-model-path $dfl_w4 --speculative-num-draft-tokens"
   case "$1:$2" in
     ollama-p1:1) CMD="(system Ollama, 1 slot)" ;;
     ollama-p4:1) CMD="env $ollama_env ollama serve" ;;
@@ -100,11 +111,21 @@ engine_cmd() {
     vllm-mtp:2) CMD="$vllm --max-num-seqs 4 $vllm_mtp" ;;
     vllm-mtp:3) CMD="$vllm --max-num-seqs 4 --enforce-eager $vllm_mtp" ;;
     vllm-mtp:4) CMD="$vllm --max-num-seqs 2 --enforce-eager --gpu-memory-utilization 0.97 $vllm_mtp" ;;
-    sglang-dflash:1) CMD="$sglang --mem-fraction-static 0.95 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph --chunked-prefill-size 2048 --mamba-ssm-dtype bfloat16 $sglang_dfl" ;;
-    sglang-dflash:2) CMD="$sglang --mem-fraction-static 0.95 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph --chunked-prefill-size 2048 --mamba-ssm-dtype bfloat16 ${sglang_dfl% 8} 4" ;;
-    sglang-mtp:1) CMD="$sglang --mem-fraction-static 0.91 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph --chunked-prefill-size 2048 $sglang_mtp" ;;
-    sglang-mtp:2) CMD="$sglang --mem-fraction-static 0.905 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph --chunked-prefill-size 2048 $sglang_mtp" ;;
-    sglang-mtp:3) CMD="$sglang --mem-fraction-static 0.91 $sglang_one --cuda-graph-max-bs-decode 1 --disable-prefill-cuda-graph --chunked-prefill-size 1024 $sglang_mtp" ;;
+    sglang-mtp:1) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 4) --chunked-prefill-size 2048 $sglang_mtp" ;;
+    sglang-mtp:2) CMD="$sglang --mem-fraction-static 0.92 $(sglang_n 4) --chunked-prefill-size 1024 $sglang_mtp" ;;
+    sglang-mtp:3) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 3) --chunked-prefill-size 2048 $sglang_mtp" ;;
+    sglang-mtp:4) CMD="$sglang --mem-fraction-static 0.92 $(sglang_n 3) --chunked-prefill-size 1024 $sglang_mtp" ;;
+    sglang-mtp:5) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 2) --chunked-prefill-size 2048 $sglang_mtp" ;;
+    sglang-mtp:6) CMD="$sglang --mem-fraction-static 0.92 $(sglang_n 2) --chunked-prefill-size 1024 $sglang_mtp" ;;
+    sglang-mtp:7) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 1) --chunked-prefill-size 2048 $sglang_mtp" ;;
+    sglang-mtp:8) CMD="$sglang --mem-fraction-static 0.905 $(sglang_n 1) --chunked-prefill-size 2048 $sglang_mtp" ;;
+    sglang-mtp:9) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 1) --chunked-prefill-size 1024 $sglang_mtp" ;;
+    sglang-dflash:1) CMD="$sglang --mem-fraction-static 0.95 $(sglang_n 4) --chunked-prefill-size 2048 $sglang_dfl 8" ;;
+    sglang-dflash:2) CMD="$sglang --mem-fraction-static 0.95 $(sglang_n 2) --chunked-prefill-size 1024 $sglang_dfl 4" ;;
+    sglang-dflash:3) CMD="$sglang --mem-fraction-static 0.95 $(sglang_n 1) --chunked-prefill-size 2048 $sglang_dfl 8" ;;
+    sglang-dflash:4) CMD="$sglang --mem-fraction-static 0.95 $(sglang_n 1) --chunked-prefill-size 2048 $sglang_dfl 4" ;;
+    sglang-dflash:5) CMD="$sglang --mem-fraction-static 0.955 $(sglang_n 1) --chunked-prefill-size 1024 $sglang_dfl 4" ;;
+    sglang-dflash:diag) CMD="${sglang/--context-length 32768/--context-length 8192} --mem-fraction-static 0.95 $(sglang_n 1) --chunked-prefill-size 1024 ${sglang_dfl/$dfl_w4/$E/models/qwen3.8-27b-dflash2} 8" ;;
     *) CMD= ;;
   esac
 }
@@ -120,7 +141,7 @@ start() {  # start ENGINE ATTEMPT: true once it answers on $BASE
   PID=$!
   for _ in $(seq 180); do                                    # up to 15 minutes: vLLM compiles on first start
     kill -0 "$PID" 2>/dev/null || return 1
-    curl -sf "$BASE/v1/models" > /dev/null && { pool_fits "$1" "$2"; return; }
+    curl -sf "$BASE/v1/models" > /dev/null && { [ "$2" = diag ] || pool_fits "$1" "$2"; return; }
     sleep 5
   done
   return 1
@@ -139,11 +160,25 @@ stop() {
 }
 trap stop EXIT
 
-crashed() {  # crashed ENGINE STAGE: its server died under the test, so record that rather than its empty answers
-  [ -n "$PID" ] && ! kill -0 "$PID" 2>/dev/null || return 1
-  python3 -c "import json,sys; json.dump({'engine': sys.argv[1], 'started': False, 'why': {'crashed during ' + sys.argv[2]: open(sys.argv[3]).read()[-400:]}}, open(sys.argv[4], 'w'), indent=2)" \
-    "$1" "$2" "$(readlink -f "logs/bake-$1.log")" "runs/bake-$1.json"
-  say "$1: crashed during $2"; PID=; stop
+died() {  # died: the server under test is gone (its answers since then are empty, not slow)
+  [ -n "$PID" ] && ! kill -0 "$PID" 2>/dev/null
+}
+last_error() {  # last_error ENGINE ATTEMPT: the line that says why those settings didn't start
+  grep -E "Error|error|out of memory|can't hold" "logs/bake-$1-s$2.log" 2>/dev/null | tail -1 | cut -c1-240
+}
+warm_drafts() {  # warm_drafts ENGINE: one 400-token answer, then "ok X", "low X" or "none" for its drafts
+  curl -s -m 300 "$BASE/v1/chat/completions" -H "content-type: application/json" -d "{\"model\": \"$SERVED\", \"max_tokens\": 400, \
+    \"messages\": [{\"role\": \"user\", \"content\": \"In about 200 words, how does a new student apply to a state college and sign up for classes?\"}]}" > /dev/null
+  sleep 3
+  local acc; acc=$("$RL" accept "$1" "logs/bake-$1-s$attempt.log")
+  [[ $acc == none ]] && { sleep 12; acc=$("$RL" accept "$1" "logs/bake-$1-s$attempt.log"); }   # vLLM logs its metrics every 10 s
+  echo "$acc"
+}
+diagnose() {  # diagnose ENGINE: for SGLang's DFlash2, does Inco AI's bf16 original accept drafts where the conversion didn't?
+  [ "$1" = sglang-dflash ] && [ -f "$E/models/qwen3.8-27b-dflash2/READY" ] || return 0
+  local saved=$attempt; attempt=diag
+  if start "$1" diag; then echo "Inco AI's bf16 drafter at 8,192 tokens: drafts $(warm_drafts "$1")"; else echo "Inco AI's bf16 drafter didn't start at 8,192 tokens: $(last_error "$1" diag)"; fi
+  stop; attempt=$saved
 }
 
 fundraising_ok() {  # fundraising's own extraction call against $BASE
@@ -161,44 +196,79 @@ for engine in "${ENGINES[@]}"; do
     say "not enough time left for $engine; the next window resumes"; exit 75
   fi
   say "$engine: starting"
-  attempt=1 started=false; rm -f logs/bake-"$engine"-s*.log   # an earlier run's attempts aren't this one's
+  rm -f logs/bake-"$engine"-s*.log "runs/.bake-$engine.attempts.jsonl"   # an earlier run's attempts aren't this one's
+  # Its best settings must serve as many students at once as production does (rust/src/fair.rs).
+  engine_cmd "$engine" 1
+  if [ -n "$CMD" ] && ! why=$("$RL" preflight "$engine" "$CMD"); then
+    "$RL" record refused "$engine" "$why"; say "$engine: refused: $why"; continue
+  fi
+  attempt=1 measured=false crash=
   while true; do
     if (( attempt > 1 )) && [ -n "${LAB_DEADLINE:-}" ] && (( $(date +%s) + 2400 > LAB_DEADLINE )); then
       say "not enough time left for $engine settings $attempt; the next window starts it over"; exit 75
     fi
     start "$engine" "$attempt"; code=$?
-    [ "$code" -eq 0 ] && { started=true; break; }
-    stop
-    [ "$code" -eq 2 ] && break
-    say "$engine: settings $attempt didn't start; trying the next"; attempt=$((attempt + 1))
+    [ "$code" -eq 2 ] && break                                  # out of settings
+    if [ "$code" -ne 0 ]; then
+      "$RL" record attempt "$engine" "$attempt" "$CMD" "did not start: $(last_error "$engine" "$attempt")"
+      stop; say "$engine: settings $attempt didn't start; trying the next"; attempt=$((attempt + 1)); continue
+    fi
+    # A drafter that accepts nothing turns the variant into plain decoding: check before measuring.
+    if [[ $engine == *-mtp || $engine == *-dflash ]]; then
+      acc=$(warm_drafts "$engine")
+      say "$engine: drafts at settings $attempt: $acc"
+      if [[ $acc != ok* ]]; then
+        "$RL" record attempt "$engine" "$attempt" "$CMD" "started, but drafts $acc"
+        stop; diag=$(diagnose "$engine")
+        "$RL" record refused "$engine" "its drafter isn't working: drafts $acc per verify step (1.00 is none accepted)${diag:+; $diag}"
+        say "$engine: drafter not working${diag:+ ($diag)}"; continue 2
+      fi
+    fi
+    # Engines that load lazily (Ollama) hold no weights until the first question: ask one, then measure.
+    curl -s "$BASE/v1/chat/completions" -H "content-type: application/json" \
+      -d "{\"model\": \"$SERVED\", \"messages\": [{\"role\": \"user\", \"content\": \"hi\"}], \"max_tokens\": 1}" > /dev/null
+    memory=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits)
+    say "$engine: up with settings $attempt (${memory} MiB); golden x2"
+    for r in 1 2; do
+      (cd "$RG" && .venv/bin/python "$ROOT/golden_ab.py" --name "bake-$engine-r$r" --search keyword --model "$SERVED" --ollama "$BASE" | grep -E "passed, answers")
+    done
+    crash=
+    if died; then crash="the golden set"; else
+      say "$engine: load test"
+      (cd "$RG" && .venv/bin/python "$ROOT/load_test.py" --name "bake-$engine" --base "$BASE" --model "$SERVED" --levels 1 4 8 16)
+      died && crash="the load test"
+    fi
+    if [ -n "$crash" ]; then                                    # a crash falls back, like a failed start
+      "$RL" record attempt "$engine" "$attempt" "$CMD" "crashed during $crash: $(last_error "$engine" "$attempt")"
+      say "$engine: crashed during $crash at settings $attempt; trying the next"; PID=; stop; attempt=$((attempt + 1)); continue
+    fi
+    measured=true; break
   done
-  if ! $started; then
-    python3 -c "import glob,json,sys; json.dump({'engine': sys.argv[1], 'started': False, 'why': {f: open(f).read()[-400:] for f in sorted(glob.glob(f'logs/bake-{sys.argv[1]}-s*.log'))}}, open(sys.argv[2], 'w'), indent=2)" \
-      "$engine" "runs/bake-$engine.json"
-    say "$engine: did not start"; continue
+  if ! $measured; then
+    if [ -n "$crash" ]; then
+      "$RL" record crashed "$engine" "$crash" "$(readlink -f "logs/bake-$engine.log")"
+    else
+      diag=$(diagnose "$engine"); "$RL" record failed "$engine" "$diag"
+    fi
+    say "$engine: no settings measured${diag:+ ($diag)}"; diag=; continue
   fi
-  # Engines that load lazily (Ollama) hold no weights until the first question: ask one, then measure.
-  curl -s "$BASE/v1/chat/completions" -H "content-type: application/json" \
-    -d "{\"model\": \"$SERVED\", \"messages\": [{\"role\": \"user\", \"content\": \"hi\"}], \"max_tokens\": 1}" > /dev/null
-  memory=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits)
-  say "$engine: up with settings $attempt (${memory} MiB); golden x2"
-  for r in 1 2; do
-    (cd "$RG" && .venv/bin/python "$ROOT/golden_ab.py" --name "bake-$engine-r$r" --search keyword --model "$SERVED" --ollama "$BASE" | grep -E "passed, answers")
-  done
-  crashed "$engine" "the golden set" && continue
-  say "$engine: load test"
-  (cd "$RG" && .venv/bin/python "$ROOT/load_test.py" --name "bake-$engine" --base "$BASE" --model "$SERVED" --levels 1 4 8 16)
-  crashed "$engine" "the load test" && continue
+  # The fairness gate reads the server's log up to here; fundraising's call (reported only) comes after.
+  log_bytes=$(stat -c %s "$(readlink -f "logs/bake-$engine.log")" 2>/dev/null || echo -)
   fund=false; fundraising_ok "$engine" && fund=true
   say "$engine: fundraising call ok: $fund"
-  python3 -c "import json,sys; json.dump({'engine': sys.argv[1], 'started': True, 'settings': int(sys.argv[2]), 'command': sys.argv[3],
-    'memory_mib': int(sys.argv[4]), 'fundraising_ok': sys.argv[5] == 'true'}, open(sys.argv[6], 'w'), indent=2)" \
-    "$engine" "$attempt" "$CMD" "$memory" "$fund" "runs/bake-$engine.json"
+  "$RL" record attempt "$engine" "$attempt" "$CMD" measured
+  "$RL" record started "$engine" "$attempt" "$CMD" "$memory" "$fund" "$log_bytes"
   stop
 done
 
 missing=$(for e in "${ENGINES[@]}"; do [ -f "runs/bake-$e.json" ] || echo -n "$e "; done)
 [ -z "$missing" ] || { say "not measured yet: $missing; the next window resumes"; exit 75; }
-python3 bakeoff_verdict.py "${ENGINES[@]}" || exit 1
-winner=$(python3 -c "import json; print(json.load(open('runs/bakeoff.json'))['winner'])")
+"$RL" verdict "${ENGINES[@]}" || exit 1
+unfair=$("$RL" json runs/bakeoff.json unresolved_summary)
+if [ -n "$unfair" ]; then
+  "$OPS" open riverguide "Engine bake-off: not a fair run for $unfair. Kept installed for a re-run. Details: riverguide-retriever/runs/bakeoff.json" --key riverguide:bakeoff-unfair
+else
+  "$OPS" clear riverguide --key riverguide:bakeoff-unfair
+fi
+winner=$("$RL" json runs/bakeoff.json winner)
 ./promote_engine.sh "$winner"

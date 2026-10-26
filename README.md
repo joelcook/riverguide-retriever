@@ -98,11 +98,17 @@ an ops-alert open), 00:30–04:10 or a window in `lab/offline.conf`. Exit 75 kee
 - `model_ab.sh MODEL`: RiverGuide's golden set, production's model against a challenger, two
   rounds each. Only the best survives: a losing challenger is removed. `watch_qwen4.sh` (cron)
   queues one the night Qwen 4 reaches Ollama (`pick_model.py` picks the biggest tag that fits).
-- `bakeoff.sh` → `bakeoff_verdict.py` → `promote_engine.sh`: Ollama (1 and 4 slots), llama.cpp,
+- `bakeoff.sh` → `riverguide-lab verdict` → `promote_engine.sh`: Ollama (1 and 4 slots), llama.cpp,
   vLLM, and SGLang serving the same model. Each gets the golden set twice, `load_test.py` at 1, 4,
   8, and 16 students, and its GPU memory. A challenger must hold quality and be 15% faster at 4
-  students to win; the winner becomes production (`riverguide-engine` on :11440), and the losers
-  are uninstalled.
+  students to win; the winner becomes production (`riverguide-engine` on :11440). Only engines
+  that lost a fair run are uninstalled. The fairness gate (`rust/src/fair.rs`) checks that each
+  engine's best settings served as many students at once as production, its drafts were accepted,
+  a conversation could reach 32K tokens, its server logged no errors, and its prefix cache hit.
+  An engine whose run fails a check stays installed for a re-run, and an ops-alert says why.
+- `rust/`: `riverguide-lab`, the lab's tools in Rust (`cargo install --locked --path rust --root
+  ~/.local`): the verdict and its fairness gate, bakeoff.sh's records, JSON reads for the scripts,
+  Ollama's loaded models, and the SGLang patch. The repo's Python moves there piece by piece.
 - `load_test.py`, `fewer_calls.py` (search first, plus RiverGuide 1's LLM wiki on the same model),
   `real_questions.py`, `loop_abbreviations.py`, and `golden_ab.py` are the measurements; results
   land in `runs/`.
