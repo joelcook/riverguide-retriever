@@ -9,7 +9,9 @@ MODEL+rerankN:RERANKER a trained one, e.g. models/production+rerank20:models/rer
 that system's misses: production's Qwen reads the top 20 pages of every system together and says
 whether any of them answers the question. If one does, search missed it; if none does, the website
 may not answer it (a list for the College's web team). Only counts, ranks, topics, and page URLs
-are kept.
+are kept. --judges qwen,grok has Grok judge the same blind lists too, and reports each judge's
+tallies and how often they agree; --questions heldout grades the reranker's 120 held-out made-up
+messages instead of students'.
 
 Questions are the first typed message of each River Guide (Copilot Studio) session in Dataverse,
 which keeps 30 days; the az login on omarchy reads them. Each system's top 5 pages on today's
@@ -31,11 +33,13 @@ import json
 import os
 import random
 import re
+import shutil
 import subprocess
 import time
 import urllib.parse
 import urllib.request
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from math import comb
 from pathlib import Path
 
@@ -43,7 +47,7 @@ import numpy as np
 import torch
 import yaml
 
-from common import QUERY_INSTRUCT, RIVERGUIDE, ROOT, build_docs
+from common import DATA, QUERY_INSTRUCT, RIVERGUIDE, ROOT, build_docs
 from refresh import git_head, load_model
 from riverguide.corpus import load_pages, read_checked
 from riverguide.index import SearchIndex
@@ -85,6 +89,12 @@ Decide:
 - best: the list that serves the student best: "A", "B", "C", or "tie".
 
 Reply with JSON only: {{"kind": "question", "A": true, "B": false, "C": true, "best": "A"}}"""
+# The second judge, a different model family from Qwen (which graded the reranker's training data):
+# Grok through Joel's Grok CLI, headless, no tools or web, the same prompt and the same blind lists.
+# Students' (redacted) messages go to xAI for this; Joel approved that on 2026-10-26.
+GROK_SCHEMA = {"type": "object", "required": ["kind", "A", "B", "C", "best"], "properties": {
+    "kind": {"type": "string", "enum": ["question", "other"]}, "A": {"type": "boolean"}, "B": {"type": "boolean"},
+    "C": {"type": "boolean"}, "best": {"type": "string", "enum": ["A", "B", "C", "tie"]}}}
 
 
 def redact(text: str) -> str:
@@ -216,20 +226,38 @@ def show(results: list[dict]) -> str:
     return "\n".join(lines) or "  (no results)"
 
 
-def judge(question: str, lists: dict[str, list[dict]]) -> dict | None:
+def ask_grok(prompt: str) -> dict | None:
+    grok = shutil.which("grok") or str(Path.home() / ".local/share/mise/shims/grok")
+    try:
+        out = subprocess.run([grok, "-p", prompt, "--json-schema", json.dumps(GROK_SCHEMA),
+                              "--system-prompt-override", "You grade search results. Answer with JSON only.",
+                              "--tools", "", "--disable-web-search", "--max-turns", "1"],
+                             capture_output=True, text=True, timeout=300, cwd="/tmp")
+        return json.loads(out.stdout).get("structuredOutput")
+    except (OSError, ValueError, subprocess.TimeoutExpired):
+        return None
+
+
+def judge(question: str, lists: dict[str, list[dict]], by: str = "qwen") -> dict | None:
     names = sorted(lists)
-    random.Random(hashlib.sha256(question.encode()).digest()).shuffle(names)
+    random.Random(hashlib.sha256(question.encode()).digest()).shuffle(names)  # the same order for every judge
     labels = dict(zip("ABC", names))
     body = "\n\n".join(f"List {label}:\n{show(lists[name])}" for label, name in labels.items())
+    prompt = PROMPT.format(question=question, lists=body)
     for _ in range(2):
-        while 44 <= time.localtime().tm_min < 50:  # RiverGuide's :47 canary gets Qwen to itself
-            time.sleep(15)
-        request = {"model": JUDGE, "stream": False, "think": False, "format": "json", "options": {"temperature": 0},
-                   "messages": [{"role": "user", "content": PROMPT.format(question=question, lists=body)}]}
         try:
-            reply = json.load(urllib.request.urlopen(urllib.request.Request(
-                f"{OLLAMA}/api/chat", json.dumps(request).encode(), {"content-type": "application/json"}), timeout=300))
-            verdict = json.loads(reply["message"]["content"])
+            if by == "grok":
+                verdict = ask_grok(prompt)
+                if not verdict:
+                    continue
+            else:
+                while 44 <= time.localtime().tm_min < 50:  # RiverGuide's :47 canary gets Qwen to itself
+                    time.sleep(15)
+                request = {"model": JUDGE, "stream": False, "think": False, "format": "json", "options": {"temperature": 0},
+                           "messages": [{"role": "user", "content": prompt}]}
+                reply = json.load(urllib.request.urlopen(urllib.request.Request(
+                    f"{OLLAMA}/api/chat", json.dumps(request).encode(), {"content-type": "application/json"}), timeout=300))
+                verdict = json.loads(reply["message"]["content"])
             best = verdict.get("best", "tie")
             return {"kind": verdict["kind"], **{labels[l]: bool(verdict[l]) for l in "ABC"},
                     "best": labels.get(best, "tie")}
@@ -245,8 +273,11 @@ def mcnemar(a: int, b: int) -> float:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--org", required=True)
-    parser.add_argument("--bot", required=True)
+    parser.add_argument("--org")
+    parser.add_argument("--bot")
+    parser.add_argument("--questions", choices=["copilot", "heldout"], default="copilot",
+                        help="students' first messages from Copilot Studio, or the reranker's 120 held-out made-up ones")
+    parser.add_argument("--judges", default="qwen", help="qwen, grok, or both (qwen,grok): the first one's verdicts lead the report")
     parser.add_argument("--days", type=int, default=30)
     parser.add_argument("--min-show", type=int, default=3)
     parser.add_argument("--systems", nargs=3, metavar="NAME=MODEL", help="the three lists to judge (MODEL keyword is keyword search)")
@@ -264,8 +295,15 @@ def main() -> int:
             SYSTEMS[n] = None if m == "keyword" else str(ROOT / m) if (ROOT / m).exists() else m
     assert not args.deep or args.deep in SYSTEMS, "--deep must name one of --systems"
     assert args.min_show >= 2, "never show questions asked once"
+    judges = args.judges.split(",")
+    assert set(judges) <= {"qwen", "grok"}, "--judges takes qwen and/or grok"
 
-    asked = first_questions(args.org, args.bot, args.days)
+    if args.questions == "heldout":  # made up, so nothing to redact (rerank_data.py; train_reranker.py holds out qid % 10 == 0)
+        rows = [json.loads(line) for line in open(DATA / "rerank/questions.jsonl", encoding="utf-8")]
+        asked = [r["text"] for r in rows if r["qid"] % 10 == 0]
+    else:
+        assert args.org and args.bot, "--org and --bot name the Copilot Studio transcripts"
+        asked = first_questions(args.org, args.bot, args.days)
     counts = Counter(key(q) for q in asked)
     text = {}
     for q in asked:
@@ -291,29 +329,47 @@ def main() -> int:
         lists[name], pools[name] = [r[:TOP] for r in ranked], ranked
     print("searched; judging", flush=True)
 
-    verdicts = {}
-    for i, k in enumerate(unique):
-        verdicts[k] = judge(text[k], {name: lists[name][i] for name in SYSTEMS})
-        if (i + 1) % 50 == 0:
-            print(f"judged {i + 1}/{len(unique)}", flush=True)
+    verdicts_by = {}
+    for by in judges:
+        one = lambda i: judge(text[unique[i]], {name: lists[name][i] for name in SYSTEMS}, by)  # noqa: E731
+        with ThreadPoolExecutor(6 if by == "grok" else 1) as pool:  # Grok is a CLI call each, Qwen a local server
+            got = []
+            for i, v in enumerate(pool.map(one, range(len(unique))), 1):
+                got.append(v)
+                if i % 50 == 0:
+                    print(f"{by} judged {i}/{len(unique)}", flush=True)
+        verdicts_by[by] = dict(zip(unique, got))
+    verdicts = verdicts_by[judges[0]]
 
     start = starters()
-    graded = [k for k in unique if verdicts[k] and verdicts[k]["kind"] == "question"]
-    summary = {"sessions": len(asked), "distinct": len(unique), "judge_failed": sum(v is None for v in verdicts.values()),
+
+    def summarize(verdicts: dict) -> dict:
+        graded = [k for k in unique if verdicts[k] and verdicts[k]["kind"] == "question"]
+        out = {"judge_failed": sum(v is None for v in verdicts.values()),
                "not_a_question": sum(1 for v in verdicts.values() if v and v["kind"] != "question"), "groups": {}}
-    for group, members in (("typed", [k for k in graded if k not in start]), ("starter clicks", [k for k in graded if k in start])):
-        sessions = sum(counts[k] for k in members)
-        g = {"distinct": len(members), "sessions": sessions}
-        for name in SYSTEMS:
-            g[f"{name} answered"] = sum(verdicts[k][name] for k in members)
-            g[f"{name} answered (sessions)"] = sum(counts[k] for k in members if verdicts[k][name])
-        g["best"] = dict(Counter(verdicts[k]["best"] for k in members))
-        names = list(SYSTEMS)
-        for a, b in ((names[0], names[1]), (names[0], names[2]), (names[1], names[2])):
-            only_a = sum(verdicts[k][a] and not verdicts[k][b] for k in members)
-            only_b = sum(verdicts[k][b] and not verdicts[k][a] for k in members)
-            g[f"{a} vs {b}"] = {f"{a} only": only_a, f"{b} only": only_b, "p": round(mcnemar(only_a, only_b), 4)}
-        summary["groups"][group] = g
+        for group, members in (("typed", [k for k in graded if k not in start]), ("starter clicks", [k for k in graded if k in start])):
+            g = {"distinct": len(members), "sessions": sum(counts[k] for k in members)}
+            for name in SYSTEMS:
+                g[f"{name} answered"] = sum(verdicts[k][name] for k in members)
+                g[f"{name} answered (sessions)"] = sum(counts[k] for k in members if verdicts[k][name])
+            g["best"] = dict(Counter(verdicts[k]["best"] for k in members))
+            names = list(SYSTEMS)
+            for a, b in ((names[0], names[1]), (names[0], names[2]), (names[1], names[2])):
+                only_a = sum(verdicts[k][a] and not verdicts[k][b] for k in members)
+                only_b = sum(verdicts[k][b] and not verdicts[k][a] for k in members)
+                g[f"{a} vs {b}"] = {f"{a} only": only_a, f"{b} only": only_b, "p": round(mcnemar(only_a, only_b), 4)}
+            out["groups"][group] = g
+        return out
+
+    graded = [k for k in unique if verdicts[k] and verdicts[k]["kind"] == "question"]
+    summary = {"sessions": len(asked), "distinct": len(unique), "questions": args.questions, "judges": judges, **summarize(verdicts)}
+    if len(judges) > 1:  # the other judges' tallies, and how often they agree with the first on the same lists
+        summary["by_judge"] = {by: summarize(verdicts_by[by]) for by in judges[1:]}
+        first, second = verdicts_by[judges[0]], verdicts_by[judges[1]]
+        both = [k for k in unique if first[k] and second[k] and first[k]["kind"] == second[k]["kind"] == "question"]
+        summary["agreement"] = {"questions": len(both),
+                                **{name: round(sum(first[k][name] == second[k][name] for k in both) / max(1, len(both)), 3) for name in SYSTEMS},
+                                "best": round(sum(first[k]["best"] == second[k]["best"] for k in both) / max(1, len(both)), 3)}
     summary["frequent"] = [{"question": text[k], "sessions": counts[k], **{n: verdicts[k][n] for n in SYSTEMS},
                             "best": verdicts[k]["best"]}
                            for k in sorted(graded, key=counts.__getitem__, reverse=True) if counts[k] >= args.min_show]
