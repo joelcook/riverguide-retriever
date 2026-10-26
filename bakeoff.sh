@@ -61,7 +61,9 @@ done
 # attempts were hand probes nobody recorded); sglang_n N sizes the state slots for N. Its DFlash2
 # fit at most 28.6K tokens (bf16 state, 4 draft tokens; ReplaySSM refuses DFlash on this model)
 # with syvai's W4A16 conversion of the drafter, which accepted 0% of drafts; settings "diag" runs
-# Inco AI's bf16 original at 8K tokens to tell a bad conversion from an SGLang bug.
+# Inco AI's bf16 original at 8K tokens to tell a bad conversion from an SGLang bug. sglang-ngram is
+# SGLang's own context lookup (NGRAM): drafts copied from the conversation, no draft model, so the
+# memory MTP's layer takes is the pool's; with and without ReplaySSM, as it may refuse NGRAM too.
 # (SGLang samples by the checkpoint's generation_config.json: production's temperature 1, top-k 20, top-p 0.95.)
 sglang_n() { echo "--max-running-requests $1 --max-mamba-cache-size $((3 * $1 + 1)) --cuda-graph-max-bs-decode $1"; }
 engine_cmd() {
@@ -90,6 +92,7 @@ engine_cmd() {
     --mamba-radix-cache-strategy extra_buffer_lazy --disable-prefill-cuda-graph"
   local sglang_mtp="--enable-linear-replayssm-spec --speculative-algorithm NEXTN --speculative-num-steps 3 --speculative-eagle-topk 1 --speculative-num-draft-tokens 4"
   local sglang_dfl="--mamba-ssm-dtype bfloat16 --speculative-algorithm DFLASH --speculative-draft-model-path $dfl_w4 --speculative-num-draft-tokens"
+  local sglang_ngram="--speculative-algorithm NGRAM"
   case "$1:$2" in
     ollama-p1:1) CMD="(system Ollama, 1 slot)" ;;
     ollama-p4:1) CMD="env $ollama_env ollama serve" ;;
@@ -125,6 +128,14 @@ engine_cmd() {
     sglang-dflash:3) CMD="$sglang --mem-fraction-static 0.95 $(sglang_n 1) --chunked-prefill-size 2048 $sglang_dfl 8" ;;
     sglang-dflash:4) CMD="$sglang --mem-fraction-static 0.95 $(sglang_n 1) --chunked-prefill-size 2048 $sglang_dfl 4" ;;
     sglang-dflash:5) CMD="$sglang --mem-fraction-static 0.955 $(sglang_n 1) --chunked-prefill-size 1024 $sglang_dfl 4" ;;
+    sglang-ngram:1) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 4) --chunked-prefill-size 2048 --enable-linear-replayssm-spec $sglang_ngram" ;;
+    sglang-ngram:2) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 4) --chunked-prefill-size 2048 --mamba-ssm-dtype bfloat16 $sglang_ngram" ;;
+    sglang-ngram:3) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 3) --chunked-prefill-size 2048 --enable-linear-replayssm-spec $sglang_ngram" ;;
+    sglang-ngram:4) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 2) --chunked-prefill-size 2048 --enable-linear-replayssm-spec $sglang_ngram" ;;
+    sglang-ngram:5) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 2) --chunked-prefill-size 2048 --mamba-ssm-dtype bfloat16 $sglang_ngram" ;;
+    sglang-ngram:6) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 1) --chunked-prefill-size 2048 --enable-linear-replayssm-spec $sglang_ngram" ;;
+    sglang-ngram:7) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 1) --chunked-prefill-size 2048 --mamba-ssm-dtype bfloat16 $sglang_ngram" ;;
+    sglang-ngram:8) CMD="$sglang --mem-fraction-static 0.905 $(sglang_n 1) --chunked-prefill-size 1024 --enable-linear-replayssm-spec $sglang_ngram" ;;
     sglang-dflash:diag) CMD="${sglang/--context-length 32768/--context-length 8192} --mem-fraction-static 0.95 $(sglang_n 1) --chunked-prefill-size 1024 ${sglang_dfl/$dfl_w4/$E/models/qwen3.8-27b-dflash2} 8" ;;
     *) CMD= ;;
   esac
@@ -214,7 +225,7 @@ for engine in "${ENGINES[@]}"; do
       stop; say "$engine: settings $attempt didn't start; trying the next"; attempt=$((attempt + 1)); continue
     fi
     # A drafter that accepts nothing turns the variant into plain decoding: check before measuring.
-    if [[ $engine == *-mtp || $engine == *-dflash ]]; then
+    if [[ $engine == *-mtp || $engine == *-dflash || $engine == *-ngram ]]; then
       acc=$(warm_drafts "$engine")
       say "$engine: drafts at settings $attempt: $acc"
       if [[ $acc != ok* ]]; then

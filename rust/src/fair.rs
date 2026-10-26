@@ -195,7 +195,7 @@ pub fn check(engine: &str, meta: &Value, incumbent: &str, slots: u64) -> Fairnes
     let log = measured_log(engine, meta);
     f.checks.insert("concurrency".into(), count(concurrency(engine, cmd)));
 
-    let drafted = engine.ends_with("-mtp") || engine.ends_with("-dflash") || cmd.contains("--speculative") || cmd.contains("--spec-type");
+    let drafted = ["-mtp", "-dflash", "-ngram"].iter().any(|s| engine.ends_with(s)) || cmd.contains("--speculative") || cmd.contains("--spec-type");
     if drafted {
         match acceptance(fam, &log) {
             Some(a @ Accept::Len(x)) => {
