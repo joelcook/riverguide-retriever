@@ -20,11 +20,11 @@ SUFFIX = "<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
 
 
 class Judge:
-    def __init__(self, max_length: int = 640, device: str = "cuda"):
-        self.tok = AutoTokenizer.from_pretrained(MODEL, padding_side="left")
+    def __init__(self, max_length: int = 640, device: str = "cuda", model: str = MODEL):
+        self.tok = AutoTokenizer.from_pretrained(model, padding_side="left")
         self.device = device
         dtype = torch.bfloat16 if device == "cuda" else torch.float32
-        self.model = AutoModelForCausalLM.from_pretrained(MODEL, dtype=dtype).to(device).eval()
+        self.model = AutoModelForCausalLM.from_pretrained(model, dtype=dtype).to(device).eval()
         self.yes = self.tok.convert_tokens_to_ids("yes")
         self.no = self.tok.convert_tokens_to_ids("no")
         self.prefix = self.tok.encode(PREFIX, add_special_tokens=False)

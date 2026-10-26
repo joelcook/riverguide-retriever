@@ -4,7 +4,8 @@
         [--systems keyword=keyword stock=Qwen/Qwen3-Embedding-0.6B production=models/production] [--deep production] [--label NAME]
 
 --systems names the three lists the judge sees (keyword=keyword is keyword search; MODEL+rerankN
-has Qwen3-Reranker-0.6B re-sort MODEL's top N pages before the top 5 are judged). --deep NAME sorts
+has Qwen3-Reranker-0.6B re-sort MODEL's top N pages before the top 5 are judged, and
+MODEL+rerankN:RERANKER a trained one, e.g. models/production+rerank20:models/reranker-v1). --deep NAME sorts
 that system's misses: production's Qwen reads the top 20 pages of every system together and says
 whether any of them answers the question. If one does, search missed it; if none does, the website
 may not answer it (a list for the College's web team). Only counts, ranks, topics, and page URLs
@@ -51,7 +52,7 @@ STARTERS = Path("/home/irsc/Projects/irsc-knowledge-base/prompts/copilot_studio_
 OLLAMA = os.environ.get("PROD_BASE", "http://127.0.0.1:11434")  # production's engine (lab/production.env)
 JUDGE = "qwen3.8:27b"
 SYSTEMS = {"keyword": None, "stock": "Qwen/Qwen3-Embedding-0.6B", "production": str(ROOT / "models" / "production")}
-RERANK: dict[str, int] = {}  # system -> how many of its top pages the reranker re-sorts (MODEL+rerankN)
+RERANK: dict[str, tuple[int, str]] = {}  # system -> (how many of its top pages, which reranker) (MODEL+rerankN[:RERANKER])
 TOP = 5
 DEEP = 20
 TOPICS = ["admissions and applying", "registration and classes", "financial aid and scholarships",
@@ -188,11 +189,11 @@ def dense_rankings(name: str, path: str, index: SearchIndex, docs: list[dict], q
     return out
 
 
-def rerank(questions: list[str], ids: list[list[int]], docs: list[dict], n: int) -> list[list[int]]:
-    """Each question's first n pages (their best chunks) re-sorted by Qwen3-Reranker-0.6B, the rest after."""
+def rerank(questions: list[str], ids: list[list[int]], docs: list[dict], n: int, reranker: str) -> list[list[int]]:
+    """Each question's first n pages (their best chunks) re-sorted by the reranker, the rest after."""
     from rerank import Judge  # loads only when a system asks for it
 
-    judge = Judge(device=os.environ.get("RERANK_DEVICE", "cpu"))  # the GPU is production's (rerank.py)
+    judge = Judge(device=os.environ.get("RERANK_DEVICE", "cpu"), model=reranker)  # the GPU is production's (rerank.py)
     pairs = [(q, docs[c]["text"]) for q, r in zip(questions, ids) for c in r[:n]]
     scores = judge.score(pairs, batch=int(os.environ.get("JUDGE_BATCH", 16)))
     del judge
@@ -256,9 +257,10 @@ def main() -> int:
     if args.systems:
         SYSTEMS = {}
         for n, m in (x.split("=", 1) for x in args.systems):
-            m, _, depth = m.partition("+rerank")
-            if depth:
-                RERANK[n] = int(depth)
+            m, _, spec = m.partition("+rerank")
+            if spec:
+                depth, _, reranker = spec.partition(":")
+                RERANK[n] = (int(depth), str(ROOT / reranker) if reranker else "Qwen/Qwen3-Reranker-0.6B")
             SYSTEMS[n] = None if m == "keyword" else str(ROOT / m) if (ROOT / m).exists() else m
     assert not args.deep or args.deep in SYSTEMS, "--deep must name one of --systems"
     assert args.min_show >= 2, "never show questions asked once"
@@ -279,8 +281,9 @@ def main() -> int:
     lists, pools = {}, {}  # pools: each system's top `depth` pages, for --deep
     for name, path in SYSTEMS.items():
         if path and name in RERANK:
-            ids = dense_rankings(name, path, index, docs, questions, max(depth, RERANK[name]))
-            ranked = [[index._result(c) for c in r] for r in rerank(questions, ids, docs, RERANK[name])]
+            n, reranker = RERANK[name]
+            ids = dense_rankings(name, path, index, docs, questions, max(depth, n))
+            ranked = [[index._result(c) for c in r] for r in rerank(questions, ids, docs, n, reranker)]
         elif path:
             ranked = [[index._result(c) for c in r] for r in dense_rankings(name, path, index, docs, questions, depth)]
         else:

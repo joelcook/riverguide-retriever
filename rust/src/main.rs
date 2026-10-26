@@ -18,6 +18,8 @@
 //                                                --partial, only those split onto the CPU
 //   riverguide-lab patch-sglang SITE_PACKAGES    let SGLang's MTP draft share the target's embedding
 //                                                and output head (patch_sglang below)
+//   riverguide-lab grades show|save|status       Opus's grades of the reranker's training data
+//                                                (grades.rs)
 //
 // Rust since 2026-10-25: bakeoff_verdict.py ported and checked against its verdict on that day's
 // bake-off, plus the fairness gate that bake-off lacked. SGLang was asked for one conversation at a
@@ -25,6 +27,7 @@
 // losers. Now a run like that is reported as unfair and its engine is kept for a re-run.
 //   cargo install --locked --path rust --root ~/.local
 mod fair;
+mod grades;
 mod verdict;
 
 use serde_json::{json, Value};
@@ -50,8 +53,9 @@ fn main() -> ExitCode {
         ["json", file, key] => json_get(file, key),
         ["ollama-ps", rest @ ..] => ollama_ps(rest.contains(&"--partial")),
         ["patch-sglang", site] => patch_sglang(site),
+        ["grades", rest @ ..] => grades::run(rest),
         _ => {
-            eprintln!("usage: riverguide-lab verdict|preflight|accept|record|json|ollama-ps|patch-sglang (see rust/src/main.rs)");
+            eprintln!("usage: riverguide-lab verdict|preflight|accept|record|json|ollama-ps|patch-sglang|grades (see rust/src/main.rs)");
             return ExitCode::from(2);
         }
     };
