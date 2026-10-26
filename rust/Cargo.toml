@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 regex = "1"
 serde_json = { version = "1", features = ["preserve_order"] }
+ureq = { version = "2", features = ["json"] }
 
 [profile.release]
 opt-level = 3

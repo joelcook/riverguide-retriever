@@ -1,4 +1,5 @@
-"""Fine-tune Qwen3-Reranker-0.6B on Claude Opus 5.5's grades of v2's top 20 pages (rerank_data.py).
+"""Fine-tune Qwen3-Reranker-0.6B on grades of v2's top 20 pages (rerank_data.py): production's Qwen's for
+all 1,200 items, Claude Opus 5.5's for the 125 it graded before it used up the plan (--grades).
 
     .venv/bin/python train_reranker.py --name reranker-v1      # a night job: about 10 GB of GPU
         models/reranker-v1 (the best step on held-out questions), logs/train-reranker-v1.log,
@@ -38,13 +39,28 @@ def log(name: str, msg: str) -> None:
         fh.write(line + "\n")
 
 
-def load() -> list[dict]:
-    questions = {json.loads(l)["qid"]: json.loads(l) for l in open(DATA / "rerank/questions.jsonl", encoding="utf-8")}
-    graded = {}
-    for path in sorted((DATA / "rerank/opus").glob("b*.jsonl")):
+def grades_by(grader: str) -> dict[int, list[int]]:
+    out = {}
+    for path in sorted((DATA / "rerank" / grader).glob("b*.jsonl")):
         for line in open(path, encoding="utf-8"):
             r = json.loads(line)
-            graded[r["q"]] = r["g"]  # the last save of an item wins
+            out[r["q"]] = r["g"]  # the last save of an item wins
+    return out
+
+
+def load(graders: list[str], name: str) -> list[dict]:
+    """Each item's grades from the graders in order, a later grader's replacing an earlier one's."""
+    questions = {json.loads(l)["qid"]: json.loads(l) for l in open(DATA / "rerank/questions.jsonl", encoding="utf-8")}
+    by = {g: grades_by(g) for g in graders}
+    if "qwen" in by and "opus" in by:  # how far Qwen agrees with Opus where both graded
+        both = [q for q in by["opus"] if q in by["qwen"]]
+        pairs = [(a, b) for q in both for a, b in zip(by["opus"][q], by["qwen"][q])]
+        if pairs:
+            log(name, f"Qwen vs Opus on {len(both)} items: same grade {sum(a == b for a, b in pairs) / len(pairs):.1%} of passages, "
+                      f"same 2s {sum((a == 2) == (b == 2) for a, b in pairs) / len(pairs):.1%}")
+    graded: dict[int, list[int]] = {}
+    for g in graders:
+        graded.update(by[g])
     return [{**questions[q], "grades": g} for q, g in graded.items() if q in questions and len(g) == len(questions[q]["candidates"])]
 
 
@@ -101,13 +117,14 @@ def main() -> int:
     parser.add_argument("--point", type=float, default=0.5, help="weight of the point loss")
     parser.add_argument("--eval-every", type=int, default=100)
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--grades", default="qwen,opus", help="graders under data/rerank/, later ones replacing earlier")
     args = parser.parse_args()
     random.seed(args.seed)
     torch.manual_seed(args.seed)
     (ROOT / "logs").mkdir(exist_ok=True)
 
     docs = load_docs()
-    items = load()
+    items = load(args.grades.split(","), args.name)
     held = [it for it in items if it["qid"] % 10 == 0]
     train = [it for it in items if it["qid"] % 10 != 0]
     log(args.name, f"args {vars(args)}; {len(train)} training questions, {len(held)} held out")
