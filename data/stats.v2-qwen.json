@@ -1,0 +1,26 @@
+{
+  "mode": "full",
+  "name": "v2-qwen",
+  "extra": [
+    "data/queries.student.qwen.both.jsonl"
+  ],
+  "generated": 30501,
+  "dropped_golden": 2,
+  "dropped_abbreviation": 0,
+  "dropped_unanswered": 1410,
+  "train": 27852,
+  "kinds": {
+    "question": 4684,
+    "search": 4563,
+    "shorthand": 4112,
+    "typo": 4334,
+    "program": 1976,
+    "chat": 4161,
+    "indirect": 4022
+  },
+  "negatives": {
+    "0": 3791,
+    "1": 10668,
+    "2": 13393
+  }
+}

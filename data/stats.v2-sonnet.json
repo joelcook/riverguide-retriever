@@ -1,0 +1,26 @@
+{
+  "mode": "full",
+  "name": "v2-sonnet",
+  "extra": [
+    "data/queries.student.sonnet.both.jsonl"
+  ],
+  "generated": 31080,
+  "dropped_golden": 1,
+  "dropped_abbreviation": 0,
+  "dropped_unanswered": 1263,
+  "train": 28579,
+  "kinds": {
+    "question": 4688,
+    "search": 4565,
+    "shorthand": 4112,
+    "typo": 4334,
+    "program": 1977,
+    "chat": 4497,
+    "indirect": 4406
+  },
+  "negatives": {
+    "0": 4118,
+    "1": 10895,
+    "2": 13566
+  }
+}
