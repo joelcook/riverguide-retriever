@@ -1,0 +1,10 @@
+The 2026-10-26 00:30 bake-off's results for ollama-max, sglang-ngram and sglang-dflash, set aside
+so the next night re-measures all three with two checks fixed. sglang-mtp's run that night was
+fair (best settings 4 at once; it fit one 32K conversation) and lost: golden 89 vs 91 of 108,
+median 12.0 vs 6.5 s, p90 at 4 students 79.8 vs 52.3 s. Fixed afterwards:
+  - sglang-ngram was refused at 1.15 accepted tokens per step against a 1.5 bar meant for model
+    drafters, after a warm-up with nothing to copy. Context lookup now warms up on a page to quote
+    and needs only to beat 1.05 (rust/src/fair.rs); the load test measures what it buys. It also
+    gets a 3-at-once rung at 0.92 (it was 163 tokens short of 32K at 0.91).
+  - sglang-dflash's diagnostic (Inco AI's bf16 drafter at 8K) needed --mem-fraction-static above
+    0.956 and was given 0.95; it now gets 0.96.

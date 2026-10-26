@@ -40,7 +40,7 @@ fn main() -> ExitCode {
         ["preflight", engine, command] => fair::preflight(engine, command),
         ["accept", engine, log] => {
             match fair::acceptance(fair::family(engine), &read_lossy(log)) {
-                Some(a) => println!("{} {:.2}", if fair::accepted(&a) { "ok" } else { "low" }, match a { fair::Accept::Len(x) | fair::Accept::Rate(x) => x }),
+                Some(a) => println!("{} {:.2}", if fair::accepted(engine, &a) { "ok" } else { "low" }, match a { fair::Accept::Len(x) | fair::Accept::Rate(x) => x }),
                 None => println!("none"),
             }
             Ok(0)

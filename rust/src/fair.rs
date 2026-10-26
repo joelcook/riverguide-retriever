@@ -6,7 +6,10 @@
 //     students at once as production does. Fallbacks may give up slots; the first settings may not.
 //     (SGLang's ladder of 2026-10-25 began at one conversation at a time, against Ollama's four.)
 //   - speedup: a variant built on a drafter (MTP, DFlash2) shows its drafts accepted, at least 1.5
-//     tokens per verify step (1.0 is none) or 30% of drafts. (SGLang's DFlash2 had 1.00.)
+//     tokens per verify step (1.0 is none) or 30% of drafts. (SGLang's DFlash2 had 1.00.) Context
+//     lookup (NGRAM) only needs to show it works, above 1.05: it drafts by copying the conversation,
+//     so it accepts little where there's nothing to copy, and the load test measures what it buys.
+//     (2026-10-26: a warm-up with nothing to copy gave it 1.15, and a 1.5 bar refused it.)
 //   - context: every conversation can reach 32,768 tokens, as production Ollama allows.
 //   - errors: the server logged no crash, CUDA error or out-of-memory during the test.
 //   - prefix cache: where the engine reports it, the cache hit at least once.
@@ -17,6 +20,7 @@ use std::{fs, path::Path};
 
 pub const CONTEXT: u64 = 32_768;
 const MIN_ACCEPT_LEN: f64 = 1.5;
+const MIN_ACCEPT_LEN_LOOKUP: f64 = 1.05;
 const MIN_ACCEPT_RATE: f64 = 0.3;
 const ERRORS: &str = r"Scheduler hit an exception|EngineCore encountered a fatal error|CUDA error|NCCL error|CUDA out of memory|OutOfMemoryError|GGML_ASSERT|Segmentation fault|core dumped|illegal memory access";
 
@@ -110,9 +114,10 @@ pub fn acceptance(family: &str, log: &str) -> Option<Accept> {
 }
 
 /// Whether the drafts were accepted often enough for the speedup to count as working.
-pub fn accepted(a: &Accept) -> bool {
+pub fn accepted(engine: &str, a: &Accept) -> bool {
+    let min_len = if engine.ends_with("-ngram") { MIN_ACCEPT_LEN_LOOKUP } else { MIN_ACCEPT_LEN };
     match a {
-        Accept::Len(x) => *x >= MIN_ACCEPT_LEN,
+        Accept::Len(x) => *x >= min_len,
         Accept::Rate(r) => *r >= MIN_ACCEPT_RATE,
     }
 }
@@ -200,13 +205,13 @@ pub fn check(engine: &str, meta: &Value, incumbent: &str, slots: u64) -> Fairnes
         match acceptance(fam, &log) {
             Some(a @ Accept::Len(x)) => {
                 f.checks.insert("accept_len".into(), json!((x * 100.0).round() / 100.0));
-                if !accepted(&a) {
+                if !accepted(engine, &a) {
                     f.problems.push(format!("its drafts averaged {x:.2} tokens per verify step (1.00 is none accepted): the speedup didn't work"));
                 }
             }
             Some(a @ Accept::Rate(r)) => {
                 f.checks.insert("accept_rate".into(), json!((r * 1000.0).round() / 1000.0));
-                if !accepted(&a) {
+                if !accepted(engine, &a) {
                     f.problems.push(format!("{:.0}% of its drafted tokens were accepted: the speedup didn't work", r * 100.0));
                 }
             }
@@ -325,6 +330,10 @@ mod tests {
         assert!(matches!(acceptance("sglang", sg), Some(Accept::Len(x)) if (x - 3.0).abs() < 1e-9));
         let none = "[x] Decode batch, #running-req: 1, accept len: 1.00, accept rate: 0.00, cuda graph: True\n";
         assert!(matches!(acceptance("sglang", none), Some(Accept::Len(x)) if x == 1.0));
+        // A model drafter at 1.15 isn't working; context lookup at 1.15 is (it copies when it can).
+        assert!(!accepted("sglang-mtp", &Accept::Len(1.15)));
+        assert!(accepted("sglang-ngram", &Accept::Len(1.15)));
+        assert!(!accepted("sglang-ngram", &Accept::Len(1.0)));
         let lc = "slot print_timing: id  1 | task 15830 | draft acceptance = 0.93750 (   90 accepted /    96 generated), mean len =  3.09\n\
                   slot print_timing: id  1 | task 15692 | draft acceptance = 0.84559 (  115 accepted /   136 generated), mean len =  2.77\n";
         assert!(matches!(acceptance("llamacpp", lc), Some(Accept::Rate(r)) if (r - 205.0 / 232.0).abs() < 1e-9));

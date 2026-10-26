@@ -131,12 +131,13 @@ engine_cmd() {
     sglang-ngram:1) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 4) --chunked-prefill-size 2048 --enable-linear-replayssm-spec $sglang_ngram" ;;
     sglang-ngram:2) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 4) --chunked-prefill-size 2048 --mamba-ssm-dtype bfloat16 $sglang_ngram" ;;
     sglang-ngram:3) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 3) --chunked-prefill-size 2048 --enable-linear-replayssm-spec $sglang_ngram" ;;
-    sglang-ngram:4) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 2) --chunked-prefill-size 2048 --enable-linear-replayssm-spec $sglang_ngram" ;;
-    sglang-ngram:5) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 2) --chunked-prefill-size 2048 --mamba-ssm-dtype bfloat16 $sglang_ngram" ;;
-    sglang-ngram:6) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 1) --chunked-prefill-size 2048 --enable-linear-replayssm-spec $sglang_ngram" ;;
-    sglang-ngram:7) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 1) --chunked-prefill-size 2048 --mamba-ssm-dtype bfloat16 $sglang_ngram" ;;
-    sglang-ngram:8) CMD="$sglang --mem-fraction-static 0.905 $(sglang_n 1) --chunked-prefill-size 1024 --enable-linear-replayssm-spec $sglang_ngram" ;;
-    sglang-dflash:diag) CMD="${sglang/--context-length 32768/--context-length 8192} --mem-fraction-static 0.95 $(sglang_n 1) --chunked-prefill-size 1024 ${sglang_dfl/$dfl_w4/$E/models/qwen3.8-27b-dflash2} 8" ;;
+    sglang-ngram:4) CMD="$sglang --mem-fraction-static 0.92 $(sglang_n 3) --chunked-prefill-size 1024 --enable-linear-replayssm-spec $sglang_ngram" ;;
+    sglang-ngram:5) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 2) --chunked-prefill-size 2048 --enable-linear-replayssm-spec $sglang_ngram" ;;
+    sglang-ngram:6) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 2) --chunked-prefill-size 2048 --mamba-ssm-dtype bfloat16 $sglang_ngram" ;;
+    sglang-ngram:7) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 1) --chunked-prefill-size 2048 --enable-linear-replayssm-spec $sglang_ngram" ;;
+    sglang-ngram:8) CMD="$sglang --mem-fraction-static 0.91 $(sglang_n 1) --chunked-prefill-size 2048 --mamba-ssm-dtype bfloat16 $sglang_ngram" ;;
+    sglang-ngram:9) CMD="$sglang --mem-fraction-static 0.905 $(sglang_n 1) --chunked-prefill-size 1024 --enable-linear-replayssm-spec $sglang_ngram" ;;
+    sglang-dflash:diag) CMD="${sglang/--context-length 32768/--context-length 8192} --mem-fraction-static 0.96 $(sglang_n 1) --chunked-prefill-size 1024 ${sglang_dfl/$dfl_w4/$E/models/qwen3.8-27b-dflash2} 8" ;;
     *) CMD= ;;
   esac
 }
@@ -177,9 +178,14 @@ died() {  # died: the server under test is gone (its answers since then are empt
 last_error() {  # last_error ENGINE ATTEMPT: the line that says why those settings didn't start
   grep -E "Error|error|out of memory|can't hold" "logs/bake-$1-s$2.log" 2>/dev/null | tail -1 | cut -c1-240
 }
+# Context lookup (NGRAM) drafts by copying the conversation, so its warm-up carries a page to quote,
+# as RiverGuide's turns do; a bare question gave it nothing to copy (1.15 on 2026-10-26).
+LOOKUP_PAGE="Page: Apply to IRSC (https://irsc.edu/admissions/apply/). Step 1: Complete the free online application at apply.irsc.edu and choose the program you plan to study. Step 2: Send your official high school transcript or GED scores, and transcripts from any college you attended, to the Office of the Registrar. Step 3: Complete the residency affidavit to qualify for in-state tuition. Step 4: Apply for financial aid by completing the FAFSA and listing IRSC as your school. Step 5: Meet with an advisor to plan your first semester and register for classes in The River Portal."
 warm_drafts() {  # warm_drafts ENGINE: one 400-token answer, then "ok X", "low X" or "none" for its drafts
+  local ask="In about 200 words, how does a new student apply to a state college and sign up for classes?"
+  [[ $1 == *-ngram ]] && ask="$LOOKUP_PAGE Using only this page, list the steps to apply, quoting its wording and its link."
   curl -s -m 300 "$BASE/v1/chat/completions" -H "content-type: application/json" -d "{\"model\": \"$SERVED\", \"max_tokens\": 400, \
-    \"messages\": [{\"role\": \"user\", \"content\": \"In about 200 words, how does a new student apply to a state college and sign up for classes?\"}]}" > /dev/null
+    \"messages\": [{\"role\": \"user\", \"content\": \"$ask\"}]}" > /dev/null
   sleep 3
   local acc; acc=$("$RL" accept "$1" "logs/bake-$1-s$attempt.log")
   [[ $acc == none ]] && { sleep 12; acc=$("$RL" accept "$1" "logs/bake-$1-s$attempt.log"); }   # vLLM logs its metrics every 10 s
