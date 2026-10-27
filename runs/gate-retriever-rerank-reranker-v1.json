@@ -1,1 +1,37 @@
-{"candidate": "rerank-reranker-v1", "production": "v2-qwen", "passed": true, "summary": "golden 48.5 vs 49.0 of 54 passed (means over 2 rounds, production's Worker)", "runs": [{"arm": "production", "round": 1, "passed": 51, "total": 54},{"arm": "candidate", "round": 1, "passed": 49, "total": 54},{"arm": "production", "round": 2, "passed": 47, "total": 54},{"arm": "candidate", "round": 2, "passed": 48, "total": 54}]}
+{
+  "candidate": "rerank-reranker-v1",
+  "production": "v2-qwen",
+  "passed": false,
+  "summary": "Promotion withdrawn: 97/108 passes vs 98/108; pooled median 24.6 s vs 22.6 s; 149 tool calls vs 143; one candidate fallback. No predeclared product benefit was demonstrated.",
+  "runs": [
+    {
+      "arm": "production",
+      "round": 1,
+      "passed": 51,
+      "total": 54
+    },
+    {
+      "arm": "candidate",
+      "round": 1,
+      "passed": 49,
+      "total": 54
+    },
+    {
+      "arm": "production",
+      "round": 2,
+      "passed": 47,
+      "total": 54
+    },
+    {
+      "arm": "candidate",
+      "round": 2,
+      "passed": 48,
+      "total": 54
+    }
+  ],
+  "previous_tolerance_gate_passed": true,
+  "verdict": "no demonstrated end-to-end benefit; retain retriever-only",
+  "status": "experimental",
+  "review": "docs/retriever-promotions.md",
+  "original_tolerance_result": "runs/gate-retriever-rerank-reranker-v1-tolerance-only.json"
+}

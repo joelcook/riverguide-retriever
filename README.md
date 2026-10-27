@@ -76,6 +76,12 @@ shown the way search shows it: page title, section, and the excerpt.
 
 ## In production
 
+- **Decision, 2026-10-27:** retain `v2-qwen` retrieval without reranking. The reranker's full
+  Worker comparison demonstrated no end-to-end benefit: 97/108 full-check passes versus 98/108,
+  median 24.6 s versus 22.6 s, and 149 versus 143 tool calls. `models/reranker-v1` remains an
+  experimental candidate; its weights and measurements are retained. The old tolerance-only
+  gate is preserved separately, and its promotion verdict is withdrawn. See
+  [the review and future promotion contract](docs/retriever-promotions.md).
 - `retriever_service.py`: models/production (the model that last passed the golden gate,
   `gate_retriever.sh`) on omarchy's **GPU** in bfloat16, as refresh.py builds the index
   (15 ms a query, 60+ a second, 1.7 GB beside Qwen; on the CPU it was 165 ms and 6-8 a second, so 32
@@ -110,6 +116,12 @@ an ops-alert open), 00:30–04:10 or a window in `lab/offline.conf`. Exit 75 kee
 - `rust/`: `riverguide-lab`, the lab's tools in Rust (`cargo install --locked --path rust --root
   ~/.local`): the verdict and its fairness gate, bakeoff.sh's records, JSON reads for the scripts,
   Ollama's loaded models, and the SGLang patch. The repo's Python moves there piece by piece.
+- `gate_retriever.sh --plan FILE [--rerank] CANDIDATE` measures a retriever or reranker against
+  production using a committed plan. `retriever_gate.py` freezes that plan before testing and
+  requires a meaningful product benefit with quality and reliability held. `--switch` replays
+  the evidence and refuses legacy tolerance-only passes or changed setups. No experimental
+  weights are deleted. `--disable-rerank` restores retriever-only serving without deleting them.
+  Details and plan format: [docs/retriever-promotions.md](docs/retriever-promotions.md).
 - `load_test.py`, `fewer_calls.py` (search first, plus RiverGuide 1's LLM wiki on the same model),
   `real_questions.py`, `loop_abbreviations.py`, and `golden_ab.py` are the measurements; results
   land in `runs/`.

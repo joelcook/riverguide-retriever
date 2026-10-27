@@ -1,0 +1,13 @@
+{
+  "changed_at": "2026-10-27T10:54:39.613319-04:00",
+  "production": "v2-qwen",
+  "production_reranker": "none",
+  "experimental_candidate": "reranker-v1",
+  "candidate_weights_retained": true,
+  "previous_pid": 2097744,
+  "current_pid": 2106779,
+  "service_startup": [
+    "retriever on 127.0.0.1:8791 (/home/irsc/Projects/riverguide-retriever/models/production, cuda, reranker none)"
+  ],
+  "verdict": "no demonstrated end-to-end benefit; retain retriever-only"
+}

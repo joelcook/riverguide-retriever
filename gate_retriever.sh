@@ -4,50 +4,76 @@
 # wrangler dev on :8787 with production's settings (RETRIEVER=omarchy, SEARCH_FIRST=on, from
 # wrangler.jsonc) and today's corpus in a local D1, through a gateway of its own on :8792 to
 # production's Qwen. Its searches go to production's retriever (:8791) or to the candidate's (:8793,
-# with its own index of the same crawl, served from a worktree of this repo), alternating, two
-# rounds each, the same evening:
-#   lab/enqueue.sh 46c-gate-retriever-v2-qwen share ./gate_retriever.sh v2-qwen     # measure only
-#   ./gate_retriever.sh --switch v2-qwen full v2-sonnet                           # then, by hand
-# It passes with a mean at least production's minus 1 of the golden set (the bake-off's bar: run-to-
-# run noise) and every question answered; the result goes to runs/gate-retriever-CANDIDATE.json and
-# an ops-alert, and production isn't touched. --switch acts on a passed result against the model
+# with its own index of the same crawl, served from a worktree of this repo). A committed plan
+# declares the objective, minimum gain, baseline and balanced rounds before any measurement:
+#   ./gate_retriever.sh --plan plans/EXPERIMENT.json CANDIDATE
+#   ./gate_retriever.sh --switch CANDIDATE
+# retriever_gate.py requires a demonstrated end-to-end benefit while holding quality, semantic
+# checks, completion and latency guardrails. A tolerance-only pass cannot authorize a switch.
+# Results go to runs/retriever-gates/ and runs/gate-retriever-CANDIDATE.json.
+# --switch replays the measured evidence and checks that the setup still matches the model
 # production still serves: models/production points at the candidate, production's index is
 # rebuilt with it while the retriever is stopped (the Worker searches by keyword meanwhile), the
-# retriever restarts and is checked, and the models it beat (the arguments after it) are removed;
+# retriever restarts and is checked. Experimental models and measurements are kept;
 # any failure puts the old model back. Golden artifacts (Qwen's answers) go to riverguide's
 # evals/runs/ (the private repo).
-#   ./gate_retriever.sh --rerank reranker-v1               # a reranker over production's own model
+#   ./gate_retriever.sh --plan plans/EXPERIMENT.json --rerank reranker-v1
 #   ./gate_retriever.sh --switch --rerank reranker-v1      # then, by hand: models/production-rerank
+#   ./gate_retriever.sh --disable-rerank                   # retain retriever-only; keep weights
 # With --rerank, one retriever process holds production's model and the reranker on the GPU and
 # answers on production's port without the reranker and on :8793 with it (two retriever processes
 # beside Qwen don't fit on the card); the systemd retriever steps aside meanwhile and comes back after.
 set -uo pipefail
 cd "$(dirname "$0")"
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
-SWITCH=false RERANKER=
+SWITCH=false DISABLE_RERANK=false RERANKER= PLAN=
 while [[ ${1:-} == --* ]]; do
   case $1 in
     --switch) SWITCH=true ;;
+    --disable-rerank) DISABLE_RERANK=true ;;
+    --plan) PLAN=${2:?--plan takes a committed JSON plan}; shift ;;
     --rerank) RERANKER=${2:?--rerank takes a reranker under models/}; shift ;;
     *) echo "unknown option $1" >&2; exit 2 ;;
   esac
   shift
 done
-if [ -n "$RERANKER" ]; then CAND=rerank-$RERANKER BEATEN=(); else CAND=${1:?candidate under models/}; shift; BEATEN=("$@"); fi
 ROOT=$PWD RG=/home/irsc/Projects/riverguide
 PY=$RG/.venv/bin/python RL=$HOME/.local/bin/riverguide-lab GW_BIN=$HOME/.local/bin/riverguide-model-gateway
 OPS=$(command -v ops-alert || echo "$HOME/.local/bin/ops-alert")
 WTR=$HOME/Projects/riverguide-retriever-gate WTW=$HOME/Projects/riverguide-gate
 say() { echo "$(date +%T) $*"; }
+if $DISABLE_RERANK; then
+  if $SWITCH || [ -n "$RERANKER$PLAN" ] || [ "$#" -ne 0 ]; then say "--disable-rerank takes no other options"; exit 2; fi
+  if [ ! -L models/production-rerank ]; then
+    [ ! -e models/production-rerank ] || { say "production-rerank is not an activation symlink; refusing to remove it"; exit 1; }
+    say "production is already retriever-only"
+    exit 0
+  fi
+  previous=$(readlink models/production-rerank)
+  unlink models/production-rerank || exit 1
+  systemctl --user restart riverguide-retriever || { ln -s "$previous" models/production-rerank; systemctl --user restart riverguide-retriever; exit 1; }
+  for _ in $(seq 30); do
+    if curl -sf -m 3 localhost:8791/health > /dev/null; then
+      say "production is retriever-only; experimental reranker weights and results retained"
+      exit 0
+    fi
+    sleep 2
+  done
+  say "retriever did not become healthy; restoring the previous link"
+  ln -s "$previous" models/production-rerank
+  systemctl --user restart riverguide-retriever
+  exit 1
+fi
+if [ -n "$RERANKER" ]; then CAND=rerank-$RERANKER; else CAND=${1:?candidate under models/}; shift; fi
+[ "$#" -eq 0 ] || { say "unexpected arguments; model cleanup is separate from promotion"; exit 2; }
+[[ "$CAND" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || { say "invalid candidate name"; exit 2; }
 CAND_PID= GW_PID= DEV_PID= RESTART_RETRIEVER=
 cleanup() {
   for p in $GW_PID $DEV_PID $CAND_PID; do kill "$p" 2>/dev/null; done
   [ -n "$CAND_PID" ] && wait "$CAND_PID" 2>/dev/null   # its port must be free for production's retriever
-  pkill -f "wrangler dev --ip 127.0.0.1 --port 8787" 2>/dev/null
   [ -n "$RESTART_RETRIEVER" ] && systemctl --user start riverguide-retriever
   true
 }
-trap cleanup EXIT
 
 [ -L models/production ] || { say "models/production (the link to what production serves) is missing"; exit 1; }
 current=$(readlink -f models/production)
@@ -61,7 +87,8 @@ fi
 
 if $SWITCH && [ -n "$RERANKER" ]; then  # the reranker joins production's retriever; its index stays as it is
   result=runs/gate-retriever-$CAND.json
-  [ "$("$RL" json "$result" passed 2>/dev/null)" = true ] || { say "no passed gate for $CAND in $result"; exit 1; }
+  "$PY" retriever_gate.py check-switch "$result" || exit 1
+  [ "$("$RL" json "$result" candidate)" = "$CAND" ] || { say "result is for another candidate"; exit 1; }
   [ "$("$RL" json "$result" production)" = "$(basename "$current")" ] || { say "$CAND was gated over $("$RL" json "$result" production), but production serves $(basename "$current"): gate it again"; exit 1; }
   summary=$("$RL" json "$result" summary)
   ln -sfn "$RERANKER" models/production-rerank.new && mv -T models/production-rerank.new models/production-rerank
@@ -92,7 +119,8 @@ switch() {  # switch MODEL_DIR
 }
 if $SWITCH; then
   result=runs/gate-retriever-$CAND.json
-  [ "$("$RL" json "$result" passed 2>/dev/null)" = true ] || { say "no passed gate for $CAND in $result"; exit 1; }
+  "$PY" retriever_gate.py check-switch "$result" || exit 1
+  [ "$("$RL" json "$result" candidate)" = "$CAND" ] || { say "result is for another candidate"; exit 1; }
   [ "$("$RL" json "$result" production)" = "$(basename "$current")" ] || { say "$CAND was gated against $("$RL" json "$result" production), but production serves $(basename "$current"): gate it again"; exit 1; }
   summary=$("$RL" json "$result" summary)
   if ! switch "models/$CAND" || [ "$("$RL" json index/meta.json model)" != "$(readlink -f "models/$CAND")" ]; then
@@ -101,14 +129,19 @@ if $SWITCH; then
     "$OPS" open riverguide "Retriever: $CAND passed its gate ($summary), but the switch failed; production is back on $(basename "$current")." --key riverguide:retriever-gate
     exit 1
   fi
-  removed=()
-  for m in "${BEATEN[@]}"; do
-    [ -n "$m" ] && [ -d "models/$m" ] && [ "$(readlink -f "models/$m")" != "$(readlink -f models/production)" ] && { rm -rf "models/${m:?}"; removed+=("$m"); }
-  done
-  say "production now searches with $CAND; removed: ${removed[*]:-nothing}"
-  "$OPS" open riverguide "Retriever: $CAND now serves RiverGuide ($summary). Removed: ${removed[*]:-nothing}. Rollback: hf download joeltcook/riverguide-retriever-full --local-dir models/full, then the switch in gate_retriever.sh with it. Details: riverguide-retriever/runs/gate-retriever-$CAND.json" --key riverguide:retriever-gate
+  say "production now searches with $CAND; previous models retained"
+  "$OPS" open riverguide "Retriever: $CAND now serves RiverGuide ($summary). Previous model retained: $current. Details: riverguide-retriever/runs/gate-retriever-$CAND.json" --key riverguide:retriever-gate
   exit 0
 fi
+[ -n "$PLAN" ] || { say "a committed --plan is required before measuring (docs/retriever-promotions.md)"; exit 2; }
+# Use the inherited GPU-lane lock when cron launched us; acquire it for a manual run.
+if [ "$(readlink "/proc/$$/fd/9" 2>/dev/null)" != "$ROOT/lab/.lock-gpu" ]; then exec 9> lab/.lock-gpu; fi
+flock -n 9 || { say "another GPU lab job is active"; exit 75; }
+(cd "$RG" && "$PY" -c 'import os; from evals.run import load_api_key; load_api_key(); raise SystemExit(0 if os.environ.get("ANTHROPIC_API_KEY") else "semantic judge credentials are required before measuring")') || exit 1
+manifest=$("$PY" retriever_gate.py prepare "$PLAN" --candidate "$CAND") || exit 1
+rounds=$("$RL" json "$manifest" plan.rounds) || exit 1
+experiment=$(basename "$(dirname "$manifest")")
+trap cleanup EXIT
 say "gate: $CAND against production's $(basename "$current")"
 set -a; . ~/.config/riverguide/model-gateway.env; set +a   # the token, production's engine
 
@@ -156,34 +189,35 @@ gateway() {  # gateway PORT: the gate's own gateway on :8792, its searches to th
   for _ in $(seq 30); do curl -s -o /dev/null localhost:8792/ && return 0; sleep 1; done
   return 1
 }
-declare -A sum=([production]=0 [candidate]=0)
-runs=()
-complete=true
-for round in 1 2; do
-  for arm in production candidate; do
+for round in $(seq "$rounds"); do
+  arms=(production candidate)
+  (( round % 2 == 0 )) && arms=(candidate production)
+  for arm in "${arms[@]}"; do
     port=8791; [ $arm = candidate ] && port=8793
     gateway $port || { say "the gate's gateway didn't start"; exit 1; }
     say "round $round: $arm ($( [ $arm = candidate ] && echo "$CAND" || basename "$current"))"
-    out=$(cd "$WTW" && $PY -m evals.run --tier full --system api --endpoint http://127.0.0.1:8787 2>&1)
+    # Main is checked clean by prepare. Run its harness here so its private .env
+    # supplies the judge credentials, without copying or printing any secrets.
+    out=$(cd "$RG" && $PY -m evals.run --tier full --system api --endpoint http://127.0.0.1:8787 --judge 2>&1)
     echo "$out" | grep -E "passed|^  [a-z]" | tail -12
     art=$(sed -n 's/^artifact: //p' <<< "$out" | tail -1)
-    [ -n "$art" ] && [ -f "$WTW/$art" ] || { say "no artifact for $arm round $round"; exit 1; }
-    dest=$RG/evals/runs/lab-gate-retriever-$CAND-$arm-r$round.json
-    cp "$WTW/$art" "$dest"
-    passed=$("$RL" json "$dest" summary.passed) total=$("$RL" json "$dest" summary.total)
-    (( passed >= 0 && total > 0 )) || { say "unreadable result in $dest"; exit 1; }
-    [ "$total" = "$("$RL" json "$RG/evals/runs/lab-gate-retriever-$CAND-production-r1.json" summary.total)" ] || complete=false
-    sum[$arm]=$(( ${sum[$arm]} + passed )); runs+=("{\"arm\": \"$arm\", \"round\": $round, \"passed\": $passed, \"total\": $total}")
+    [ -n "$art" ] && [ -f "$RG/$art" ] || { say "no artifact for $arm round $round"; exit 1; }
+    dest=$RG/evals/runs/lab-gate-retriever-$experiment-$arm-r$round.json
+    cp "$RG/$art" "$dest"
+    "$PY" retriever_gate.py add "$manifest" --arm "$arm" --round "$round" --artifact "$dest" || exit 1
   done
 done
 kill "$GW_PID" "$DEV_PID" "$CAND_PID" 2>/dev/null; wait "$CAND_PID" 2>/dev/null; GW_PID= DEV_PID= CAND_PID=
-pkill -f "wrangler dev --ip 127.0.0.1 --port 8787" 2>/dev/null
+if [ -n "$RESTART_RETRIEVER" ]; then
+  systemctl --user start riverguide-retriever || exit 1
+  RESTART_RETRIEVER=
+fi
 
-# Means over the two rounds, in halves (x2) to stay in integers: pass if candidate >= production - 1.
-pass=false; (( sum[candidate] >= sum[production] - 2 )) && $complete && pass=true
-summary="golden $(( sum[candidate] / 2 )).$(( sum[candidate] % 2 * 5 )) vs $(( sum[production] / 2 )).$(( sum[production] % 2 * 5 )) of $total passed (means over 2 rounds, production's Worker)"
-printf '{"candidate": "%s", "production": "%s", "passed": %s, "summary": "%s", "runs": [%s]}\n' \
-  "$CAND" "$(basename "$current")" "$pass" "$summary" "$(IFS=,; echo "${runs[*]}")" > "runs/gate-retriever-$CAND.json"
+result=runs/gate-retriever-$CAND.json
+"$PY" retriever_gate.py evaluate "$manifest" > "$result.new" || { say "experiment invalid; no promotion result written"; exit 1; }
+mv "$result.new" "$result"
+cp "$result" "$(dirname "$manifest")/verdict.json"
+pass=$("$RL" json "$result" passed) summary=$("$RL" json "$result" summary)
 say "$CAND: $summary; passed the gate: $pass"
 if $pass; then
   "$OPS" open riverguide "Retriever gate: $CAND passed ($summary). Production still serves $(basename "$current"); to switch: ./gate_retriever.sh --switch ${RERANKER:+--rerank }${RERANKER:-$CAND}. Details: riverguide-retriever/runs/gate-retriever-$CAND.json" --key riverguide:retriever-gate
