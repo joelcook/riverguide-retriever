@@ -9,5 +9,45 @@
   "service_startup": [
     "retriever on 127.0.0.1:8791 (/home/irsc/Projects/riverguide-retriever/models/production, cuda, reranker none)"
   ],
-  "verdict": "no demonstrated end-to-end benefit; retain retriever-only"
+  "verdict": "no demonstrated end-to-end benefit; retain retriever-only",
+  "verification": {
+    "verified_at": "2026-10-27T11:04:09.246241-04:00",
+    "offline_tests_passed": 23,
+    "legacy_promotion_rejected_without_restart": true,
+    "live_smokes": [
+      {
+        "id": "nursing-program-exists",
+        "passed": true,
+        "seconds": 3.4,
+        "tool_calls": 1,
+        "artifact": "/home/irsc/Projects/riverguide/evals/runs/rollback-smoke-20261027T150357Z-nursing-program-exists.json",
+        "sha256": "acca95ca3323d03306d7db72b4e814b3e2da58b0fc4cc86de4a8291070093cdd",
+        "reasons": []
+      },
+      {
+        "id": "how-to-drop-class",
+        "passed": true,
+        "seconds": 7.5,
+        "tool_calls": 1,
+        "artifact": "/home/irsc/Projects/riverguide/evals/runs/rollback-smoke-20261027T150405Z-how-to-drop-class.json",
+        "sha256": "922bf391d7061b5cab5687c72a00389c44da01352c05a75a9d1d3c320d294d79",
+        "reasons": []
+      },
+      {
+        "id": "my-personal-schedule",
+        "passed": true,
+        "seconds": 3.1,
+        "tool_calls": 0,
+        "artifact": "/home/irsc/Projects/riverguide/evals/runs/rollback-smoke-20261027T150409Z-my-personal-schedule.json",
+        "sha256": "357a130c002e997f07335a76a3a4c7c7bc6eb5c91961eea6ca9d50a16b3f593e",
+        "reasons": []
+      }
+    ],
+    "retriever_health": {
+      "built": "2026-10-27T05:40:50-04:00",
+      "checked": "2026-10-27",
+      "chunks": 8518
+    },
+    "note": "Cache-bypassed live smoke checks, not a new promotion experiment or full golden run."
+  }
 }
