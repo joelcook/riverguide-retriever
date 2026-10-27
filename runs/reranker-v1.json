@@ -1,0 +1,17 @@
+{
+  "name": "reranker-v1",
+  "held_out": 120,
+  "trained_on": 1080,
+  "stock": {
+    "ndcg5": 0.8482,
+    "first_is_2": 0.775,
+    "v2_first_is_2": 0.825
+  },
+  "best_step": 1800,
+  "best_ndcg5": 0.9166,
+  "trained": {
+    "ndcg5": 0.9146,
+    "first_is_2": 0.8833,
+    "v2_first_is_2": 0.825
+  }
+}

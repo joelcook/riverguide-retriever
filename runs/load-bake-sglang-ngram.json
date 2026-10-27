@@ -1,0 +1,804 @@
+{
+  "name": "bake-sglang-ngram",
+  "base": "http://127.0.0.1:11439",
+  "model": "qwen3.8-27b",
+  "started": "2026-10-26T21:34:21-0400",
+  "levels": [
+    {
+      "students": 1,
+      "questions": 20,
+      "wall_seconds": 214.3,
+      "canary_pause_seconds": 0.0,
+      "questions_per_minute": 5.6,
+      "median_seconds": 8.7,
+      "p90_seconds": 17.1,
+      "max_seconds": 40.2,
+      "passed": 12,
+      "unfinished": 0,
+      "model_calls_per_question": 3.85,
+      "rows": [
+        {
+          "id": "drop-deadline-fall-2026",
+          "seconds": 6.76,
+          "model_calls": 3,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "tuition-instate-associate",
+          "seconds": 12.81,
+          "model_calls": 4,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "enc1101-credits",
+          "seconds": 2.93,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "enc1101-online-fall-2026",
+          "seconds": 5.13,
+          "model_calls": 4,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "nursing-program-exists",
+          "seconds": 0.52,
+          "model_calls": 1,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "list-fall-terms",
+          "seconds": 15.64,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "when-is-fafsa-due",
+          "seconds": 15.15,
+          "model_calls": 2,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "fall-registration-opens",
+          "seconds": 9.69,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "radiology-prereqs",
+          "seconds": 10.48,
+          "model_calls": 10,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "when-do-classes-start",
+          "seconds": 7.93,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "criminal-justice-program",
+          "seconds": 40.2,
+          "model_calls": 9,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "out-of-state-bachelor-tuition",
+          "seconds": 9.45,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "mac1105-credits",
+          "seconds": 0.41,
+          "model_calls": 1,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "aa-accounting-retrieval",
+          "seconds": 5.65,
+          "model_calls": 2,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "modality-online-program",
+          "seconds": 6.46,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "modality-nursing-clinical",
+          "seconds": 17.1,
+          "model_calls": 7,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "section-no-match-snapshot",
+          "seconds": 3.62,
+          "model_calls": 2,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "vet-tech-not-offered",
+          "seconds": 25.47,
+          "model_calls": 8,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "admissions-mailing-address",
+          "seconds": 6.45,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "spanish-drop-deadline",
+          "seconds": 12.27,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "students": 4,
+      "questions": 20,
+      "wall_seconds": 207.9,
+      "canary_pause_seconds": 0.0,
+      "questions_per_minute": 5.77,
+      "median_seconds": 38.0,
+      "p90_seconds": 65.0,
+      "max_seconds": 93.6,
+      "passed": 14,
+      "unfinished": 3,
+      "model_calls_per_question": 4.65,
+      "rows": [
+        {
+          "id": "enc1101-credits",
+          "seconds": 4.1,
+          "model_calls": 2,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "drop-deadline-fall-2026",
+          "seconds": 11.8,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "nursing-program-exists",
+          "seconds": 9.77,
+          "model_calls": 2,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "tuition-instate-associate",
+          "seconds": 40.27,
+          "model_calls": 4,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "list-fall-terms",
+          "seconds": 37.85,
+          "model_calls": 5,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "when-is-fafsa-due",
+          "seconds": 38.15,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "enc1101-online-fall-2026",
+          "seconds": 54.33,
+          "model_calls": 3,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "fall-registration-opens",
+          "seconds": 37.77,
+          "model_calls": 4,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "when-do-classes-start",
+          "seconds": 64.99,
+          "model_calls": 6,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "radiology-prereqs",
+          "seconds": 74.17,
+          "model_calls": 12,
+          "finished": false,
+          "passed": false,
+          "error": "tool loop cap reached"
+        },
+        {
+          "id": "out-of-state-bachelor-tuition",
+          "seconds": 51.2,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "mac1105-credits",
+          "seconds": 30.23,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "criminal-justice-program",
+          "seconds": 93.62,
+          "model_calls": 13,
+          "finished": false,
+          "passed": false,
+          "error": "tool loop cap reached"
+        },
+        {
+          "id": "aa-accounting-retrieval",
+          "seconds": 33.29,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "section-no-match-snapshot",
+          "seconds": 21.11,
+          "model_calls": 3,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "modality-online-program",
+          "seconds": 44.38,
+          "model_calls": 6,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "modality-nursing-clinical",
+          "seconds": 40.99,
+          "model_calls": 5,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "admissions-mailing-address",
+          "seconds": 21.83,
+          "model_calls": 4,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "vet-tech-not-offered",
+          "seconds": 45.23,
+          "model_calls": 1,
+          "finished": false,
+          "passed": false,
+          "error": "error: HTTP Error 400: Bad Request"
+        },
+        {
+          "id": "spanish-drop-deadline",
+          "seconds": 34.28,
+          "model_calls": 8,
+          "finished": true,
+          "passed": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "students": 8,
+      "questions": 20,
+      "wall_seconds": 191.7,
+      "canary_pause_seconds": 0.0,
+      "questions_per_minute": 6.26,
+      "median_seconds": 56.8,
+      "p90_seconds": 107.7,
+      "max_seconds": 153.0,
+      "passed": 15,
+      "unfinished": 2,
+      "model_calls_per_question": 4.6,
+      "rows": [
+        {
+          "id": "drop-deadline-fall-2026",
+          "seconds": 23.39,
+          "model_calls": 2,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "when-is-fafsa-due",
+          "seconds": 25.74,
+          "model_calls": 2,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "enc1101-online-fall-2026",
+          "seconds": 26.93,
+          "model_calls": 1,
+          "finished": false,
+          "passed": false,
+          "error": "error: HTTP Error 400: Bad Request"
+        },
+        {
+          "id": "enc1101-credits",
+          "seconds": 27.25,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "nursing-program-exists",
+          "seconds": 39.33,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "list-fall-terms",
+          "seconds": 39.33,
+          "model_calls": 4,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "mac1105-credits",
+          "seconds": 23.16,
+          "model_calls": 2,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "when-do-classes-start",
+          "seconds": 62.3,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "aa-accounting-retrieval",
+          "seconds": 56.85,
+          "model_calls": 4,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "tuition-instate-associate",
+          "seconds": 101.69,
+          "model_calls": 9,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "criminal-justice-program",
+          "seconds": 88.01,
+          "model_calls": 7,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "out-of-state-bachelor-tuition",
+          "seconds": 107.67,
+          "model_calls": 5,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "section-no-match-snapshot",
+          "seconds": 39.23,
+          "model_calls": 3,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "fall-registration-opens",
+          "seconds": 145.53,
+          "model_calls": 9,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "vet-tech-not-offered",
+          "seconds": 54.54,
+          "model_calls": 4,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "modality-online-program",
+          "seconds": 101.62,
+          "model_calls": 6,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "modality-nursing-clinical",
+          "seconds": 82.71,
+          "model_calls": 3,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "radiology-prereqs",
+          "seconds": 153.04,
+          "model_calls": 12,
+          "finished": false,
+          "passed": false,
+          "error": "tool loop cap reached"
+        },
+        {
+          "id": "admissions-mailing-address",
+          "seconds": 69.65,
+          "model_calls": 7,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "spanish-drop-deadline",
+          "seconds": 56.78,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "students": 16,
+      "questions": 32,
+      "wall_seconds": 229.2,
+      "canary_pause_seconds": 0.0,
+      "questions_per_minute": 8.38,
+      "median_seconds": 88.5,
+      "p90_seconds": 145.5,
+      "max_seconds": 222.7,
+      "passed": 19,
+      "unfinished": 1,
+      "model_calls_per_question": 3.66,
+      "rows": [
+        {
+          "id": "when-do-classes-start",
+          "seconds": 5.56,
+          "model_calls": 1,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "enc1101-credits",
+          "seconds": 17.74,
+          "model_calls": 2,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "drop-deadline-fall-2026",
+          "seconds": 19.0,
+          "model_calls": 2,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "nursing-program-exists",
+          "seconds": 23.25,
+          "model_calls": 2,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "aa-accounting-retrieval",
+          "seconds": 51.91,
+          "model_calls": 2,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "when-is-fafsa-due",
+          "seconds": 65.99,
+          "model_calls": 2,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "list-fall-terms",
+          "seconds": 67.71,
+          "model_calls": 3,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "enc1101-online-fall-2026",
+          "seconds": 68.5,
+          "model_calls": 4,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "criminal-justice-program",
+          "seconds": 76.03,
+          "model_calls": 5,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "modality-online-program",
+          "seconds": 83.37,
+          "model_calls": 4,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "out-of-state-bachelor-tuition",
+          "seconds": 89.04,
+          "model_calls": 4,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "admissions-mailing-address",
+          "seconds": 75.3,
+          "model_calls": 2,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "spanish-drop-deadline",
+          "seconds": 74.53,
+          "model_calls": 2,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "mac1105-credits",
+          "seconds": 105.01,
+          "model_calls": 4,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "section-no-match-snapshot",
+          "seconds": 106.25,
+          "model_calls": 4,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "radiology-prereqs",
+          "seconds": 112.26,
+          "model_calls": 6,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "student-help-desk-contact",
+          "seconds": 70.2,
+          "model_calls": 2,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "pert-fee",
+          "seconds": 63.07,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "cdl-program",
+          "seconds": 66.05,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "fall-registration-opens",
+          "seconds": 145.54,
+          "model_calls": 5,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "how-to-drop-class",
+          "seconds": 87.93,
+          "model_calls": 3,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "promise-coverage",
+          "seconds": 109.54,
+          "model_calls": 5,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "how-to-apply-for-aid",
+          "seconds": 93.73,
+          "model_calls": 3,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "modality-nursing-clinical",
+          "seconds": 190.0,
+          "model_calls": 6,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "student-handbook-location",
+          "seconds": 109.92,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "vet-tech-not-offered",
+          "seconds": 184.02,
+          "model_calls": 5,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "how-to-register-for-classes",
+          "seconds": 112.54,
+          "model_calls": 3,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "how-to-apply-for-admission",
+          "seconds": 110.45,
+          "model_calls": 4,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "find-rivermail",
+          "seconds": 105.68,
+          "model_calls": 5,
+          "finished": true,
+          "passed": true,
+          "error": null
+        },
+        {
+          "id": "tuition-instate-associate",
+          "seconds": 222.72,
+          "model_calls": 10,
+          "finished": false,
+          "passed": false,
+          "error": "tool loop cap reached"
+        },
+        {
+          "id": "reset-password",
+          "seconds": 113.68,
+          "model_calls": 4,
+          "finished": true,
+          "passed": false,
+          "error": null
+        },
+        {
+          "id": "how-to-get-transcript",
+          "seconds": 124.23,
+          "model_calls": 4,
+          "finished": true,
+          "passed": false,
+          "error": null
+        }
+      ]
+    }
+  ]
+}

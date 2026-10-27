@@ -16,27 +16,69 @@
 # retriever restarts and is checked, and the models it beat (the arguments after it) are removed;
 # any failure puts the old model back. Golden artifacts (Qwen's answers) go to riverguide's
 # evals/runs/ (the private repo).
+#   ./gate_retriever.sh --rerank reranker-v1               # a reranker over production's own model
+#   ./gate_retriever.sh --switch --rerank reranker-v1      # then, by hand: models/production-rerank
+# With --rerank, one retriever process holds production's model and the reranker on the GPU and
+# answers on production's port without the reranker and on :8793 with it (two retriever processes
+# beside Qwen don't fit on the card); the systemd retriever steps aside meanwhile and comes back after.
 set -uo pipefail
 cd "$(dirname "$0")"
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
-SWITCH=false; [ "${1:-}" = --switch ] && { SWITCH=true; shift; }
-ROOT=$PWD CAND=${1:?candidate under models/} RG=/home/irsc/Projects/riverguide
-shift; BEATEN=("$@")
+SWITCH=false RERANKER=
+while [[ ${1:-} == --* ]]; do
+  case $1 in
+    --switch) SWITCH=true ;;
+    --rerank) RERANKER=${2:?--rerank takes a reranker under models/}; shift ;;
+    *) echo "unknown option $1" >&2; exit 2 ;;
+  esac
+  shift
+done
+if [ -n "$RERANKER" ]; then CAND=rerank-$RERANKER BEATEN=(); else CAND=${1:?candidate under models/}; shift; BEATEN=("$@"); fi
+ROOT=$PWD RG=/home/irsc/Projects/riverguide
 PY=$RG/.venv/bin/python RL=$HOME/.local/bin/riverguide-lab GW_BIN=$HOME/.local/bin/riverguide-model-gateway
 OPS=$(command -v ops-alert || echo "$HOME/.local/bin/ops-alert")
 WTR=$HOME/Projects/riverguide-retriever-gate WTW=$HOME/Projects/riverguide-gate
 say() { echo "$(date +%T) $*"; }
-CAND_PID= GW_PID= DEV_PID=
+CAND_PID= GW_PID= DEV_PID= RESTART_RETRIEVER=
 cleanup() {
   for p in $GW_PID $DEV_PID $CAND_PID; do kill "$p" 2>/dev/null; done
-  pkill -f "wrangler dev --ip 127.0.0.1 --port 8787" 2>/dev/null; true
+  [ -n "$CAND_PID" ] && wait "$CAND_PID" 2>/dev/null   # its port must be free for production's retriever
+  pkill -f "wrangler dev --ip 127.0.0.1 --port 8787" 2>/dev/null
+  [ -n "$RESTART_RETRIEVER" ] && systemctl --user start riverguide-retriever
+  true
 }
 trap cleanup EXIT
 
-[ -f "models/$CAND/config.json" ] || { say "no model at models/$CAND"; exit 1; }
 [ -L models/production ] || { say "models/production (the link to what production serves) is missing"; exit 1; }
 current=$(readlink -f models/production)
-[ "$(readlink -f "models/$CAND")" = "$current" ] && { say "$CAND already serves production"; exit 0; }
+if [ -n "$RERANKER" ]; then
+  [ -f "models/$RERANKER/config.json" ] || { say "no reranker at models/$RERANKER"; exit 1; }
+  [ "$(readlink -f models/production-rerank 2>/dev/null)" = "$(readlink -f "models/$RERANKER")" ] && { say "$RERANKER already reranks production"; exit 0; }
+else
+  [ -f "models/$CAND/config.json" ] || { say "no model at models/$CAND"; exit 1; }
+  [ "$(readlink -f "models/$CAND")" = "$current" ] && { say "$CAND already serves production"; exit 0; }
+fi
+
+if $SWITCH && [ -n "$RERANKER" ]; then  # the reranker joins production's retriever; its index stays as it is
+  result=runs/gate-retriever-$CAND.json
+  [ "$("$RL" json "$result" passed 2>/dev/null)" = true ] || { say "no passed gate for $CAND in $result"; exit 1; }
+  [ "$("$RL" json "$result" production)" = "$(basename "$current")" ] || { say "$CAND was gated over $("$RL" json "$result" production), but production serves $(basename "$current"): gate it again"; exit 1; }
+  summary=$("$RL" json "$result" summary)
+  ln -sfn "$RERANKER" models/production-rerank.new && mv -T models/production-rerank.new models/production-rerank
+  systemctl --user restart riverguide-retriever
+  up=false
+  for _ in $(seq 60); do curl -sf -m 10 localhost:8791/search -d '{"query": "financial aid", "limit": 1}' > /dev/null && { up=true; break; }; sleep 2; done
+  if ! $up || ! journalctl --user -u riverguide-retriever --since "-3min" --no-pager -o cat | grep -q "reranker .*production-rerank"; then
+    say "the switch failed; production's retriever goes back to no reranker"
+    rm -f models/production-rerank
+    systemctl --user restart riverguide-retriever
+    "$OPS" open riverguide "Retriever: $RERANKER passed its gate ($summary), but turning it on failed; production searches without it." --key riverguide:retriever-gate
+    exit 1
+  fi
+  say "production's retriever now reranks with $RERANKER"
+  "$OPS" open riverguide "Retriever: the $RERANKER reranker now sorts RiverGuide's search ($summary). Rollback: rm models/production-rerank and restart riverguide-retriever. Details: riverguide-retriever/runs/gate-retriever-$CAND.json" --key riverguide:retriever-gate
+  exit 0
+fi
 
 # The switch: the retriever stops (the Worker searches by keyword for these two minutes), the link
 # moves, production's index is rebuilt with the new model, the retriever starts and must answer.
@@ -70,17 +112,27 @@ fi
 say "gate: $CAND against production's $(basename "$current")"
 set -a; . ~/.config/riverguide/model-gateway.env; set +a   # the token, production's engine
 
-# The candidate's retriever: this repo at HEAD in a worktree (so its index/ is its own), the same
-# venv and models, an index of the same crawl production's was built from.
-if [ ! -d "$WTR" ]; then git worktree add -q --detach "$WTR" HEAD; else git -C "$WTR" checkout -q --detach "$(git rev-parse HEAD)"; fi
-ln -sfn "$ROOT/.venv" "$WTR/.venv"; ln -sfn "$ROOT/models" "$WTR/models"
-(cd "$WTR" && .venv/bin/python refresh.py --model "$ROOT/models/$CAND" 2>&1 | grep -v "Batches\|Loading weights\|Warning") || { say "the candidate's index didn't build"; exit 1; }
-prod_commit=$("$RL" json index/meta.json corpus_commit) cand_commit=$("$RL" json "$WTR/index/meta.json" corpus_commit)
-[ "$prod_commit" = "$cand_commit" ] || { say "production's index is corpus $prod_commit, the candidate's $cand_commit: not the same crawl"; exit 1; }
-(cd "$WTR" && RETRIEVER_DEVICE=cuda exec .venv/bin/python retriever_service.py --model "$ROOT/models/$CAND" --port 8793) > logs/gate-retriever.log 2>&1 &
-CAND_PID=$!
-for _ in $(seq 60); do curl -sf -m 5 localhost:8793/search -d '{"query": "financial aid", "limit": 1}' > /dev/null && break; sleep 2; done
-curl -sf -m 5 localhost:8793/search -d '{"query": "financial aid", "limit": 1}' > /dev/null || { say "the candidate's retriever didn't come up"; exit 1; }
+if [ -n "$RERANKER" ]; then
+  # One process, production's model and index, both arms: :8791 without the reranker (production's
+  # port, so live searches keep working meanwhile), :8793 with it.
+  systemctl --user stop riverguide-retriever
+  RESTART_RETRIEVER=1
+  (RETRIEVER_DEVICE=cuda exec .venv/bin/python retriever_service.py --rerank "models/$RERANKER" --port 8793 --plain-port 8791) > logs/gate-retriever.log 2>&1 &
+  CAND_PID=$!
+else
+  # The candidate's retriever: this repo at HEAD in a worktree (so its index/ is its own), the same
+  # venv and models, an index of the same crawl production's was built from.
+  if [ ! -d "$WTR" ]; then git worktree add -q --detach "$WTR" HEAD; else git -C "$WTR" checkout -q --detach "$(git rev-parse HEAD)"; fi
+  ln -sfn "$ROOT/.venv" "$WTR/.venv"; ln -sfn "$ROOT/models" "$WTR/models"
+  (cd "$WTR" && .venv/bin/python refresh.py --model "$ROOT/models/$CAND" 2>&1 | grep -v "Batches\|Loading weights\|Warning") || { say "the candidate's index didn't build"; exit 1; }
+  prod_commit=$("$RL" json index/meta.json corpus_commit) cand_commit=$("$RL" json "$WTR/index/meta.json" corpus_commit)
+  [ "$prod_commit" = "$cand_commit" ] || { say "production's index is corpus $prod_commit, the candidate's $cand_commit: not the same crawl"; exit 1; }
+  (cd "$WTR" && RETRIEVER_DEVICE=cuda exec .venv/bin/python retriever_service.py --model "$ROOT/models/$CAND" --port 8793) > logs/gate-retriever.log 2>&1 &
+  CAND_PID=$!
+fi
+for _ in $(seq 90); do curl -sf -m 10 localhost:8793/search -d '{"query": "financial aid", "limit": 1}' > /dev/null && break; sleep 2; done
+curl -sf -m 10 localhost:8793/search -d '{"query": "financial aid", "limit": 1}' > /dev/null || { say "the candidate's retriever didn't come up"; exit 1; }
+curl -sf -m 10 localhost:8791/search -d '{"query": "financial aid", "limit": 1}' > /dev/null || { say "production's retriever doesn't answer"; exit 1; }
 
 # Production's Worker, as deployed: riverguide main in a worktree, today's corpus in a local D1.
 main=$(git -C "$RG" rev-parse main)
@@ -124,7 +176,7 @@ for round in 1 2; do
     sum[$arm]=$(( ${sum[$arm]} + passed )); runs+=("{\"arm\": \"$arm\", \"round\": $round, \"passed\": $passed, \"total\": $total}")
   done
 done
-kill "$GW_PID" "$DEV_PID" "$CAND_PID" 2>/dev/null; GW_PID= DEV_PID= CAND_PID=
+kill "$GW_PID" "$DEV_PID" "$CAND_PID" 2>/dev/null; wait "$CAND_PID" 2>/dev/null; GW_PID= DEV_PID= CAND_PID=
 pkill -f "wrangler dev --ip 127.0.0.1 --port 8787" 2>/dev/null
 
 # Means over the two rounds, in halves (x2) to stay in integers: pass if candidate >= production - 1.
@@ -134,7 +186,7 @@ printf '{"candidate": "%s", "production": "%s", "passed": %s, "summary": "%s", "
   "$CAND" "$(basename "$current")" "$pass" "$summary" "$(IFS=,; echo "${runs[*]}")" > "runs/gate-retriever-$CAND.json"
 say "$CAND: $summary; passed the gate: $pass"
 if $pass; then
-  "$OPS" open riverguide "Retriever gate: $CAND passed ($summary). Production still serves $(basename "$current"); to switch: ./gate_retriever.sh --switch $CAND. Details: riverguide-retriever/runs/gate-retriever-$CAND.json" --key riverguide:retriever-gate
+  "$OPS" open riverguide "Retriever gate: $CAND passed ($summary). Production still serves $(basename "$current"); to switch: ./gate_retriever.sh --switch ${RERANKER:+--rerank }${RERANKER:-$CAND}. Details: riverguide-retriever/runs/gate-retriever-$CAND.json" --key riverguide:retriever-gate
 else
   "$OPS" open riverguide "Retriever gate: $CAND didn't pass ($summary). Production stays on $(basename "$current"). Details: riverguide-retriever/runs/gate-retriever-$CAND.json" --key riverguide:retriever-gate
 fi

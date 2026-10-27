@@ -1,5 +1,5 @@
 [Unit]
-Description=RiverGuide retriever: models/full on the GPU (bfloat16, 1.7 GB) over the nightly index (127.0.0.1:8791)
+Description=RiverGuide retriever: models/production (and models/production-rerank when linked) on the GPU over the nightly index (127.0.0.1:8791)
 After=network-online.target
 
 [Service]

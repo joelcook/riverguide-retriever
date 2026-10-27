@@ -1,9 +1,10 @@
 """Qwen3-Reranker-0.6B as a relevance judge: P(the passage answers the query).
 
 Used by build_data.py to drop generated queries their own chunk doesn't answer and mined
-negatives that are really other right answers, and by real_questions.py to re-sort a retriever's
-top pages (on the CPU there: beside production's Qwen and retriever the GPU has no room for a
-second process's model). Prompt format from the model card.
+negatives that are really other right answers, by real_questions.py to re-sort a retriever's top
+pages, and by retriever_service.py to re-sort production's (a fine-tune of it, models/production-
+rerank, in the retriever's own process: beside production's Qwen the GPU has no room for a second
+process's model). Prompt format from the model card.
 """
 from __future__ import annotations
 
@@ -32,7 +33,8 @@ class Judge:
         self.max_length = max_length
 
     @torch.no_grad()
-    def score(self, pairs: list[tuple[str, str]], batch: int = 16) -> list[float]:
+    def score(self, pairs: list[tuple[str, str]], batch: int = 16, wait: bool = True) -> list[float]:
+        """P(yes) per pair. Out of GPU memory, a batch job waits for it (wait); a live search raises at once."""
         order = sorted(range(len(pairs)), key=lambda i: len(pairs[i][1]))
         out = [0.0] * len(pairs)
         room = self.max_length - len(self.prefix) - len(self.suffix)
@@ -48,6 +50,8 @@ class Judge:
                     break
                 except torch.OutOfMemoryError:
                     torch.cuda.empty_cache()
+                    if not wait:
+                        raise
                     time.sleep(30)
             else:
                 raise RuntimeError("GPU stayed full for 10 minutes")

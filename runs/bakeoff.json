@@ -3,51 +3,38 @@
   "winner": "ollama-max",
   "reason": "no challenger cleared the bar",
   "engines": {
-    "sglang-mtp": {
-      "engine": "sglang-mtp",
+    "sglang-ngram": {
+      "engine": "sglang-ngram",
       "started": true,
-      "settings": 7,
-      "memory_mib": 23217,
+      "settings": 3,
+      "memory_mib": 23273,
       "fundraising_ok": false,
-      "golden": 89,
+      "golden": 71,
       "golden_of": 108,
-      "median_1": 12.0,
-      "p90_4": 79.8,
-      "unfinished_4": 0,
-      "qpm_4": 4.53,
-      "qpm_16": 5.17,
-      "p90_16": 218.3,
+      "median_1": 8.7,
+      "p90_4": 65.0,
+      "unfinished_4": 3,
+      "qpm_4": 5.77,
+      "qpm_16": 8.38,
+      "p90_16": 145.5,
       "fair": true,
       "problems": [],
       "notes": [],
       "checks": {
         "best_settings_concurrency": 4,
-        "concurrency": 1,
-        "accept_len": 2.95,
-        "tokens_per_conversation": 36710,
-        "prefix_cache_hit": 0.352
+        "concurrency": 3,
+        "accept_len": 2.28,
+        "tokens_per_conversation": 32897,
+        "prefix_cache_hit": 0.508
       }
     },
     "sglang-dflash": {
       "engine": "sglang-dflash",
       "started": false,
-      "why": "le = 1 - available/pre = 0.9552). If using speculative decoding, draft weights are now counted.\\n\\n[2026-10-26 01:18:55] Received sigquit from a child process. It usually means the child failed.\\n[2026-10-26 01:18:55] kill_process_tree called: parent_pid=1606671, include_parent=True, pid=1606671\\n'}",
+      "why": "le = 1 - available/pre = 0.9556). If using speculative decoding, draft weights are now counted.\\n\\n[2026-10-26 21:51:14] Received sigquit from a child process. It usually means the child failed.\\n[2026-10-26 21:51:14] kill_process_tree called: parent_pid=1957216, include_parent=True, pid=1957216\\n'}",
       "fair": false,
       "problems": [
-        "it did not start (Inco AI's bf16 drafter didn't start at 8,192 tokens: ValueError: Loaded weights leave no GPU memory for the KV cache under --mem-fraction-static=0.95. Raise --mem-fraction-static above 0.956 (minimum viable = 1 - available/pre = 0.9552). If using speculative decoding, draft weights are now co)"
-      ],
-      "notes": [],
-      "checks": {
-        "best_settings_concurrency": 4
-      }
-    },
-    "sglang-ngram": {
-      "engine": "sglang-ngram",
-      "started": false,
-      "why": "{'preflight': \"its drafter isn't working: drafts low 1.15 per verify step (1.00 is none accepted)\"}",
-      "fair": false,
-      "problems": [
-        "the bake-off refused to measure it: its drafter isn't working: drafts low 1.15 per verify step (1.00 is none accepted)"
+        "it did not start (Inco AI's bf16 drafter didn't start at 8,192 tokens: ValueError: Loaded weights leave no GPU memory for the KV cache under --mem-fraction-static=0.96. Raise --mem-fraction-static above 0.956 (minimum viable = 1 - available/pre = 0.9556). If using speculative decoding, draft weights are now co)"
       ],
       "notes": [],
       "checks": {
@@ -58,16 +45,16 @@
       "engine": "ollama-max",
       "started": true,
       "settings": 1,
-      "memory_mib": 19973,
+      "memory_mib": 19983,
       "fundraising_ok": true,
-      "golden": 91,
+      "golden": 93,
       "golden_of": 108,
-      "median_1": 6.5,
-      "p90_4": 52.3,
+      "median_1": 8.8,
+      "p90_4": 46.5,
       "unfinished_4": 0,
-      "qpm_4": 6.22,
-      "qpm_16": 7.03,
-      "p90_16": 151.9,
+      "qpm_4": 7.31,
+      "qpm_16": 7.49,
+      "p90_16": 141.0,
       "fair": true,
       "problems": [],
       "notes": [],
@@ -84,8 +71,7 @@
   ],
   "kept": {
     "sglang": [
-      "sglang-dflash",
-      "sglang-ngram"
+      "sglang-dflash"
     ]
   },
   "kept_families": [
@@ -95,15 +81,9 @@
     {
       "engine": "sglang-dflash",
       "problems": [
-        "it did not start (Inco AI's bf16 drafter didn't start at 8,192 tokens: ValueError: Loaded weights leave no GPU memory for the KV cache under --mem-fraction-static=0.95. Raise --mem-fraction-static above 0.956 (minimum viable = 1 - available/pre = 0.9552). If using speculative decoding, draft weights are now co)"
-      ]
-    },
-    {
-      "engine": "sglang-ngram",
-      "problems": [
-        "the bake-off refused to measure it: its drafter isn't working: drafts low 1.15 per verify step (1.00 is none accepted)"
+        "it did not start (Inco AI's bf16 drafter didn't start at 8,192 tokens: ValueError: Loaded weights leave no GPU memory for the KV cache under --mem-fraction-static=0.96. Raise --mem-fraction-static above 0.956 (minimum viable = 1 - available/pre = 0.9556). If using speculative decoding, draft weights are now co)"
       ]
     }
   ],
-  "unresolved_summary": "sglang-dflash (it did not start (Inco AI's bf16 drafter didn't start at 8,192 tokens: ValueError: Loaded weights leave no GPU memory for the KV cache under --mem-fraction-static=0.95. Raise --mem-fraction-static above 0.956 (minimum viable = 1 - available/pre = 0.9552). If using speculative decoding, draft weights are now co)); sglang-ngram (the bake-off refused to measure it: its drafter isn't working: drafts low 1.15 per verify step (1.00 is none accepted))"
+  "unresolved_summary": "sglang-dflash (it did not start (Inco AI's bf16 drafter didn't start at 8,192 tokens: ValueError: Loaded weights leave no GPU memory for the KV cache under --mem-fraction-static=0.96. Raise --mem-fraction-static above 0.956 (minimum viable = 1 - available/pre = 0.9556). If using speculative decoding, draft weights are now co))"
 }

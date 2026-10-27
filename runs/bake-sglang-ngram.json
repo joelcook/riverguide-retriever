@@ -1,0 +1,26 @@
+{
+  "engine": "sglang-ngram",
+  "started": true,
+  "settings": 3,
+  "command": "env PATH=/home/irsc/engines/sglang/.venv/bin:/opt/cuda/bin:/home/irsc/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/opt/cuda/bin:/home/irsc/.local/share/mise/shims:/home/irsc/.local/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl CUDA_HOME=/opt/cuda RIVERGUIDE_MTP_SHARED_EMBED=1 SGLANG_OPT_MAMBA_SKIP_DECODE_LOCK=1 /home/irsc/engines/sglang/.venv/bin/python -m sglang.launch_server --model-path /home/irsc/engines/models/qwen3.8-27b-w4a16 --served-model-name qwen3.8-27b     --host 127.0.0.1 --port 11439 --context-length 32768 --kv-cache-dtype fp8_e5m2 --reasoning-parser qwen3 --tool-call-parser qwen3_coder     --mamba-radix-cache-strategy extra_buffer_lazy --disable-prefill-cuda-graph --mem-fraction-static 0.91 --max-running-requests 3 --max-mamba-cache-size 10 --cuda-graph-max-bs-decode 3 --chunked-prefill-size 2048 --enable-linear-replayssm-spec --speculative-algorithm NGRAM",
+  "memory_mib": 23273,
+  "fundraising_ok": false,
+  "log_bytes": 767193,
+  "attempts": [
+    {
+      "settings": 1,
+      "command": "env PATH=/home/irsc/engines/sglang/.venv/bin:/opt/cuda/bin:/home/irsc/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/opt/cuda/bin:/home/irsc/.local/share/mise/shims:/home/irsc/.local/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl CUDA_HOME=/opt/cuda RIVERGUIDE_MTP_SHARED_EMBED=1 SGLANG_OPT_MAMBA_SKIP_DECODE_LOCK=1 /home/irsc/engines/sglang/.venv/bin/python -m sglang.launch_server --model-path /home/irsc/engines/models/qwen3.8-27b-w4a16 --served-model-name qwen3.8-27b     --host 127.0.0.1 --port 11439 --context-length 32768 --kv-cache-dtype fp8_e5m2 --reasoning-parser qwen3 --tool-call-parser qwen3_coder     --mamba-radix-cache-strategy extra_buffer_lazy --disable-prefill-cuda-graph --mem-fraction-static 0.91 --max-running-requests 4 --max-mamba-cache-size 13 --cuda-graph-max-bs-decode 4 --chunked-prefill-size 2048 --enable-linear-replayssm-spec --speculative-algorithm NGRAM",
+      "outcome": "did not start: bakeoff: a 17739-token pool can't hold a 32,768-token conversation"
+    },
+    {
+      "settings": 2,
+      "command": "env PATH=/home/irsc/engines/sglang/.venv/bin:/opt/cuda/bin:/home/irsc/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/opt/cuda/bin:/home/irsc/.local/share/mise/shims:/home/irsc/.local/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl CUDA_HOME=/opt/cuda RIVERGUIDE_MTP_SHARED_EMBED=1 SGLANG_OPT_MAMBA_SKIP_DECODE_LOCK=1 /home/irsc/engines/sglang/.venv/bin/python -m sglang.launch_server --model-path /home/irsc/engines/models/qwen3.8-27b-w4a16 --served-model-name qwen3.8-27b     --host 127.0.0.1 --port 11439 --context-length 32768 --kv-cache-dtype fp8_e5m2 --reasoning-parser qwen3 --tool-call-parser qwen3_coder     --mamba-radix-cache-strategy extra_buffer_lazy --disable-prefill-cuda-graph --mem-fraction-static 0.91 --max-running-requests 4 --max-mamba-cache-size 13 --cuda-graph-max-bs-decode 4 --chunked-prefill-size 2048 --mamba-ssm-dtype bfloat16 --speculative-algorithm NGRAM",
+      "outcome": "did not start: ValueError: Loaded weights leave no GPU memory for the KV cache under --mem-fraction-static=0.91. Raise --mem-fraction-static above 0.787 (minimum viable = 1 - available/pre = 0.7866). If using speculative decoding, draft weights are now co"
+    },
+    {
+      "settings": 3,
+      "command": "env PATH=/home/irsc/engines/sglang/.venv/bin:/opt/cuda/bin:/home/irsc/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/opt/cuda/bin:/home/irsc/.local/share/mise/shims:/home/irsc/.local/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl CUDA_HOME=/opt/cuda RIVERGUIDE_MTP_SHARED_EMBED=1 SGLANG_OPT_MAMBA_SKIP_DECODE_LOCK=1 /home/irsc/engines/sglang/.venv/bin/python -m sglang.launch_server --model-path /home/irsc/engines/models/qwen3.8-27b-w4a16 --served-model-name qwen3.8-27b     --host 127.0.0.1 --port 11439 --context-length 32768 --kv-cache-dtype fp8_e5m2 --reasoning-parser qwen3 --tool-call-parser qwen3_coder     --mamba-radix-cache-strategy extra_buffer_lazy --disable-prefill-cuda-graph --mem-fraction-static 0.91 --max-running-requests 3 --max-mamba-cache-size 10 --cuda-graph-max-bs-decode 3 --chunked-prefill-size 2048 --enable-linear-replayssm-spec --speculative-algorithm NGRAM",
+      "outcome": "measured"
+    }
+  ]
+}
