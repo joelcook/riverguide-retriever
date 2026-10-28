@@ -29,7 +29,7 @@ pub fn production_engine() -> String {
 }
 
 /// Python's repr() of what bakeoff.sh stored as "why" (the old verdict printed it with str()).
-fn py_repr(v: &Value) -> String {
+pub(crate) fn py_repr(v: &Value) -> String {
     fn s(t: &str) -> String {
         let q = if t.contains('\'') && !t.contains('"') { '"' } else { '\'' };
         let mut out = String::from(q);

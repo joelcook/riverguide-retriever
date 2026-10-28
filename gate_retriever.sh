@@ -8,8 +8,9 @@
 # declares the objective, minimum gain, baseline and balanced rounds before any measurement:
 #   ./gate_retriever.sh --plan plans/EXPERIMENT.json CANDIDATE
 #   ./gate_retriever.sh --switch CANDIDATE
-# retriever_gate.py requires a demonstrated end-to-end benefit while holding quality, semantic
-# checks, completion and latency guardrails. A tolerance-only pass cannot authorize a switch.
+# riverguide-lab gate (rust/src/gate.rs) requires a demonstrated end-to-end benefit while holding
+# quality, semantic checks, completion and latency guardrails. A tolerance-only pass cannot
+# authorize a switch. Production's Qwen judges the semantic checks once each round's answers are in.
 # Results go to runs/retriever-gates/ and runs/gate-retriever-CANDIDATE.json.
 # --switch replays the measured evidence and checks that the setup still matches the model
 # production still serves: models/production points at the candidate, production's index is
@@ -87,7 +88,7 @@ fi
 
 if $SWITCH && [ -n "$RERANKER" ]; then  # the reranker joins production's retriever; its index stays as it is
   result=runs/gate-retriever-$CAND.json
-  "$PY" retriever_gate.py check-switch "$result" || exit 1
+  "$RL" gate check-switch "$result" || exit 1
   [ "$("$RL" json "$result" candidate)" = "$CAND" ] || { say "result is for another candidate"; exit 1; }
   [ "$("$RL" json "$result" production)" = "$(basename "$current")" ] || { say "$CAND was gated over $("$RL" json "$result" production), but production serves $(basename "$current"): gate it again"; exit 1; }
   summary=$("$RL" json "$result" summary)
@@ -119,7 +120,7 @@ switch() {  # switch MODEL_DIR
 }
 if $SWITCH; then
   result=runs/gate-retriever-$CAND.json
-  "$PY" retriever_gate.py check-switch "$result" || exit 1
+  "$RL" gate check-switch "$result" || exit 1
   [ "$("$RL" json "$result" candidate)" = "$CAND" ] || { say "result is for another candidate"; exit 1; }
   [ "$("$RL" json "$result" production)" = "$(basename "$current")" ] || { say "$CAND was gated against $("$RL" json "$result" production), but production serves $(basename "$current"): gate it again"; exit 1; }
   summary=$("$RL" json "$result" summary)
@@ -137,8 +138,10 @@ fi
 # Use the inherited GPU-lane lock when cron launched us; acquire it for a manual run.
 if [ "$(readlink "/proc/$$/fd/9" 2>/dev/null)" != "$ROOT/lab/.lock-gpu" ]; then exec 9> lab/.lock-gpu; fi
 flock -n 9 || { say "another GPU lab job is active"; exit 75; }
-(cd "$RG" && "$PY" -c 'import os; from evals.run import load_api_key; load_api_key(); raise SystemExit(0 if os.environ.get("ANTHROPIC_API_KEY") else "semantic judge credentials are required before measuring")') || exit 1
-manifest=$("$PY" retriever_gate.py prepare "$PLAN" --candidate "$CAND") || exit 1
+# The semantic judge is production's Qwen (evals.run --judge-ollama), so no API key is needed.
+JUDGE_BASE=$(. lab/production.env && echo "$BASE")
+curl -sf -m 10 "$JUDGE_BASE/api/version" > /dev/null || { say "the judge, production's Qwen at $JUDGE_BASE, doesn't answer"; exit 1; }
+manifest=$("$RL" gate prepare "$PLAN" --candidate "$CAND") || exit 1
 rounds=$("$RL" json "$manifest" plan.rounds) || exit 1
 experiment=$(basename "$(dirname "$manifest")")
 trap cleanup EXIT
@@ -196,15 +199,15 @@ for round in $(seq "$rounds"); do
     port=8791; [ $arm = candidate ] && port=8793
     gateway $port || { say "the gate's gateway didn't start"; exit 1; }
     say "round $round: $arm ($( [ $arm = candidate ] && echo "$CAND" || basename "$current"))"
-    # Main is checked clean by prepare. Run its harness here so its private .env
-    # supplies the judge credentials, without copying or printing any secrets.
-    out=$(cd "$RG" && $PY -m evals.run --tier full --system api --endpoint http://127.0.0.1:8787 --judge 2>&1)
+    # Main's harness, checked clean by prepare. It judges after the round's answers are all in,
+    # so judging is never timed and never shares the engine with an answer being timed.
+    out=$(cd "$RG" && $PY -m evals.run --tier full --system api --endpoint http://127.0.0.1:8787 --judge-ollama "$JUDGE_BASE" 2>&1)
     echo "$out" | grep -E "passed|^  [a-z]" | tail -12
     art=$(sed -n 's/^artifact: //p' <<< "$out" | tail -1)
     [ -n "$art" ] && [ -f "$RG/$art" ] || { say "no artifact for $arm round $round"; exit 1; }
     dest=$RG/evals/runs/lab-gate-retriever-$experiment-$arm-r$round.json
     cp "$RG/$art" "$dest"
-    "$PY" retriever_gate.py add "$manifest" --arm "$arm" --round "$round" --artifact "$dest" || exit 1
+    "$RL" gate add "$manifest" --arm "$arm" --round "$round" --artifact "$dest" || exit 1
   done
 done
 kill "$GW_PID" "$DEV_PID" "$CAND_PID" 2>/dev/null; wait "$CAND_PID" 2>/dev/null; GW_PID= DEV_PID= CAND_PID=
@@ -214,7 +217,7 @@ if [ -n "$RESTART_RETRIEVER" ]; then
 fi
 
 result=runs/gate-retriever-$CAND.json
-"$PY" retriever_gate.py evaluate "$manifest" > "$result.new" || { say "experiment invalid; no promotion result written"; exit 1; }
+"$RL" gate evaluate "$manifest" > "$result.new" || { say "experiment invalid; no promotion result written"; exit 1; }
 mv "$result.new" "$result"
 cp "$result" "$(dirname "$manifest")/verdict.json"
 pass=$("$RL" json "$result" passed) summary=$("$RL" json "$result" summary)

@@ -99,10 +99,25 @@ interval. Four rounds provide a stronger consistency check, not proof of statist
 significance. Review fresh representative questions and semantic disagreements before claiming
 general superiority; do not tune the golden set to rescue a candidate.
 
+## The judge
+
+Production's Qwen (qwen3.8:27b at lab/production.env's `BASE`) judges each run's rubric questions
+through RiverGuide's `evals.run --judge-ollama`, thinking first, once all of the round's answers
+are in, so judging is never timed. It gets the same prompt and verdict schema as the Claude judge
+and needs no API key. Every run of an experiment must name the same judge (`meta.judge_model`).
+
+It was checked on 2026-10-27 (RiverGuide's `evals/runs/judge-check-2026-10-27.json`): it failed
+16 of 18 answers given to the wrong question, and agreed with Grok, a judge from another family,
+on 60 of 90 verdicts. It is more lenient than Grok with its own model's answers (45 against 18 of
+72 passed). Both arms are answered by that model, so the leniency falls on both. Its verdicts are
+noisy, though: with and without thinking it split on 16 of 90. Since the guardrails allow no
+decrease, a candidate that is only as good as production will often be blocked by chance. That
+errs toward keeping production.
+
 ## Run, inspect, then switch
 
 ```sh
-# Commit plans/my-experiment.json first. Measurement requires the judge's API credentials.
+# Commit plans/my-experiment.json first. Production's Qwen judges; it must be up.
 ./gate_retriever.sh --plan plans/my-experiment.json --rerank candidate-name
 # For a retriever instead: --plan plans/my-experiment.json retriever-name
 
@@ -135,11 +150,13 @@ model change or public Worker deployment is required.
 ## Validation
 
 ```sh
-python3 -m unittest discover -s tests -v
+cargo test --release --manifest-path rust/Cargo.toml
 bash -n gate_retriever.sh
 ```
 
 The tests cover real promotion failure modes: ties, quality regressions, fallbacks, tail-latency
 regressions, inconsistent rounds, missing or mismatched measurements, post-hoc plan edits,
-changed raw artifacts, missing cost telemetry and legacy tolerance passes. They make no model
-calls and do not change services.
+changed raw artifacts, missing cost telemetry, a judge that changes between runs, and legacy
+tolerance passes. They make no model calls and do not change services. The decisions are
+`riverguide-lab gate` (rust/src/gate.rs), ported from retriever_gate.py on 2026-10-27 and
+checked byte for byte against it on 813 experiments, 432 real answers among them.

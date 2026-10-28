@@ -114,11 +114,12 @@ an ops-alert open), 00:30–04:10 or a window in `lab/offline.conf`. Exit 75 kee
   a conversation could reach 32K tokens, its server logged no errors, and its prefix cache hit.
   An engine whose run fails a check stays installed for a re-run, and an ops-alert says why.
 - `rust/`: `riverguide-lab`, the lab's tools in Rust (`cargo install --locked --path rust --root
-  ~/.local`): the verdict and its fairness gate, bakeoff.sh's records, JSON reads for the scripts,
-  Ollama's loaded models, and the SGLang patch. The repo's Python moves there piece by piece.
+  ~/.local`): the verdict and its fairness gate, the retriever gate's promotion decisions,
+  bakeoff.sh's records, JSON reads for the scripts, Ollama's loaded models, and the SGLang patch. The repo's Python moves there piece by piece.
 - `gate_retriever.sh --plan FILE [--rerank] CANDIDATE` measures a retriever or reranker against
-  production using a committed plan. `retriever_gate.py` freezes that plan before testing and
-  requires a meaningful product benefit with quality and reliability held. `--switch` replays
+  production using a committed plan. `riverguide-lab gate` freezes that plan before testing and
+  requires a meaningful product benefit with quality and reliability held; production's Qwen
+  judges the semantic checks. `--switch` replays
   the evidence and refuses legacy tolerance-only passes or changed setups. No experimental
   weights are deleted. `--disable-rerank` restores retriever-only serving without deleting them.
   Details and plan format: [docs/retriever-promotions.md](docs/retriever-promotions.md).
